@@ -1,6 +1,6 @@
 # O que criar e trazer para configurar a Allgenda
 
-Não é preciso configurar tudo de uma vez. Primeiro faça Supabase + Google de testes; Calendar e Groq vêm depois. Permanecer nos planos gratuitos. O usuário criou o projeto Supabase de testes durante o passo acompanhado; referência `xhzunwrkntmlmrftmffk` identificada no painel. O usuário informou sucesso na aplicação do SQL do banco/convidados; ativação de hook, OAuth e validação real ainda pendentes.
+Não é preciso configurar tudo de uma vez. Primeiro faça Supabase + Google de testes; Calendar e Groq vêm depois. Permanecer nos planos gratuitos. O usuário criou o projeto Supabase de testes durante o passo acompanhado; referência `xhzunwrkntmlmrftmffk` identificada no painel. O usuário informou sucesso na aplicação do SQL do banco/convidados; hook Before User Created confirmado Enabled em captura; OAuth e validação real ainda pendentes.
 
 ## 1. Lista de acesso
 
@@ -8,7 +8,7 @@ Concluído o recebimento inicial: três e-mails Google, incluindo o responsável
 
 ## 2. Supabase de testes
 
-Estado acompanhado: login realizado e projeto criado pelo usuário, ref `xhzunwrkntmlmrftmffk`. URL da API e chave publishable pública recebidas e configuradas localmente; build de testes aprovado. O usuário informou sucesso na execução do SQL administrativo no SQL Editor. Próxima ação: ativar o hook Before User Created com a função `private.before_user_created` e configurar Google. Não reaplicar o script combinado. A verificação da API pelo agente depende de liberar o domínio do projeto na rede do ambiente. Não copiar secret/service_role ou senha. Os passos de criação abaixo são mantidos como referência de configuração.
+Estado acompanhado: login realizado e projeto criado pelo usuário, ref `xhzunwrkntmlmrftmffk`. URL da API e chave publishable pública recebidas e configuradas localmente; build de testes aprovado. O usuário informou sucesso na execução do SQL administrativo no SQL Editor. Hook Before User Created confirmado Enabled, Postgres function `private.before_user_created`. Próxima ação: criar/identificar projeto Google Cloud de testes e configurar OAuth; execução real do hook será validada depois do login. Não reaplicar o script combinado. A verificação da API pelo agente depende de liberar o domínio do projeto na rede do ambiente. Não copiar secret/service_role ou senha. Os passos de criação abaixo são mantidos como referência de configuração.
 
 1. Entre em [Supabase](https://supabase.com/dashboard), crie a organização/projeto de testes no plano gratuito e dê um nome que identifique testes.
 2. Escolha e guarde a senha do banco em um gerenciador seguro; não a envie no chat.

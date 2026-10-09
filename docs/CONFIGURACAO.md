@@ -2,7 +2,7 @@
 
 ## Planejado versus realizado
 
-Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, quatro migrações, documentação e verificações registradas em `STATUS.md`. O usuário confirmou criação do projeto Supabase de testes; ref `xhzunwrkntmlmrftmffk` identificada na URL do painel. URL/chave pública recebidas e configuradas em `.env.test.local`, com build de testes aprovado. O usuário informou sucesso na aplicação do SQL combinado com migrações/convidados. Ainda faltam ativação do hook, OAuth e testes reais. Verificação HTTP está bloqueada pela política de rede do executor, que não permite o domínio do projeto. Nenhum deploy ou acesso administrativo remoto do agente foi configurado.
+Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, quatro migrações, documentação e verificações registradas em `STATUS.md`. O usuário confirmou criação do projeto Supabase de testes; ref `xhzunwrkntmlmrftmffk` identificada na URL do painel. URL/chave pública recebidas e configuradas em `.env.test.local`, com build de testes aprovado. O usuário informou sucesso na aplicação do SQL combinado com migrações/convidados. Hook confirmado Enabled em captura fornecida pelo usuário, tipo Postgres function `private.before_user_created`. Ainda faltam OAuth e execução dos testes reais de login/autorização/hook. Verificação HTTP está bloqueada pela política de rede do executor, que não permite o domínio do projeto. Nenhum deploy ou acesso administrativo remoto do agente foi configurado.
 
 ## Executar a interface
 
@@ -88,7 +88,7 @@ Não fazer upsert silencioso sobre uma posição ocupada. Reutilizar posição s
 
 ## OAuth: login Google
 
-Passo acompanhado atual: Authentication → Hooks, adicionar/ativar **Before User Created**, tipo **Postgres function**, schema `private`, função `before_user_created`, e salvar. Não expor schema private na Data API nem escolher um hook de access token por engano. A documentação oficial lista Before User Created como disponível no plano Free. RLS continua bloqueando acesso aos dados fora da lista mesmo antes da ativação do hook.
+Hook configurado conforme captura do usuário; procedimento de referência para outros ambientes: Authentication → Hooks, adicionar/ativar **Before User Created**, tipo **Postgres function**, schema `private`, função `before_user_created`, e salvar. Não expor schema private na Data API nem escolher um hook de access token por engano. A documentação oficial lista Before User Created como disponível no plano Free. RLS continua bloqueando acesso aos dados fora da lista mesmo antes da ativação do hook.
 
 1. Confirmar projetos e URLs reais de desenvolvimento/testes/produção e obter acesso administrativo.
 2. Em Google Auth Platform configurar audiência e usuários de teste, consentimento e cliente Web separado por ambiente conforme recursos existentes. Usar escopos de identidade `openid`, email e profile; nenhum escopo Calendar neste login.
