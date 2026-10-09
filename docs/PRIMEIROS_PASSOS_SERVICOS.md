@@ -8,7 +8,7 @@ Concluído o recebimento inicial: três e-mails Google, incluindo o responsável
 
 ## 2. Supabase de testes
 
-Estado acompanhado: login realizado e projeto criado pelo usuário, ref `xhzunwrkntmlmrftmffk`. URL da API e chave publishable pública recebidas e configuradas localmente; build de testes aprovado. O usuário informou sucesso na execução do SQL administrativo no SQL Editor. Hook Before User Created confirmado Enabled, Postgres function `private.before_user_created`. Próxima ação: criar/identificar projeto Google Cloud de testes e configurar OAuth; execução real do hook será validada depois do login. Não reaplicar o script combinado. A verificação da API pelo agente depende de liberar o domínio do projeto na rede do ambiente. Não copiar secret/service_role ou senha. Os passos de criação abaixo são mantidos como referência de configuração.
+Estado acompanhado: login realizado e projeto criado pelo usuário, ref `xhzunwrkntmlmrftmffk`. URL da API e chave publishable pública recebidas e configuradas localmente; build de testes aprovado. O usuário informou sucesso na execução do SQL administrativo no SQL Editor. Hook Before User Created confirmado Enabled, Postgres function `private.before_user_created`. Projeto Google Cloud de testes `allgenda-testes` criado e selecionado conforme confirmação do usuário. Próxima ação: configurar consentimento e cliente OAuth; execução real do hook será validada depois do login. Não reaplicar o script combinado. A verificação da API pelo agente depende de liberar o domínio do projeto na rede do ambiente. Não copiar secret/service_role ou senha. Os passos de criação abaixo são mantidos como referência de configuração.
 
 1. Entre em [Supabase](https://supabase.com/dashboard), crie a organização/projeto de testes no plano gratuito e dê um nome que identifique testes.
 2. Escolha e guarde a senha do banco em um gerenciador seguro; não a envie no chat.
@@ -19,6 +19,8 @@ Estado acompanhado: login realizado e projeto criado pelo usuário, ref `xhzunwr
 Começar por testes; produção tem deploy autorizado, mas depende de recursos/configuração separados e verificação. Não reutilizar dados reais nos testes. PostgreSQL local e testes embutidos usam somente fixtures fictícias.
 
 ## 3. Google Cloud e login
+
+Estado acompanhado: projeto de testes criado e selecionado pelo usuário, ID `allgenda-testes`, também presente na URL do painel. Consentimento, cliente Web e integração com Supabase ainda não configurados/verificados. Próxima ação: abrir Google Auth Platform para iniciar o consentimento.
 
 1. Entre em [Google Cloud Console](https://console.cloud.google.com/) e crie um projeto de desenvolvimento/testes.
 2. Abra Google Auth Platform, configure Branding com nome Allgenda e contatos exigidos, e Audience em teste, incluindo os e-mails dos usuários de teste.

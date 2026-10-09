@@ -11,7 +11,7 @@
 - Design P3 e Original/Brasa, claro/escuro, com cores do anexo textual. Imagens/fontes finais continuam ausentes.
 - Calendário inicialmente semanal, acesso ao mês, painéis de Pendências/Compromissos expansíveis abaixo e ambientes na lateral; sem prazo separado e atrasadas por último.
 - Fim ausente de compromisso: duração de 30 minutos. Chat tem histórico, prévia editável e confirmação/rejeição antes de criar item. Briefings, arraste com alternativa por menu e adaptação móvel fazem parte do escopo.
-- Configuração acompanhada: o usuário criou o projeto Supabase de testes (ref `xhzunwrkntmlmrftmffk`). URL/chave pública recebidas e configuração local de testes concluída; aplicação do SQL confirmada pelo relato do usuário; hook confirmado Enabled em captura com `private.before_user_created`; OAuth e testes reais ainda pendentes; guia em `PRIMEIROS_PASSOS_SERVICOS.md`.
+- Configuração acompanhada: o usuário criou o projeto Supabase de testes (ref `xhzunwrkntmlmrftmffk`). URL/chave pública recebidas e configuração local de testes concluída; aplicação do SQL confirmada pelo relato do usuário; hook confirmado Enabled em captura com `private.before_user_created`; projeto Google de testes criado e selecionado conforme confirmação do usuário, ID `allgenda-testes`; OAuth e testes reais ainda pendentes; guia em `PRIMEIROS_PASSOS_SERVICOS.md`.
 
 ## Escolhas técnicas reversíveis
 
