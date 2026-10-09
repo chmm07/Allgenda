@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import type { Environment } from '../lib/database.types'
+import type { Environment, EnvironmentImpact } from '../lib/database.types'
 import { parseEnvironment, type EnvironmentErrors, type EnvironmentRepository } from '../lib/environments'
 
 export function EnvironmentManager({ repository }: { repository: EnvironmentRepository }) {
@@ -15,6 +15,9 @@ export function EnvironmentManager({ repository }: { repository: EnvironmentRepo
   const [operationError, setOperationError] = useState('')
   const [busy, setBusy] = useState(false)
   const [deleting, setDeleting] = useState<Environment | null>(null)
+  const [impact, setImpact] = useState<EnvironmentImpact | null>(null)
+  const [checkingImpact,setCheckingImpact] = useState(false)
+  const impactRequest = useRef(0)
   const dialog = useRef<HTMLDialogElement>(null)
   const nameInput = useRef<HTMLInputElement>(null)
   const mounted = useRef(true)
@@ -61,14 +64,18 @@ export function EnvironmentManager({ repository }: { repository: EnvironmentRepo
       if (mounted.current) setOperationError('Não foi possível salvar. Confira sua conexão e se o acesso continua autorizado.')
     } finally { if (mounted.current) setBusy(false) }
   }
-  function askDelete(item: Environment) {
-    setDeleting(item); setOperationError(''); setMessage(''); dialog.current?.showModal()
+  async function askDelete(item: Environment) {
+    const request=++impactRequest.current
+    setDeleting(item); setImpact(null); setOperationError(''); setMessage(''); setCheckingImpact(true); dialog.current?.showModal()
+    try { const affected = await repository.impact(item.id); if(mounted.current&&request===impactRequest.current) setImpact(affected) }
+    catch { if(mounted.current&&request===impactRequest.current) setOperationError('Não foi possível conferir os itens afetados. Feche e tente novamente.') }
+    finally { if(mounted.current&&request===impactRequest.current) setCheckingImpact(false) }
   }
   async function confirmDelete() {
-    if (!deleting || busy) return
+    if (!deleting || !impact || busy) return
     setBusy(true)
     try {
-      await repository.remove(deleting.id)
+      await repository.remove(deleting.id,impact)
       if (!mounted.current) return
       setItems(previous => previous.filter(item => item.id !== deleting.id))
       if (editing?.id === deleting.id) reset()
@@ -87,7 +94,7 @@ export function EnvironmentManager({ repository }: { repository: EnvironmentRepo
         {loading ? <p role="status">Carregando ambientes…</p> : loadError ? <div><p role="alert">{loadError}</p><button onClick={() => { setLoading(true); setAttempt(value => value + 1) }}>Tentar novamente</button></div> : items.length === 0 ? <p>Nenhum ambiente criado. Comece pelo formulário.</p> : <ul className="environment-list">
           {items.map(item => <li key={item.id} className="environment-item">
             <h3>{item.name}</h3><p className="secondary">{item.anchor_words.join(' · ')}</p>
-            <div className="actions"><button disabled={busy} onClick={() => edit(item)} aria-label={`Editar ${item.name}`}>Editar</button><button className="danger" disabled={busy} onClick={() => askDelete(item)} aria-label={`Excluir ${item.name}`}>Excluir</button></div>
+            <div className="actions"><button disabled={busy} onClick={() => edit(item)} aria-label={`Editar ${item.name}`}>Editar</button><button className="danger" disabled={busy} onClick={() => { void askDelete(item) }} aria-label={`Excluir ${item.name}`}>Excluir</button></div>
           </li>)}
         </ul>}
       </section>
@@ -107,13 +114,16 @@ export function EnvironmentManager({ repository }: { repository: EnvironmentRepo
         <p role="status" className="success">{message}</p>
       </section>
     </div>
-    <dialog ref={dialog} aria-labelledby="delete-heading" aria-describedby="delete-impact" onCancel={event => { if (busy) event.preventDefault() }} onClose={() => { setDeleting(null); setOperationError('') }}>
+    <dialog ref={dialog} aria-labelledby="delete-heading" aria-describedby="delete-impact" onCancel={event => { if (busy) event.preventDefault() }} onClose={() => { impactRequest.current++; setDeleting(null); setCheckingImpact(false); setOperationError('') }}>
       <h2 id="delete-heading">Excluir ambiente?</h2>
       <p><strong>{deleting?.name}</strong></p>
-      <p id="delete-impact">Itens afetados: nenhum. O ambiente será excluído definitivamente.</p>
+      <div id="delete-impact">{!impact ? <p>{checkingImpact?'Conferindo os itens afetados…':'Impacto indisponível.'}</p> : <>
+        <p>{impact.tasks.length+impact.appointments.length+impact.exceptions.length === 0 ? 'Itens afetados: nenhum.' : `Itens afetados: ${impact.tasks.length} tarefas, ${impact.appointments.length} séries/compromissos e ${impact.exceptions.length} exceções.`} O ambiente e os itens serão excluídos definitivamente.</p>
+        <ul>{impact.tasks.map(item=><li key={item.id}>Tarefa: {item.title}</li>)}{impact.appointments.map(item=><li key={item.id}>Compromisso/série: {item.title}</li>)}{impact.exceptions.map(item=><li key={`${item.appointment_id}-${item.original_start}`}>Ocorrência: {item.title}</li>)}</ul>
+      </>}</div>
       <p>Você pode cancelar para manter o ambiente.</p>
       {operationError && <p role="alert" className="error">{operationError}</p>}
-      <div className="actions"><button autoFocus disabled={busy} onClick={() => dialog.current?.close()}>Cancelar</button><button className="danger" disabled={busy} onClick={() => { void confirmDelete() }}>{busy ? 'Excluindo…' : 'Confirmar exclusão'}</button></div>
+      <div className="actions"><button autoFocus disabled={busy} onClick={() => dialog.current?.close()}>Cancelar</button><button className="danger" disabled={busy || !impact} onClick={() => { void confirmDelete() }}>{busy ? 'Aguarde…' : 'Confirmar exclusão'}</button></div>
     </dialog>
   </section>
 }

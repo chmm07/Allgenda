@@ -1,0 +1,7 @@
+function encoded(bytes:Uint8Array){return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+function decoded(text:string){return Uint8Array.from(atob(text.replace(/-/g,'+').replace(/_/g,'/')),char=>char.charCodeAt(0))}
+export function randomSecret(){return encoded(crypto.getRandomValues(new Uint8Array(32)))}
+export async function hashSecret(text:string){return encoded(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text))))}
+async function key(encodedKey:string){const bytes=decoded(encodedKey);if(bytes.length!==32)throw new Error('Chave de criptografia inválida');return crypto.subtle.importKey('raw',bytes,'AES-GCM',false,['encrypt','decrypt'])}
+export async function encryptSecret(value:unknown,encodedKey:string){const iv=crypto.getRandomValues(new Uint8Array(12));const cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv,additionalData:new TextEncoder().encode('allgenda-calendar-v1')},await key(encodedKey),new TextEncoder().encode(JSON.stringify(value)));return `${encoded(iv)}.${encoded(new Uint8Array(cipher))}`}
+export async function decryptSecret(cipher:string,encodedKey:string):Promise<unknown>{const [iv,data]=cipher.split('.');const result=await crypto.subtle.decrypt({name:'AES-GCM',iv:decoded(iv),additionalData:new TextEncoder().encode('allgenda-calendar-v1')},await key(encodedKey),decoded(data));return JSON.parse(new TextDecoder().decode(result))}

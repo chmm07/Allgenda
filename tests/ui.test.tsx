@@ -11,7 +11,7 @@ import type { EnvironmentRepository } from '../src/lib/environments'
 const item: Environment = { id: 'fictitious-id', user_id: 'fictitious-user', name: 'Contexto fictício', anchor_words: ['leitura', 'estudo', 'revisão'], created_at: '2026-01-01T00:00:00Z', updated_at: '2026-01-01T00:00:00Z' }
 let repository: EnvironmentRepository
 beforeEach(() => {
-  repository = { list: vi.fn().mockResolvedValue([]), save: vi.fn().mockResolvedValue(item), remove: vi.fn().mockResolvedValue(undefined) }
+  repository = { list: vi.fn().mockResolvedValue([]), save: vi.fn().mockResolvedValue(item), impact: vi.fn().mockResolvedValue({tasks:[],appointments:[],exceptions:[]}), remove: vi.fn().mockResolvedValue(undefined) }
   // JSDOM não implementa modal nativo; fluxo real será verificado em navegador.
   HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', '') }
   HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); this.dispatchEvent(new Event('close')) }
@@ -70,7 +70,7 @@ describe('interface da primeira entrega', () => {
     expect(repository.remove).not.toHaveBeenCalled()
     await user.click(screen.getByRole('button', { name: 'Excluir Contexto fictício' }))
     await user.click(screen.getByRole('button', { name: 'Confirmar exclusão' }))
-    await waitFor(() => expect(repository.remove).toHaveBeenCalledWith(item.id))
+    await waitFor(() => expect(repository.remove).toHaveBeenCalledWith(item.id,{tasks:[],appointments:[],exceptions:[]}))
     expect(await screen.findByText('Nenhum ambiente criado. Comece pelo formulário.')).toBeInTheDocument()
   })
   it('falha de exclusão mantém registro e não anuncia sucesso', async () => {

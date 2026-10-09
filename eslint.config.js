@@ -5,7 +5,7 @@ import hooks from 'eslint-plugin-react-hooks'
 import refresh from 'eslint-plugin-react-refresh'
 
 export default tseslint.config(
-  { ignores: ['dist/**', 'node_modules/**'] },
+  { ignores: ['dist/**', 'node_modules/**', 'test-results/**', 'playwright-report/**', 'coverage/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -20,4 +20,5 @@ export default tseslint.config(
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
+  { files:['supabase/functions/**/*.ts'],languageOptions:{globals:{Deno:'readonly'}} },
 )

@@ -50,3 +50,22 @@ dialog::backdrop { background: var(--background); opacity: .85; }
   h1 { font-size: var(--text-xl); }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+.agenda-layout { display:grid; grid-template-columns:220px minmax(0,1fr); gap:var(--space-6); align-items:start; }
+.agenda-layout > * { min-width:0; }
+.agenda-layout > div > section, .panels { margin-bottom:var(--space-6); }
+.calendar-grid { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:var(--space-2); }
+.calendar-day { min-width:0; border:var(--border-width) solid var(--border-control); padding:var(--space-2); }
+.calendar-day h3 { font-size:var(--text-sm); }
+.calendar-event { display:block; width:100%; text-align:left; margin-bottom:var(--space-2); padding:var(--space-2); overflow-wrap:anywhere; }
+.calendar-event span { display:block; font-size:var(--text-xs); }
+.agenda-item { border-bottom:var(--border-width) solid var(--border-control); padding-block:var(--space-4); }
+.task-check { display:flex; align-items:center; gap:var(--space-3); }
+input[type="checkbox"],input[type="radio"] { width:var(--space-6); flex-shrink:0; min-height:var(--control-height); }
+fieldset { border:var(--border-width) solid var(--border-control); margin-top:var(--space-4); }
+fieldset label { display:flex; align-items:center; gap:var(--space-2); }
+summary { cursor:pointer; min-height:var(--control-height); font-weight:bold; }
+.panels { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-6); }
+button[aria-pressed="true"] { border-width:3px; }
+@media (max-width:1000px) { .calendar-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .agenda-layout { grid-template-columns:180px minmax(0,1fr); } .panels { grid-template-columns:1fr; } }
+@media (max-width:700px) { .agenda-layout,.calendar-grid { grid-template-columns:1fr; } }
+textarea { width:100%; font:inherit; background:var(--surface); color:var(--text-primary); border:var(--border-width) solid var(--border-control); padding:var(--space-3); border-radius:var(--radius-control); resize:vertical; }

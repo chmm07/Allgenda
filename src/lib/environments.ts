@@ -1,5 +1,5 @@
 import type { AppClient } from './supabase'
-import type { EnvironmentInput } from './database.types'
+import type { EnvironmentInput, EnvironmentImpact } from './database.types'
 
 export type EnvironmentErrors = { name?: string; anchors?: string }
 
@@ -30,8 +30,13 @@ export function environmentRepository(client: AppClient) {
       if (error) throw new Error('Não foi possível salvar. Confira sua conexão e se o acesso continua autorizado.')
       return data
     },
-    async remove(id: string) {
-      const { error } = await client.from('environments').delete().eq('id', id).select('id').single()
+    async impact(id: string) {
+      const { data, error } = await client.rpc('environment_impact', { target_id: id })
+      if (error) throw new Error('Não foi possível conferir os itens afetados.')
+      return data
+    },
+    async remove(id: string, impact: EnvironmentImpact) {
+      const { error } = await client.rpc('delete_environment_confirmed', { target_id: id, expected_impact: impact })
       if (error) throw new Error('Não foi possível excluir. Confira sua conexão e se o acesso continua autorizado.')
     },
   }

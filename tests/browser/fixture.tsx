@@ -15,6 +15,7 @@ const repository: EnvironmentRepository = {
     items = id ? items.map(previous => previous.id === id ? item : previous) : [...items, item]
     return item
   },
+  async impact() { return {tasks:[],appointments:[],exceptions:[]} },
   async remove(id) { items = items.filter(item => item.id !== id) },
 }
 createRoot(document.getElementById('root')!).render(<main><p>Fixture de interface com dados fictícios. Sem Supabase ou OAuth.</p><Appearance /><EnvironmentManager repository={repository} /></main>)
