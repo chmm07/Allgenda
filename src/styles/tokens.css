@@ -1,0 +1,71 @@
+/* Cores: transcrição do handoff 0.1. Métricas: propostas iniciais para revisão. */
+:root {
+  --font-interface: monospace;
+  --text-xs: 12px; --text-sm: 14px; --text-base: 16px; --text-lg: 18px;
+  --text-xl: 24px; --text-2xl: 32px; --text-3xl: 48px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px; --space-16: 64px;
+  --radius-control: 4px; --radius-dialog: 8px; --border-width: 1px;
+  --control-height: 44px; --transition: 160ms;
+  --line-body: 1.6; --line-heading: 1.2;
+}
+[data-palette="petroleo"][data-theme="dark"] {
+  color-scheme: dark;
+  --background: #14251F;
+  --surface: #233B31;
+  --surface-raised: #2E493D;
+  --text-primary: #E7D9BD;
+  --text-secondary: #B5C5B6;
+  --border-control: #718B78;
+  --action-primary: #D2B071;
+  --text-on-primary: #14251F;
+  --action-hover: #E2C38D;
+  --success: #A8C8A6;
+  --warning: #E6C783;
+  --danger: #F0A394;
+}
+:root, [data-palette="petroleo"][data-theme="light"] {
+  color-scheme: light;
+  --background: #EFE6D2;
+  --surface: #F7F0E2;
+  --surface-raised: #E3DFCD;
+  --text-primary: #203F33;
+  --text-secondary: #506154;
+  --border-control: #7F8E7E;
+  --action-primary: #35614D;
+  --text-on-primary: #F7F0E2;
+  --action-hover: #284E3D;
+  --success: #356145;
+  --warning: #74561F;
+  --danger: #963C32;
+}
+[data-palette="brasa"][data-theme="dark"] {
+  color-scheme: dark;
+  --background: #191411;
+  --surface: #2A211B;
+  --surface-raised: #382C23;
+  --text-primary: #EEDFC8;
+  --text-secondary: #BBA991;
+  --border-control: #927C65;
+  --action-primary: #EB603F;
+  --text-on-primary: #191411;
+  --action-hover: #F47B5F;
+  --success: #A8C8A6;
+  --warning: #E6C783;
+  --danger: #F0A394;
+}
+[data-palette="brasa"][data-theme="light"] {
+  color-scheme: light;
+  --background: #F2E7D7;
+  --surface: #FAF2E7;
+  --surface-raised: #E9DCC9;
+  --text-primary: #241A14;
+  --text-secondary: #6B5847;
+  --border-control: #9C826C;
+  --action-primary: #AA3C23;
+  --text-on-primary: #FAF2E7;
+  --action-hover: #8E301B;
+  --success: #356145;
+  --warning: #74561F;
+  --danger: #963C32;
+}

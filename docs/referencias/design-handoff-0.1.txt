@@ -1,0 +1,244 @@
+Preparei a documentação abaixo para você **copiar e enviar à próxima sessão**, junto com as duas imagens escolhidas: a mistura original e a variação P3.
+
+A criação de arquivos continua indisponível nesta sessão, então entrego o documento completo aqui.
+
+---
+
+# Allgenda — Transferência do design system
+
+**Versão:** 0.1
+**Repositório:** https://github.com/chmm07/Allgenda
+**Objetivo:** documentar e implementar a identidade visual aprovada, preparar uma referência navegável dos componentes e publicar os arquivos no repositório.
+
+## 1. Instrução para a sessão executora
+
+O usuário autoriza criar a documentação e os arquivos do design system e enviá-los ao repositório da Allgenda.
+
+Antes de escrever:
+
+1. Inspecione o estado atual do repositório e suas instruções.
+2. Preserve qualquer trabalho existente.
+3. Use este documento como referência das decisões visuais.
+4. Consulte as imagens anexadas para a aparência do símbolo, do nome e da composição.
+5. Não trate fontes sugeridas ou reconstruções do logo como assets finais já aprovados.
+
+Na última consulta, o repositório estava vazio. Isso deve ser verificado novamente. As tentativas anteriores de publicação foram bloqueadas; **nenhum arquivo foi enviado por esta conversa**.
+
+## 2. Identidade aprovada
+
+**Nome:** Allgenda.
+**Representação visual do nome:** `allgenda`, em minúsculas.
+**Slogan:** **Tudo converge aqui.**
+
+A identidade combina:
+
+| Referência | Elemento escolhido |
+|---|---|
+| W1 — Brasa | Símbolo em forma de “a”, construído com faixas curvas convergentes. |
+| D4 — Forma viva | Letras arredondadas e robustas para o nome da marca. |
+| D2 — Pulso brutalista | Composição marcante, blocos retangulares, contraste de escala e numerais decorativos. |
+| D3 — Terminal humano | Direção monoespaçada para a tipografia geral. |
+
+O símbolo W1 possui uma haste direita alta, um topo largo e faixas curvas diagonais na região esquerda. A imagem escolhida é a referência visual; essa descrição não substitui a vetorização.
+
+**Evitar:** branco frio, fundos azulados acinzentados, brilho excessivo e decoração que prejudique a leitura.
+
+Texturas, numerais grandes e grafismos podem aparecer nas peças de marca e na entrada do site. Na agenda, a identidade deve aparecer principalmente nas cores, na tipografia e nos componentes.
+
+## 3. Paletas aprovadas
+
+Manter duas paletas, cada uma com tema claro e escuro:
+
+- **P3 — Petróleo e areia**
+- **Original — Brasa**
+
+Usar P3 como padrão de implementação é uma proposta operacional, não uma preferência adicional expressa pelo usuário. O tema inicial pode acompanhar o dispositivo; escolhas posteriores devem ser persistidas.
+
+### Tokens de cor
+
+| Token | P3 escuro | P3 claro | Brasa escuro | Brasa claro |
+|---|---|---|---|---|
+| `background` | `#14251F` | `#EFE6D2` | `#191411` | `#F2E7D7` |
+| `surface` | `#233B31` | `#F7F0E2` | `#2A211B` | `#FAF2E7` |
+| `surface-raised` | `#2E493D` | `#E3DFCD` | `#382C23` | `#E9DCC9` |
+| `text-primary` | `#E7D9BD` | `#203F33` | `#EEDFC8` | `#241A14` |
+| `text-secondary` | `#B5C5B6` | `#506154` | `#BBA991` | `#6B5847` |
+| `border-control` | `#718B78` | `#7F8E7E` | `#927C65` | `#9C826C` |
+| `action-primary` | `#D2B071` | `#35614D` | `#EB603F` | `#AA3C23` |
+| `text-on-primary` | `#14251F` | `#F7F0E2` | `#191411` | `#FAF2E7` |
+| `action-hover` | `#E2C38D` | `#284E3D` | `#F47B5F` | `#8E301B` |
+
+O terracota do tema Brasa claro foi escurecido para melhorar o contraste. Os valores acima são a referência para implementação, mesmo quando diferirem levemente da imagem.
+
+### Cores de estado
+
+| Token | Temas escuros | Temas claros |
+|---|---|---|
+| `success` | `#A8C8A6` | `#356145` |
+| `warning` | `#E6C783` | `#74561F` |
+| `danger` | `#F0A394` | `#963C32` |
+
+Essas cores foram verificadas como texto sobre a superfície correspondente. Não presumir que funcionam em qualquer combinação de fundo.
+
+Ambientes usam marcadores de contexto acompanhados do nome. Sua cor não representa urgência, conflito ou erro. A paleta completa desses marcadores ainda precisa ser definida.
+
+## 4. Tipografia
+
+As imagens são conceitos gerados; suas letras não comprovam o uso de uma família tipográfica específica.
+
+**Candidatas para uma prova real:**
+
+| Uso | Família | Pesos |
+|---|---|---|
+| Nome da marca | Fredoka | 600 |
+| Slogan e títulos | IBM Plex Mono | 600 |
+| Interface | IBM Plex Mono | 400 e 500 |
+
+Referências:
+
+- https://github.com/google/fonts/tree/main/ofl/fredoka
+- https://github.com/IBM/plex
+
+Validar visualmente antes de considerar a escolha final. Se houver diferença relevante em relação à imagem aprovada, apresentar uma comparação objetiva.
+
+**Escala proposta:** 12, 14, 16, 18, 24, 32 e 48 px.
+
+- Texto principal: 16 px.
+- Metadados: 14 px.
+- 12 px apenas para informação auxiliar.
+- Entrelinha: 1,6 no corpo e aproximadamente 1,2 nos títulos.
+- Nome da marca com fonte arredondada; restante com direção monoespaçada.
+- Testar acentos, datas, horários, títulos longos e leitura no celular.
+- Hospedar as fontes no projeto quando possível, preservando suas licenças.
+
+## 5. Fundamentos dos componentes
+
+| Propriedade | Especificação inicial |
+|---|---|
+| Espaçamento | 4, 8, 12, 16, 24, 32, 48 e 64 px |
+| Cantos de componentes | 4 px |
+| Cantos de diálogos | 8 px |
+| Bordas | 1 px; maior destaque para foco e seleção |
+| Controles | Altura mínima de 44 px |
+| Ícones | Traço consistente; tamanhos usuais de 20 e 24 px |
+| Transições | Aproximadamente 160 ms |
+| Movimento reduzido | Respeitar preferência do dispositivo |
+
+Usar tokens semânticos. Evitar valores de cor espalhados pelos componentes.
+
+Paleta e tema são propriedades independentes, por exemplo:
+
+```html
+<html data-palette="petroleo" data-theme="dark">
+```
+
+## 6. Componentes necessários
+
+| Componente | Requisitos |
+|---|---|
+| Botões | Principal, secundário, ícone e destrutivo; foco, hover, carregamento e desabilitado. |
+| Campos | Label visível, ajuda, obrigatório/opcional e erro próximo ao campo. |
+| Cards | Hierarquia por superfície, borda e espaçamento. |
+| Marcadores de ambiente | Nome e identificação visual consistente. |
+| Linha de tarefa | Checkbox, título, ambiente e prazo ou “Sem prazo”. |
+| Linha de compromisso | Título, ambiente, início/fim e recorrência quando aplicável. |
+| Evento do calendário | Título, horário, ambiente e acesso aos detalhes. |
+| Prévia do chat | Campos interpretados, ausências e ações Confirmar, Editar e Rejeitar. |
+| Conflito | Itens envolvidos e ações disponíveis. |
+| Diálogo/menu | Foco gerenciado, fechamento e navegação por teclado. |
+| Mensagens de retorno | Sucesso, erro e orientação para a próxima ação. |
+| Estados de tela | Vazio, carregamento, falha e conteúdo disponível. |
+
+Campos opcionais ausentes devem ser informados sem receber tratamento de erro obrigatório.
+
+## 7. Aplicação na interface
+
+Respeitar as decisões existentes do produto:
+
+- Visão semanal inicial, navegação entre semanas e acesso ao mês.
+- Pendências e Compromissos abaixo do calendário.
+- Expansão dos painéis.
+- Pendências sem prazo em bloco separado; atrasadas por último.
+- Entrada por linguagem natural e acesso ao histórico.
+- Prévia editável antes da confirmação.
+- Ambientes na lateral.
+- Detalhes por clique; hover como complemento.
+- Arrastar itens para mudar horários, com alternativa pelo menu.
+- Compromissos recorrentes.
+- Duração padrão de **30 minutos** quando o fim não for informado.
+
+No celular, adaptar os painéis e a navegação do calendário. Recursos acionados por hover também precisam funcionar por toque e teclado.
+
+Não incorporar menus ilustrativos dos estudos, como Hábitos, Metas ou Insights, sem confirmação no escopo do produto.
+
+## 8. Acessibilidade e validação
+
+As verificações numéricas anteriores cobriram 28 combinações:
+
+- Texto principal e secundário sobre `surface`.
+- Texto da ação sobre `action-primary`.
+- Bordas funcionais sobre `surface`.
+- Texto de sucesso, atenção e erro sobre `surface`.
+
+Todas atingiram os limites usados: 4,5:1 para texto e 3:1 para bordas funcionais. **A interface ainda não foi renderizada nem validada visualmente.**
+
+Na implementação:
+
+- Recalcular contraste para os estados e fundos efetivamente utilizados.
+- Não comunicar estado apenas por cor.
+- Garantir foco visível.
+- Usar elementos HTML semânticos.
+- Oferecer labels para botões de ícone.
+- Verificar teclado, toque, zoom e movimento reduzido.
+- Testar conteúdos longos e as quatro combinações de tema.
+
+## 9. Arquivos a produzir
+
+```text
+docs/
+  design-system.md
+  design-handoff.md
+
+design-system/
+  tokens.json
+  allgenda.css
+  preview.html
+  README.md
+
+assets/brand/
+  README.md
+```
+
+Responsabilidades:
+
+- `design-system.md`: especificação consolidada.
+- `design-handoff.md`: instruções, decisões e pendências de implementação.
+- `tokens.json`: cores e demais fundamentos.
+- `allgenda.css`: variáveis semânticas, quatro temas e estilos de referência.
+- `preview.html`: galeria de componentes com troca de paleta e tema.
+- `design-system/README.md`: como abrir e usar a referência.
+- `assets/brand/README.md`: referência do símbolo e estado de finalização.
+
+Não criar assets vazios ou apresentar uma reconstrução aproximada como logo final. Caso produza um SVG inicial, identificá-lo como **rascunho para validação**.
+
+A prévia deve usar fontes reais e componentes HTML, permitindo verificar a direção fora das imagens geradas.
+
+## 10. Pendências e critérios de entrega
+
+**Pendências:**
+
+- Vetorização final do símbolo W1.
+- Prova e validação das fontes candidatas.
+- Cores dos ambientes.
+- Revisão visual dos componentes e da responsividade.
+
+**Entrega concluída quando:**
+
+1. Documentação e tokens estiverem coerentes.
+2. A galeria permitir comparar P3 e Brasa em claro e escuro.
+3. Os estados essenciais estiverem representados.
+4. As verificações realizadas e suas limitações estiverem registradas.
+5. Os arquivos forem publicados sem sobrescrever trabalho existente.
+6. A sessão informar branch, commit e links dos arquivos ou PR.
+
+A arquitetura prevista da aplicação é React e TypeScript. Este trabalho entrega a base visual e a documentação; não implica que a aplicação completa já esteja implementada.
