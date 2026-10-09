@@ -1,0 +1,30 @@
+name: Verificações
+on:
+  push:
+    branches: [main, 'dev/**']
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno check --no-lock --node-modules-dir=manual supabase/functions/chat-interpret/index.ts supabase/functions/calendar-connect/index.ts supabase/functions/calendar-callback/index.ts
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:browser
