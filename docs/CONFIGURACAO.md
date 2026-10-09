@@ -2,7 +2,7 @@
 
 ## Planejado versus realizado
 
-Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, quatro migrações, documentação e verificações registradas em `STATUS.md`. Nenhuma conta, URL remota, OAuth ou deploy é presumido configurado.
+Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, quatro migrações, documentação e verificações registradas em `STATUS.md`. O usuário confirmou criação do projeto Supabase de testes; ref `xhzunwrkntmlmrftmffk` identificada na URL do painel. Ainda faltam URL/chave pública confirmadas, migrações, convidados, hook e OAuth. Nenhum deploy ou acesso administrativo remoto do agente foi configurado.
 
 ## Executar a interface
 

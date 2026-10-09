@@ -1,12 +1,14 @@
 # O que criar e trazer para configurar a Allgenda
 
-Não é preciso configurar tudo de uma vez. Primeiro faça Supabase + Google de testes; Calendar e Groq vêm depois. Permanecer nos planos gratuitos. Nenhum recurso remoto foi criado nesta sessão.
+Não é preciso configurar tudo de uma vez. Primeiro faça Supabase + Google de testes; Calendar e Groq vêm depois. Permanecer nos planos gratuitos. O usuário criou o projeto Supabase de testes durante o passo acompanhado; referência `xhzunwrkntmlmrftmffk` identificada no painel. Configuração do banco/integrações ainda não realizada.
 
 ## 1. Lista de acesso
 
 Concluído o recebimento inicial: três e-mails Google, incluindo o responsável, com duas vagas disponíveis. A inclusão está preparada em SQL administrativo local ignorado pelo Git; a lista real não é versionada no repositório público. Ainda falta aplicá-la no Supabase após criar o projeto e executar as migrações. A aplicação nega acesso até essa configuração. O usuário quer acompanhar cada passo junto com o agente.
 
 ## 2. Supabase de testes
+
+Estado acompanhado: login realizado e projeto criado pelo usuário, ref `xhzunwrkntmlmrftmffk`. Próxima ação: copiar URL da API e chave publishable pública; não copiar secret/service_role ou senha. Os passos de criação abaixo são mantidos como referência de configuração.
 
 1. Entre em [Supabase](https://supabase.com/dashboard), crie a organização/projeto de testes no plano gratuito e dê um nome que identifique testes.
 2. Escolha e guarde a senha do banco em um gerenciador seguro; não a envie no chat.
