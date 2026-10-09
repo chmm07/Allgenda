@@ -92,6 +92,6 @@ Avance entre as etapas sem exigir revisão intermediária. Implemente, teste e c
 
 ## CONFIGURAÇÃO ACOMPANHADA
 - O usuário quer configurar os quatro passos junto com o agente, informando o que aparece no painel. Orientar um passo de cada vez.
-- Recebidos três e-mails autorizados, incluindo o responsável; preservar a lista em configuração administrativa local ignorada pelo Git, nunca no repositório público. Ainda não aplicada em nenhum banco remoto.
+- Recebidos três e-mails autorizados, incluindo o responsável; preservar a lista em configuração administrativa local ignorada pelo Git, nunca no repositório público. O usuário informou sucesso ao aplicar o SQL combinado no projeto de testes; falta verificar login/autorização reais.
 - Lista administrativa preparada em `.local/convidados.sql`; diretório ignorado e arquivo com permissão restrita. Não incluir em commits, fixtures, frontend ou logs.
 - Permissão para deploy/repositório não equivale a sessão autenticada nos provedores. Recursos e credenciais ainda precisam ser configurados com segurança.

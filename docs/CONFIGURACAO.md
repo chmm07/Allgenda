@@ -2,7 +2,7 @@
 
 ## Planejado versus realizado
 
-Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, quatro migrações, documentação e verificações registradas em `STATUS.md`. O usuário confirmou criação do projeto Supabase de testes; ref `xhzunwrkntmlmrftmffk` identificada na URL do painel. URL/chave pública recebidas e configuradas em `.env.test.local`, com build de testes aprovado. Ainda faltam migrações/convidados, hook e OAuth. Verificação HTTP está bloqueada pela política de rede do executor, que não permite o domínio do projeto. Nenhum deploy ou acesso administrativo remoto do agente foi configurado.
+Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, quatro migrações, documentação e verificações registradas em `STATUS.md`. O usuário confirmou criação do projeto Supabase de testes; ref `xhzunwrkntmlmrftmffk` identificada na URL do painel. URL/chave pública recebidas e configuradas em `.env.test.local`, com build de testes aprovado. O usuário informou sucesso na aplicação do SQL combinado com migrações/convidados. Ainda faltam ativação do hook, OAuth e testes reais. Verificação HTTP está bloqueada pela política de rede do executor, que não permite o domínio do projeto. Nenhum deploy ou acesso administrativo remoto do agente foi configurado.
 
 ## Executar a interface
 
@@ -57,7 +57,7 @@ Em projeto remoto de TESTES, conferir o project ref e banco alvo; aplicar os qua
 
 ### Configuração acompanhada pelo SQL Editor
 
-Para o projeto novo de testes `xhzunwrkntmlmrftmffk`, o arquivo **privado/local** `.local/configurar-supabase-testes.sql` reúne as quatro migrações originais e a lista aprovada de convidados em uma única transação. Abrir SQL Editor, criar consulta, copiar o conteúdo completo e executar uma vez. Resultado esperado: `Base da Allgenda criada`, `convidados = 3`. Esse resultado é uma condição a verificar pelo usuário, não confirmação de aplicação já realizada. O arquivo é ignorado pelo Git e não deve ser publicado. Não reaplicar se alguma tabela já existir; trazer o erro e confirmar o estado antes de prosseguir, sem apagar tabelas.
+Para o projeto novo de testes `xhzunwrkntmlmrftmffk`, o arquivo **privado/local** `.local/configurar-supabase-testes.sql` reúne as quatro migrações originais e a lista aprovada de convidados em uma única transação. Abrir SQL Editor, criar consulta, copiar o conteúdo completo e executar uma vez. Resultado esperado: `Base da Allgenda criada`, `convidados = 3`. O usuário informou sucesso na execução durante o passo acompanhado; a reprodução independente de autorização/integração segue pendente. Não reaplicar o arquivo. O arquivo é ignorado pelo Git e não deve ser publicado. Não reaplicar se alguma tabela já existir; trazer o erro e confirmar o estado antes de prosseguir, sem apagar tabelas.
 
 A execução no SQL Editor não registra automaticamente o histórico do Supabase CLI. Após confirmar que **todas** as migrações foram aplicadas e antes de qualquer `db push`, vincular o projeto correto de testes com CLI autenticado, conferir `supabase migration list` e conciliar o histórico existente. Para o estado manual confirmado, registrar versões já aplicadas pelo comando oficial:
 
@@ -84,9 +84,11 @@ values (1, lower(trim('<EMAIL_AUTORIZADO>')));
 delete from private.invited_users where slot = 1;
 ```
 
-Não fazer upsert silencioso sobre uma posição ocupada. Reutilizar posição somente após remoção intencional. Inclusão autoriza cadastro/login; remoção bloqueia novas operações RLS imediatamente após commit, inclusive de sessões existentes. Não apaga ambientes nem registros Auth, nem retira informações já vistas pelo usuário. Para encerrar também sessões de Auth, usar procedimento administrativo de revogação do Supabase no servidor/painel; nunca enviar chave administrativa ao navegador. O destino final dos dados continua pendente. A lista real não é versionada; fixtures de testes usam domínios `.test`. Três e-mails foram recebidos e a inclusão está preparada em `.local/convidados.sql`, ignorado pelo Git e ainda não executado. Aplicar somente no projeto identificado, após as migrações; não fazer upload desse arquivo ao repositório.
+Não fazer upsert silencioso sobre uma posição ocupada. Reutilizar posição somente após remoção intencional. Inclusão autoriza cadastro/login; remoção bloqueia novas operações RLS imediatamente após commit, inclusive de sessões existentes. Não apaga ambientes nem registros Auth, nem retira informações já vistas pelo usuário. Para encerrar também sessões de Auth, usar procedimento administrativo de revogação do Supabase no servidor/painel; nunca enviar chave administrativa ao navegador. O destino final dos dados continua pendente. A lista real não é versionada; fixtures de testes usam domínios `.test`. Três e-mails foram recebidos e a inclusão está em `.local/convidados.sql`, ignorado pelo Git; o usuário informou sucesso ao executar o script combinado que contém essa inclusão. Aplicar somente no projeto identificado, após as migrações; não fazer upload desse arquivo ao repositório.
 
 ## OAuth: login Google
+
+Passo acompanhado atual: Authentication → Hooks, adicionar/ativar **Before User Created**, tipo **Postgres function**, schema `private`, função `before_user_created`, e salvar. Não expor schema private na Data API nem escolher um hook de access token por engano. A documentação oficial lista Before User Created como disponível no plano Free. RLS continua bloqueando acesso aos dados fora da lista mesmo antes da ativação do hook.
 
 1. Confirmar projetos e URLs reais de desenvolvimento/testes/produção e obter acesso administrativo.
 2. Em Google Auth Platform configurar audiência e usuários de teste, consentimento e cliente Web separado por ambiente conforme recursos existentes. Usar escopos de identidade `openid`, email e profile; nenhum escopo Calendar neste login.
