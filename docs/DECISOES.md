@@ -11,7 +11,7 @@
 - Design P3 e Original/Brasa, claro/escuro, com cores do anexo textual. Imagens/fontes finais continuam ausentes.
 - Calendário inicialmente semanal, acesso ao mês, painéis de Pendências/Compromissos expansíveis abaixo e ambientes na lateral; sem prazo separado e atrasadas por último.
 - Fim ausente de compromisso: duração de 30 minutos. Chat tem histórico, prévia editável e confirmação/rejeição antes de criar item. Briefings, arraste com alternativa por menu e adaptação móvel fazem parte do escopo.
-- Configuração acompanhada: o usuário criou o projeto Supabase de testes (ref `xhzunwrkntmlmrftmffk`). Banco, chave pública e OAuth ainda pendentes; guia em `PRIMEIROS_PASSOS_SERVICOS.md`.
+- Configuração acompanhada: o usuário criou o projeto Supabase de testes (ref `xhzunwrkntmlmrftmffk`). URL/chave pública recebidas e configuração local de testes concluída; banco e OAuth ainda pendentes; guia em `PRIMEIROS_PASSOS_SERVICOS.md`.
 
 ## Escolhas técnicas reversíveis
 
@@ -30,7 +30,7 @@
 
 | Questão | Dependência e comportamento atual |
 | --- | --- |
-| Recursos/URLs/segredos de testes | Três e-mails e responsável recebidos; SQL local preparado, ainda não aplicado. Projeto Supabase de testes criado; faltam URL/chave pública, aplicação de migrações e configurações de login/integrações. |
+| Recursos/URLs/segredos de testes | Três e-mails e responsável recebidos; SQL local preparado, ainda não aplicado. Projeto Supabase de testes criado; URL/chave pública configuradas; faltam aplicar migrações/convidados, configurar login/integrações e liberar o domínio do projeto na rede do executor para verificação remota pelo agente. |
 | Conflito de mudanças simultâneas Allgenda/Google: escolher versão ou usar a mais recente | Pergunta enviada, sem resposta; sincronização automática não implementada. ETag preparado detecta conflito. |
 | Editar série com exceções: preservar edições individuais ou substituí-las com confirmação | Pergunta enviada, sem resposta; edição de série que possui exceções bloqueada na interface. Ocorrência, série sem exceções e exclusão confirmada de série estão disponíveis. |
 | Calendários elegíveis/mapeamento para ambientes; propagação de exclusões nos dois lados | Antes de sincronização; nenhum evento externo é alterado/excluído nesta sessão. |

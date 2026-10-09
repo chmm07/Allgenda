@@ -8,7 +8,7 @@ Concluído o recebimento inicial: três e-mails Google, incluindo o responsável
 
 ## 2. Supabase de testes
 
-Estado acompanhado: login realizado e projeto criado pelo usuário, ref `xhzunwrkntmlmrftmffk`. Próxima ação: copiar URL da API e chave publishable pública; não copiar secret/service_role ou senha. Os passos de criação abaixo são mantidos como referência de configuração.
+Estado acompanhado: login realizado e projeto criado pelo usuário, ref `xhzunwrkntmlmrftmffk`. URL da API e chave publishable pública recebidas e configuradas localmente; build de testes aprovado. Próxima ação: executar uma vez o SQL administrativo preparado no SQL Editor, confirmar resultado e configurar hook/Google. A verificação da API pelo agente depende de liberar o domínio do projeto na rede do ambiente. Não copiar secret/service_role ou senha. Os passos de criação abaixo são mantidos como referência de configuração.
 
 1. Entre em [Supabase](https://supabase.com/dashboard), crie a organização/projeto de testes no plano gratuito e dê um nome que identifique testes.
 2. Escolha e guarde a senha do banco em um gerenciador seguro; não a envie no chat.

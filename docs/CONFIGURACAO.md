@@ -2,7 +2,7 @@
 
 ## Planejado versus realizado
 
-Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, quatro migrações, documentação e verificações registradas em `STATUS.md`. O usuário confirmou criação do projeto Supabase de testes; ref `xhzunwrkntmlmrftmffk` identificada na URL do painel. Ainda faltam URL/chave pública confirmadas, migrações, convidados, hook e OAuth. Nenhum deploy ou acesso administrativo remoto do agente foi configurado.
+Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, quatro migrações, documentação e verificações registradas em `STATUS.md`. O usuário confirmou criação do projeto Supabase de testes; ref `xhzunwrkntmlmrftmffk` identificada na URL do painel. URL/chave pública recebidas e configuradas em `.env.test.local`, com build de testes aprovado. Ainda faltam migrações/convidados, hook e OAuth. Verificação HTTP está bloqueada pela política de rede do executor, que não permite o domínio do projeto. Nenhum deploy ou acesso administrativo remoto do agente foi configurado.
 
 ## Executar a interface
 
@@ -54,6 +54,20 @@ supabase migration up --local
 URLs locais planejadas: frontend `http://localhost:5173`, API Supabase `http://127.0.0.1:54321`. Confirmar as URLs fornecidas pelo CLI; não declarar operacional sem iniciar. Não executar reset em projeto com dados necessários.
 
 Em projeto remoto de TESTES, conferir o project ref e banco alvo; aplicar os quatro arquivos de `supabase/migrations/` em ordem, do sufixo `001` até `004`, pelo SQL Editor ou CLI após vincular explicitamente o projeto de testes. Nenhuma migração inclui convidados. Não reaplicar um arquivo já executado; registrar versões. Manter limite de retorno da Data API >= 200 para paginação da agenda (configuração local: 1000). Manter `private` fora dos schemas expostos na Data API. Ativar Before User Created selecionando `private.before_user_created` no Auth Hooks (ou configuração equivalente compatível com o projeto); revogações e permissões já estão na migração. Conferir seleção do hook e testar sua execução: criação da função por si só não o ativa.
+
+### Configuração acompanhada pelo SQL Editor
+
+Para o projeto novo de testes `xhzunwrkntmlmrftmffk`, o arquivo **privado/local** `.local/configurar-supabase-testes.sql` reúne as quatro migrações originais e a lista aprovada de convidados em uma única transação. Abrir SQL Editor, criar consulta, copiar o conteúdo completo e executar uma vez. Resultado esperado: `Base da Allgenda criada`, `convidados = 3`. Esse resultado é uma condição a verificar pelo usuário, não confirmação de aplicação já realizada. O arquivo é ignorado pelo Git e não deve ser publicado. Não reaplicar se alguma tabela já existir; trazer o erro e confirmar o estado antes de prosseguir, sem apagar tabelas.
+
+A execução no SQL Editor não registra automaticamente o histórico do Supabase CLI. Após confirmar que **todas** as migrações foram aplicadas e antes de qualquer `db push`, vincular o projeto correto de testes com CLI autenticado, conferir `supabase migration list` e conciliar o histórico existente. Para o estado manual confirmado, registrar versões já aplicadas pelo comando oficial:
+
+```sh
+supabase migration repair --status applied 202610090001 202610090002 202610090003 202610090004
+supabase migration list
+supabase db push --dry-run
+```
+
+Não marcar uma versão aplicada para esconder falha, nem executar repair contra produção ou outro projeto. Até essa conciliação, não reaplicar migrações pelo CLI. Migrações novas futuras continuam versionadas normalmente.
 
 Depois da migração, gerar tipos com `supabase gen types typescript --local` (ou `--project-id` do projeto correto), conferir diferenças e atualizar `src/lib/database.types.ts`. Os tipos versionados cobrem as quatro migrações; conferir os gerados no Supabase real antes de substituir a interface usada pela aplicação.
 

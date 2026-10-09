@@ -42,7 +42,7 @@ Lint concorrente com Playwright encontrou diretório temporário removido durant
 
 ## Não verificado e incompleto
 
-**Projeto Supabase de testes criado pelo usuário, ref `xhzunwrkntmlmrftmffk`; banco/aplicação/OAuth ainda não configurados ou verificados remotamente.** Supabase Auth/PostgREST/JWT/gateway reais, Google login/hook, persistência entre sessões reais, Groq real, consentimento Calendar, troca/guarda de tokens reais e Cloudflare Pages permanecem não verificados. Fixtures/mocks não representam integração funcionando.
+**Projeto Supabase de testes criado pelo usuário, ref `xhzunwrkntmlmrftmffk`; URL/chave pública configuradas em `.env.test.local` e build de testes aprovado; banco/OAuth ainda não configurados ou verificados remotamente. A chamada à API permanece bloqueada pela política de rede do ambiente do agente, que não inclui o domínio do projeto.** Supabase Auth/PostgREST/JWT/gateway reais, Google login/hook, persistência entre sessões reais, Groq real, consentimento Calendar, troca/guarda de tokens reais e Cloudflare Pages permanecem não verificados. Fixtures/mocks não representam integração funcionando.
 
 Sincronização Google Calendar completa ainda falta: seleção/mapeamento de calendários, renovação automática de tokens, processamento bidirecional, estados/retries no produto e aceitação real. Nenhum evento Google foi criado, alterado ou excluído nesta sessão. Conta conectada não significa evento sincronizado.
 
@@ -50,7 +50,7 @@ Edição de série com exceções está bloqueada na interface até decisão sob
 
 ## Intervenções e pendências reais
 
-1. Configurar o Supabase de **testes** já criado; obter URL/chave pública Supabase, depois IDs públicos e callbacks Google e URL Pages. Os três e-mails iniciais já foram recebidos e a inclusão está preparada em SQL administrativo local ignorado pelo Git, ainda não executado. Seguir `PRIMEIROS_PASSOS_SERVICOS.md`; segredos ficam nos painéis/armazenamento seguro, nunca no chat/Git.
+1. Configurar o Supabase de **testes** já criado; URL/chave pública Supabase recebidas e configuradas; aplicar SQL no painel, depois obter IDs públicos e callbacks Google e URL Pages. Os três e-mails iniciais já foram recebidos e a inclusão está preparada em SQL administrativo local ignorado pelo Git, ainda não executado. Seguir `PRIMEIROS_PASSOS_SERVICOS.md`; segredos ficam nos painéis/armazenamento seguro, nunca no chat/Git.
 2. Resolver conflito simultâneo Allgenda/Calendar: escolher versão ou usar mais recente? Pergunta enviada, sem resposta registrada.
 3. Resolver edição de série com exceções: preservar individuais ou substituí-las mediante confirmação? Pergunta enviada, sem resposta registrada.
 4. Definir calendários elegíveis/mapeamento e propagação de exclusões externas antes do comportamento de sincronização dependente.
@@ -63,8 +63,16 @@ Confirmar repositório/main/commits, ler decisões e respostas novas. Aplicar so
 ## Configuração acompanhada — estado atual
 
 1. **Lista recebida:** três usuários, incluindo o responsável; duas posições restantes. SQL privado em `.local/convidados.sql`, sem versionamento e sem aplicação remota.
-2. **Supabase:** usuário fez login, criou organização e confirmou criação do projeto. Ref `xhzunwrkntmlmrftmffk`, proveniente da URL do painel; metadados locais em `.local/projeto-supabase.json`. Próxima ação: obter URL e chave publishable pública para a interface; aplicar migrações e convidados, ativar hook e Google. Não há ferramenta direta Supabase/Cloudflare ou CLI autenticado nesta sessão; login no navegador do usuário não fornece acesso administrativo ao agente.
+2. **Supabase:** usuário fez login, criou organização e confirmou criação do projeto. Ref `xhzunwrkntmlmrftmffk`, proveniente da URL do painel; metadados locais em `.local/projeto-supabase.json`. URL/chave publishable públicas recebidas, salvas em `.env.test.local` ignorado pelo Git, com `VITE_APP_ENV=test`. `npm run build:test` aprovado. Próxima ação: aplicar `.local/configurar-supabase-testes.sql` no SQL Editor deste projeto novo, confirmar resultado e ativar hook/Google. Não há ferramenta direta Supabase/Cloudflare ou CLI autenticado nesta sessão; login no navegador do usuário não fornece acesso administrativo ao agente.
 3. **Google OAuth:** projeto Supabase identificado; ainda falta copiar callback real do painel e criar/configurar cliente Google.
 4. **Cloudflare Pages:** aguardando configuração do projeto de testes.
 
 Autorização mais recente inclui deploy/repositório/PRs. Alteração apenas documental e configuração administrativa local; sem mudança de aplicação. Verificar diff, ignoramento/permissões da lista e ausência dos e-mails nos arquivos versionados antes do commit.
+
+## Verificações da configuração Supabase
+
+- `npm run build:test`: tipos e build aprovados com URL/chave pública reais do projeto de testes; sem deploy. Arquivo local com permissões restritas e fora do Git.
+- Rede do executor: política atual restrita/enforced, conforme ferramenta de status e `/etc/codex/network-policy.json`; `xhzunwrkntmlmrftmffk.supabase.co` não está permitido. Verificação HTTP do projeto não foi executada nem declarada aprovada. Liberação do domínio exige configuração de rede do ambiente pela plataforma; não contornar o proxy.
+- SQL combinado administrativo preparado em `.local/configurar-supabase-testes.sql`: quatro migrações originais em uma transação, seguida da inclusão dos três convidados. Arquivo privado, ignorado pelo Git; nenhuma aplicação remota ainda.
+- SQL combinado executado com e-mails substituídos por fictícios em PGlite: criação/lista de três aprovadas; reaplicação recusada sem alterar lista. Não equivale a Supabase real.
+- Ao aplicar pelo SQL Editor, registrar confirmação e versões; histórico do CLI não é atualizado automaticamente. Antes de futuro `db push`, verificar o estado e conciliar o histórico pelo procedimento de `CONFIGURACAO.md`.
