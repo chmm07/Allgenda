@@ -89,7 +89,7 @@ Solicitação de acesso offline, troca de código, guarda/rotação de refresh t
 
 Configuração preparada, não executada: comando de build `npm run build:test` para testes, diretório `dist`, versão Node compatível, variáveis públicas do Supabase de testes. Separar projeto/branch de produção; desativar publicação automática de produção antes de conectar o repositório. SPA serve entrada na raiz. Nenhuma publicação é realizada por `npm run build`.
 
-Quando houver URLs de testes reais, ajustar OAuth e executar a aceitação do `REQUISITOS.md`. Produção só após revisão, configuração separada e instrução explícita. Confirmar limites gratuitos nos provedores; não contratar serviços pagos.
+Quando houver URLs de testes reais, ajustar OAuth e executar a aceitação do `REQUISITOS.md`. Produção exige configuração separada e instrução explícita de publicação; a revisão entre entregas de código não é condição para continuar. Commits verificados podem ir à main para o piloto, respeitando proteções e sem acionar produção automaticamente. Confirmar limites gratuitos nos provedores; não contratar serviços pagos.
 
 ## Recuperação e verificação externa
 

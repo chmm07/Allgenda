@@ -3,13 +3,13 @@
 ## Aprovadas pelo usuário
 
 - Arquitetura e sequência do `AGENTS.md`; planos gratuitos; produção somente mediante instrução explícita.
-- Primeira entrega agora autorizada, em branch de desenvolvimento, incluindo ambientes pessoais.
+- Implementação de ponta a ponta autorizada, sem revisão intermediária obrigatória. Commits verificados podem ser enviados à main no piloto, respeitando proteções.
 - Até cinco usuários no total, login Google, lista de e-mails e isolamento de dados.
 - Ambientes exigem nome e pelo menos três âncoras na criação e edição; exclusão mostra itens afetados e exige confirmação.
 - P3 e Original/Brasa, claro/escuro, com cores documentadas no anexo; valores documentados prevalecem sobre pequenas diferenças nas imagens.
 - Decisões funcionais citadas no handoff estão consolidadas em `REQUISITOS.md`.
 
-## Escolhas técnicas reversíveis, para revisão
+## Escolhas técnicas reversíveis documentadas
 
 - Branch `dev/primeira-entrega`, npm e lockfile, SPA com SDK Supabase e PKCE; sem roteador ou camada de backend adicional nesta etapa.
 - Cinco posições fixas na lista privada limitam o total sem condição de corrida em contagem.
@@ -38,4 +38,4 @@
 
 ## Conciliação de instruções
 
-A instrução anterior de não implementar foi substituída pela solicitação posterior que autoriza somente a primeira entrega. O handoff descreve publicar uma galeria completa e arquivos de design; o escopo atual limita o trabalho à base da aplicação. Não há autorização para publicar produção nem necessidade de galeria independente nesta entrega. Arquivos históricos de transferência permanecem preservados como registro, mas não devem ser usados para negar a autorização mais recente.
+A atualização mais recente autoriza implementar todas as etapas aprovadas sem revisão entre entregas, fazer commits e enviar progresso ao GitHub, inclusive à main para o piloto quando verificado e permitido pelas proteções. A exigência anterior de revisão e o limite à primeira entrega estão substituídos. Questões de produto relevantes, custos, credenciais/configurações externas, risco para dados/permissões e restrições de acesso continuam exigindo intervenção. Enviar código não autoriza publicação automática de produção. Arquivos históricos ficam preservados como registro, sem negar a autorização atual.

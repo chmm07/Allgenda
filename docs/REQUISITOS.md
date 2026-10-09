@@ -24,7 +24,7 @@ Critérios verificáveis:
 
 Campos: ID e proprietário gerados/derivados no banco; nome obrigatório, não vazio após remover espaços externos; palavras âncora obrigatórias, no mínimo três distintas após normalização de caixa e espaços externos; datas de criação/atualização geradas no banco em UTC.
 
-Interpretação técnica para revisão: cada âncora é uma palavra sem espaços, com letras Unicode e hífen interno opcional; entrada separada por vírgulas; nenhuma associação automática de mensagens nesta entrega. Nome e âncoras aceitam acentos. Não foram aprovados unicidade de nome, cores de ambiente, limite máximo de âncoras, ordenação manual ou compartilhamento.
+Interpretação técnica reversível: cada âncora é uma palavra sem espaços, com letras Unicode e hífen interno opcional; entrada separada por vírgulas; nenhuma associação automática de mensagens nesta entrega. Nome e âncoras aceitam acentos. Não foram aprovados unicidade de nome, cores de ambiente, limite máximo de âncoras, ordenação manual ou compartilhamento.
 
 Ações: listar, criar, editar, cancelar edição, solicitar exclusão, confirmar ou cancelar exclusão, repetir carregamento após falha. Estados: carregando, vazio, conteúdo, formulário inválido, salvando, falha e confirmação de exclusão. Manter valores do formulário em falha; não exibir sucesso sem confirmação do banco. Evitar envio duplicado enquanto operação está em curso.
 
@@ -88,4 +88,4 @@ Aprovado: briefings, arrastar itens para mudar horários, alternativa via menu, 
 
 Critérios após decisões: mesmo resultado por arraste/menu; erro preserva horário anterior; celular, teclado, toque, zoom, movimento reduzido e conteúdos longos verificados; briefings respeitam isolamento e regras aprovadas.
 
-Menus de Hábitos, Metas e Insights são ilustrativos e estão fora do escopo aprovado. Esta entrega não avança para as etapas 2–5.
+Menus de Hábitos, Metas e Insights são ilustrativos e estão fora do escopo aprovado. O modo autônomo autoriza avançar pelas etapas 2–5 sem revisão intermediária, respeitando as decisões de produto e configurações realmente pendentes.

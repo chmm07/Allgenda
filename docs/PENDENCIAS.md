@@ -1,6 +1,6 @@
 # Materiais e decisões pendentes
 
-> Inventário histórico. O documento textual de design foi recebido posteriormente e a primeira implementação foi autorizada. Pendências atuais e etapas afetadas estão em `DECISOES.md` e `STATUS.md`.
+> Inventário histórico. O documento textual de design foi recebido posteriormente e a implementação de ponta a ponta foi autorizada, sem revisão intermediária. Pendências atuais e etapas afetadas estão em `DECISOES.md` e `STATUS.md`.
 
 Registro inicial: 8 de outubro de 2026 (America/Fortaleza).
 

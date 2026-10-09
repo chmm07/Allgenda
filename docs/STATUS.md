@@ -2,9 +2,9 @@
 
 Atualizado em: 8 de outubro de 2026 (data de referência do cliente, America/Fortaleza).
 
-## Entrega preparada para revisão
+## Base verificada e construção autônoma em andamento
 
-Branch de desenvolvimento: `dev/primeira-entrega`. Primeira implementação autorizada pela solicitação posterior; não avançar para etapas 2–5 sem revisão. Nenhuma publicação de produção ou de testes foi realizada.
+Base em `dev/primeira-entrega`, commit `22e3721`. Atualização do modo de trabalho autoriza construção de ponta a ponta sem revisão intermediária e envio de commits verificados à main para o piloto, respeitando proteções. Nenhuma publicação de produção ou de testes foi realizada.
 
 - Instruções permanentes conciliadas em `AGENTS.md`, preservando regras compatíveis. A suspensão anterior de implementação foi substituída pela autorização desta entrega.
 - Pacote de especificação: `ARQUITETURA.md`, `REQUISITOS.md`, `CONFIGURACAO.md`, `DECISOES.md` e `DESIGN.md`. Critérios objetivos por entrega, campos/regras conhecidos e pendências identificados. Referência recebida preservada em `referencias/design-handoff-0.1.txt`.
@@ -39,7 +39,7 @@ Branch de desenvolvimento: `dev/primeira-entrega`. Primeira implementação auto
 
 ## Próxima tarefa
 
-Revisar esta primeira entrega e as decisões propostas. Receber e configurar recursos do ambiente de testes conforme `CONFIGURACAO.md`; validar login Google de convidado, negação de acesso, isolamento via Data API, hook, persistência entre sessões e revogação reais. Registrar resultados aqui antes de tratar a integração como validada. Resolver impacto de exclusão e demais regras necessárias antes da etapa 2. Não publicar produção automaticamente.
+Avançar na agenda e demais partes independentes; enviar commits verificados ao GitHub sem exigir revisão intermediária. Configurar recursos de testes quando disponíveis e validar login Google, Data API, hook, persistência e revogação reais. Resolver decisões significativas de produto antes de implementar o comportamento dependente. Não publicar produção automaticamente.
 
 ## Histórico
 

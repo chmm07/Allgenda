@@ -1,6 +1,6 @@
 # Transferência — Allgenda
 
-> Registro histórico da primeira solicitação. A solicitação posterior autoriza a primeira implementação. Consultar `STATUS.md`, `REQUISITOS.md`, `DECISOES.md` e `CONFIGURACAO.md` para o estado atual; a suspensão de implementação descrita abaixo não se aplica mais.
+> Registro histórico da primeira solicitação. A atualização mais recente autoriza implementação de ponta a ponta, sem revisão intermediária. Consultar `STATUS.md`, `REQUISITOS.md`, `DECISOES.md` e `CONFIGURACAO.md` para o estado atual; a suspensão de implementação descrita abaixo não se aplica mais.
 
 Registro: 8 de outubro de 2026 (America/Fortaleza).
 

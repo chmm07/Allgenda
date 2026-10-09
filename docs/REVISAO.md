@@ -1,6 +1,6 @@
-# Revisar a primeira entrega
+# Revisão do resultado e acompanhamento
 
-Branch: `dev/primeira-entrega`. Código e especificação locais, sem deploy. Resultados e bloqueios: `STATUS.md`.
+Revisão do resultado pelo usuário, sem aprovação obrigatória entre alterações ou entregas. Implementação de ponta a ponta e envio de commits verificados ao GitHub/main estão autorizados, respeitando proteções. Não publicar produção automaticamente. Resultados e bloqueios: `STATUS.md`.
 
 ## Ordem sugerida
 

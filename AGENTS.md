@@ -38,8 +38,7 @@ Use dados fictícios em desenvolvimento e testes.
 Inspecione o repositório antes de modificar arquivos.
 Implemente entregas pequenas, completas e verificáveis.
 Resolva escolhas técnicas reversíveis autonomamente.
-Pergunte quando faltar decisão de produto, houver custo
-ou ação destrutiva.
+Peça intervenção somente quando faltar uma decisão de produto que altere significativamente o resultado, houver custo, faltarem credenciais/configuração que só o usuário possa realizar, houver risco para dados reais/exclusão externa/mudança de permissões, ou uma restrição de acesso/proteção impedir a operação.
 Não introduza dependências ou abstrações desnecessárias.
 Consulte documentação oficial para APIs e configurações.
 
@@ -67,10 +66,21 @@ Mantenha docs/STATUS.md com:
 entregas prontas, verificações realizadas, bloqueios
 e próxima tarefa.
 Ao retomar, consulte esse arquivo e confirme o estado do código.
-Prepare cada entrega para revisão antes de avançar.
+Avance entre as etapas sem exigir revisão intermediária. Implemente, teste e corrija problemas antes de apresentar resultados. A revisão do usuário será sobre o resultado, sem bloquear cada alteração ou entrega.
+
+## MODO DE TRABALHO AUTÔNOMO
+- Autorizado implementar a Allgenda de ponta a ponta dentro do escopo e arquitetura aprovados.
+- Planejar o trabalho e avançar pelas etapas; tomar decisões técnicas reversíveis autonomamente.
+- Fazer commits organizados e enviar progresso ao GitHub. Para o piloto, commits verificados podem ir à main, respeitando proteções e trabalho remoto existente.
+- Não parar para pedir permissão para continuar; atualizações de progresso não são pedidos de aprovação.
+- Se uma integração estiver bloqueada, avançar nas partes independentes. Não inventar credenciais nem apresentar simulações como integrações reais.
+- Não contornar proteções ou aprovações exigidas pela plataforma. Não publicar produção automaticamente: enviar código à main não autoriza deploy de produção.
+- Manter docs/STATUS.md com estado real, verificações, bloqueios e próxima tarefa para continuidade entre sessões.
+- Ao concluir o escopo, informar o que funciona, testes, links dos commits e pendências reais.
+- Esta orientação substitui exigências anteriores de revisão entre entregas e o limite anterior à primeira entrega.
 
 ## ESCOPO ATUAL E ESPECIFICAÇÃO
-- A solicitação posterior autoriza implementar somente a primeira entrega em branch de desenvolvimento, sem publicar produção.
+- Autorizado implementar todas as etapas aprovadas, sem revisão obrigatória entre elas; main é permitida para commits verificados no piloto, respeitando proteções.
 - Consultar docs/ARQUITETURA.md, docs/REQUISITOS.md, docs/CONFIGURACAO.md e docs/DECISOES.md, além de docs/STATUS.md.
 - Limite aprovado: até cinco usuários no total, incluindo o responsável caso use o aplicativo. Login Google e dados separados.
 - Ambientes pessoais exigem nome e pelo menos três palavras âncora na criação e na edição.
