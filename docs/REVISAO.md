@@ -1,20 +1,12 @@
 # Revisão do resultado e acompanhamento
 
-Revisão do resultado pelo usuário, sem aprovação obrigatória entre alterações ou entregas. Implementação de ponta a ponta e envio de commits verificados ao GitHub/main estão autorizados, respeitando proteções. Não publicar produção automaticamente. Resultados e bloqueios: `STATUS.md`.
+A revisão do resultado não é condição para continuar entre entregas. Construção autônoma, commits e envio de progresso verificado à main estão autorizados, respeitando proteções e sem publicação de produção.
 
-## Ordem sugerida
+1. Ler `STATUS.md`: separar código verificado localmente, integrações não verificadas e funcionalidades ainda incompletas.
+2. Conferir `DECISOES.md` e `REQUISITOS.md`, especialmente exclusão com impacto, ocorrência/série e questões ainda pendentes.
+3. Revisar as quatro migrações: lista privada, grants/RLS, referências por proprietário, impacto/exclusão atômica e chat idempotente; tokens privados e RPCs Calendar somente de servidor.
+4. Revisar `src/hooks/useAccess.ts`, `src/lib/` e `supabase/functions/`: identidade verificada, erros seguros e nenhuma ação de modelo executada sem confirmação.
+5. Executar comandos de `README.md`. Browser tests usam fixtures explícitas fora do build; não comprovam persistência remota, OAuth ou Groq.
+6. Seguir `PRIMEIROS_PASSOS_SERVICOS.md` para criar testes e `CONFIGURACAO.md` para executar configuração/migrações/aceitação real. Não criar/publicar produção automaticamente.
 
-1. Conferir `DECISOES.md`: aprovadas versus escolhas técnicas reversíveis e pendências.
-2. Conferir critérios mínimos em `REQUISITOS.md`; integração externa ainda não satisfaz a aceitação real de login/persistência porque falta configuração.
-3. Revisar `supabase/migrations/202610090001_initial.sql`: lista privada, limite, hook, consulta de acesso, grants, RLS e validações. Nenhum convite é cadastrado na migração.
-4. Revisar `src/hooks/useAccess.ts` e `src/lib/`: sessão verificada, autorização do banco, CRUD sem identidade enviada e falhas sem sucesso fictício.
-5. Executar verificações do `README.md`. Sem credenciais, `npm run dev` apresenta conexão indisponível. O teste móvel CRUD usa fixture exclusivamente de testes, indicada na própria página e fora do build.
-6. Usar `CONFIGURACAO.md` para configurar testes reais e preencher os resultados pendentes. Não conectar produção ou publicar automaticamente.
-
-## Decisões necessárias agora
-
-- Fornecer lista de e-mails e identificar os projetos/URLs dos ambientes e seus responsáveis para configuração segura.
-- Revisar a interpretação das âncoras distintas como palavras separadas por vírgulas; aprovar ou ajustar sem presumir classificação automática.
-- Fornecer imagens e validar fontes/logo e métricas propostas quando disponíveis.
-
-Destino dos dados após revogação e impacto nos itens ao excluir ambientes devem ser resolvidos antes das funcionalidades dependentes. A revogação atual preserva dados; a primeira entrega não possui itens associados.
+Intervenções reais: recursos e e-mails ainda inexistentes; política de conflito Calendar, edição de série com exceções e mapeamento/exclusões de sincronização; imagens/fontes finais. Revogação de convidado continua preservando dados até decisão de retenção. Nenhum desses pontos exige aprovação para seguir nas partes independentes.

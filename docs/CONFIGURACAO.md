@@ -2,7 +2,7 @@
 
 ## Planejado versus realizado
 
-Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, migração, documentação e verificações registradas em `STATUS.md`. Nenhuma conta, URL remota, OAuth ou deploy é presumido configurado.
+Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, quatro migrações, documentação e verificações registradas em `STATUS.md`. Nenhuma conta, URL remota, OAuth ou deploy é presumido configurado.
 
 ## Executar a interface
 
@@ -32,7 +32,11 @@ Preencher `.env.local` com URL/chave pública do projeto de desenvolvimento e `V
 | `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` | Supabase local/Auth | ID do cliente Google desse ambiente. |
 | `SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET` | Supabase local/Auth | Segredo Google; nunca prefixar com VITE ou incluir no Git. |
 | Chaves administrativas/secret/service_role e senha do banco | Administração segura | Não necessárias à SPA. Não registrar em arquivos versionados/logs. |
-| Tokens Google Calendar e chave Groq | Futuro servidor | Não necessários nesta entrega. |
+| `APP_URL`, `APP_ORIGINS` | Edge Functions | URL da interface e origens exatas separadas por vírgula; sem wildcard. |
+| `GROQ_API_KEY`, `GROQ_MODEL` | Secrets das funções | Chave secreta e ID de modelo disponível no plano gratuito; nunca VITE. |
+| `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`, `GOOGLE_CALENDAR_REDIRECT_URI` | Secrets das funções | Cliente separado do login e callback real do servidor. |
+| `CALENDAR_TOKEN_ENCRYPTION_KEY` | Secrets das funções | Chave aleatória de 32 bytes em Base64, separada do banco. Não compartilhar em chat/Git/logs. |
+| Tokens Google Calendar | Banco privado cifrado | Nunca retornados à SPA; refresh automático ainda não implementado. |
 
 Usar `.env.test.local` para `npm run build:test` e `.env.production.local` para `npm run build:production`; configurar também o respectivo `VITE_APP_ENV`. Não copiar a URL/chave de produção para testes. Variáveis de produção devem ficar no provedor; compilação não publica o site. Arquivos `.env*` são ignorados, com exceção de `.env.example`.
 
@@ -49,9 +53,9 @@ supabase migration up --local
 
 URLs locais planejadas: frontend `http://localhost:5173`, API Supabase `http://127.0.0.1:54321`. Confirmar as URLs fornecidas pelo CLI; não declarar operacional sem iniciar. Não executar reset em projeto com dados necessários.
 
-Em projeto remoto de TESTES, conferir o project ref e banco alvo; aplicar `supabase/migrations/202610090001_initial.sql` pelo SQL Editor ou CLI após vincular explicitamente o projeto de testes. A migração não inclui convidados. Manter `private` fora dos schemas expostos na Data API. Ativar Before User Created selecionando `private.before_user_created` no Auth Hooks (ou configuração equivalente compatível com o projeto); revogações e permissões já estão na migração. Conferir seleção do hook e testar sua execução: criação da função por si só não o ativa.
+Em projeto remoto de TESTES, conferir o project ref e banco alvo; aplicar os quatro arquivos de `supabase/migrations/` em ordem, do sufixo `001` até `004`, pelo SQL Editor ou CLI após vincular explicitamente o projeto de testes. Nenhuma migração inclui convidados. Não reaplicar um arquivo já executado; registrar versões. Manter limite de retorno da Data API >= 200 para paginação da agenda (configuração local: 1000). Manter `private` fora dos schemas expostos na Data API. Ativar Before User Created selecionando `private.before_user_created` no Auth Hooks (ou configuração equivalente compatível com o projeto); revogações e permissões já estão na migração. Conferir seleção do hook e testar sua execução: criação da função por si só não o ativa.
 
-Depois da migração, gerar tipos com `supabase gen types typescript --local` (ou `--project-id` do projeto correto), conferir diferenças e atualizar `src/lib/database.types.ts`. Os tipos iniciais documentam somente o schema desta entrega.
+Depois da migração, gerar tipos com `supabase gen types typescript --local` (ou `--project-id` do projeto correto), conferir diferenças e atualizar `src/lib/database.types.ts`. Os tipos versionados cobrem as quatro migrações; conferir os gerados no Supabase real antes de substituir a interface usada pela aplicação.
 
 ## Convidados — inclusão, remoção e revogação
 
@@ -71,7 +75,7 @@ Não fazer upsert silencioso sobre uma posição ocupada. Reutilizar posição s
 ## OAuth: login Google
 
 1. Confirmar projetos e URLs reais de desenvolvimento/testes/produção e obter acesso administrativo.
-2. Em Google Auth Platform configurar audiência e usuários de teste, consentimento e cliente Web separado por ambiente conforme recursos existentes. Usar escopos de identidade `openid`, email e profile; nenhum escopo Calendar nesta entrega.
+2. Em Google Auth Platform configurar audiência e usuários de teste, consentimento e cliente Web separado por ambiente conforme recursos existentes. Usar escopos de identidade `openid`, email e profile; nenhum escopo Calendar neste login.
 3. Autorizar origens reais da SPA e o callback do Supabase desse ambiente: copiar o endereço do painel, sem montar uma URL com project ref inventado. Para Supabase local, conferir `http://127.0.0.1:54321/auth/v1/callback`.
 4. No Supabase ativar somente o provedor Google; configurar client ID/secret no Auth. Desativar provedores não utilizados e métodos de senha/OTP conforme a política do projeto.
 5. Configurar Site URL e Redirect URLs exatas no Supabase. A SPA usa `window.location.origin` como `redirectTo`, retornando à raiz. Autorizar somente ambientes conhecidos, sem wildcard de produção.
@@ -79,11 +83,46 @@ Não fazer upsert silencioso sobre uma posição ocupada. Reutilizar posição s
 
 Erro/cancelamento OAuth deve mostrar mensagem genérica e permitir repetir login. Não exibir query/fragmento contendo tokens; não enviar URLs de callback para analytics ou logs.
 
-## OAuth: conexão Google Calendar — planejado para etapa 3
+## Edge Functions de testes
 
-É uma conexão distinta do login, vinculada ao usuário Allgenda já verificado; poderá incluir múltiplas contas Google. Escopos Calendar mínimos dependem das regras de calendários/eventos ainda pendentes. Consentimento sensível, verificação e URLs de callbacks reais precisam ser definidos nessa etapa.
+Instalar Deno para verificar tipos; não é necessário para build da SPA. Os arquivos `.env.example` da raiz e `supabase/functions/` têm somente nomes/valores vazios. Variáveis `SUPABASE_URL`, `SUPABASE_ANON_KEY` e `SUPABASE_SERVICE_ROLE_KEY` são fornecidas pelo runtime remoto; não colocá-las no frontend.
 
-Solicitação de acesso offline, troca de código, guarda/rotação de refresh tokens, renovação e revogação ocorrerão no servidor, com isolamento por usuário e sem expor segredos. Tokens de sessão Supabase não substituem tokens de API Google. Definir comportamento de expiração, revogação, reautorização e desconexão antes da integração. Não afirmar que renovação/sincronização está pronta nesta entrega.
+Com projeto novo de TESTES identificado e login seguro no CLI, executar somente contra esse ref:
+
+```sh
+supabase link --project-ref '<PROJECT_REF_TESTES>'
+supabase db push --dry-run
+supabase db push
+cp supabase/functions/.env.example supabase/functions/.env.local
+# Preencher o arquivo ignorado usando armazenamento seguro, sem imprimir segredos.
+supabase secrets set --env-file supabase/functions/.env.local --project-ref '<PROJECT_REF_TESTES>'
+supabase functions deploy chat-interpret --project-ref '<PROJECT_REF_TESTES>'
+supabase functions deploy calendar-connect --project-ref '<PROJECT_REF_TESTES>'
+supabase functions deploy calendar-callback --project-ref '<PROJECT_REF_TESTES>'
+deno check --no-lock --node-modules-dir=manual supabase/functions/chat-interpret/index.ts supabase/functions/calendar-connect/index.ts supabase/functions/calendar-callback/index.ts
+```
+
+Esses comandos não foram executados contra recursos remotos nesta sessão. `link` grava alvo para comandos seguintes: conferir projeto explicitamente antes de `db push`. Para Supabase local com Docker, usar `supabase functions serve --env-file supabase/functions/.env.local`. Não executar reset remoto, comandos de produção ou migração de dados reais sem salvaguardas apropriadas.
+
+`chat-interpret` e `calendar-connect` mantêm verificação JWT do gateway e verificam usuário/convidado dentro da função. `calendar-callback` não recebe JWT do navegador Google: é configurado como callback público, protegido por estado aleatório descartável com dez minutos de validade, PKCE e vínculo de usuário criado pelo servidor autenticado. Não alterar a configuração de autenticação para contornar erros de configuração do gateway.
+
+## OAuth: conexão Google Calendar — preparado, ainda não sincroniza
+
+Conexão distinta do login, associada ao usuário Allgenda verificado. Habilitar Calendar API no Google Cloud de testes e criar outro cliente Web. Configurar callback **real** da função `calendar-callback`, copiado da URL do projeto implantado; o mesmo valor exato deve estar no cliente Google e em `GOOGLE_CALENDAR_REDIRECT_URI`. Não usar callback do login Supabase para Calendar.
+
+Escopos solicitados no código: `openid`, `email`, `https://www.googleapis.com/auth/calendar.events` e `https://www.googleapis.com/auth/calendar.calendarlist.readonly`. Listagem identifica calendários graváveis e escopo de eventos prepara a sincronização aprovada. Configurar consentimento em teste e contas de teste, incluindo todos os escopos; avaliar requisitos Google antes de sair de testes, sem assumir verificação aprovada.
+
+Definir `APP_URL` como origem real da SPA, `APP_ORIGINS` como origens exatas permitidas (desenvolvimento/testes separados), e client ID/secret só nos secrets. Para cifragem, gerar 32 bytes aleatórios em armazenamento seguro (`openssl rand -base64 32` em terminal privado, jamais anexar resultado a logs/chat). Configurar `CALENDAR_TOKEN_ENCRYPTION_KEY` e guardar cópia segura; trocar/perder a chave torna tokens atuais ilegíveis e exige procedimento de recifragem/reautorização, ainda não implementado.
+
+OAuth pede acesso offline com PKCE e consentimento/seletor de conta. Código troca tokens no servidor, verifica identidade e guarda tokens cifrados. Várias contas podem ser conectadas; callback volta à seção Conexões e lista metadados reais via RLS. Query de retorno não é prova de sucesso. Desconexão local confirmada remove credenciais locais e mantém eventos/autorizações Google; revogar permissões manualmente na segurança da conta Google quando necessário.
+
+**Ainda faltam:** seleção/mapeamento de calendários, renovação automática de access tokens, fila/processamento de sincronização bidirecional, política de conflitos, propagação de exclusões, reautorização e revogação Google integrada. Adaptador HTTP tem testes de paginação, 401/410/412/quotas e ETag, mas não significa sincronização funcionando. Consentimento externo em teste pode expirar refresh tokens em sete dias para estes escopos; verificar condições no Google e testar reautorização. Não testar eventos reais de produção.
+
+## Groq — preparado, não verificado
+
+Criar chave no plano gratuito e configurar `GROQ_API_KEY` somente no servidor. Consultar modelos disponíveis e escolher ID que suporte JSON object para `GROQ_MODEL`; nenhum modelo é presumido disponível. Configurar limites/alertas gratuitos sem contratar cobrança.
+
+Implantar `chat-interpret`, entrar com conta de teste convidada e interpretar mensagem fictícia. Verificar prévia editável, ausência de item antes da confirmação, edição de campos obrigatórios, confirmação idempotente e rejeição. Testar falhas/limites e indisponibilidade. Não enviar mensagens ou dados pessoais de produção na aceitação. Sem chave/modelo, função responde indisponibilidade; não existe fallback de IA simulada.
 
 ## Cloudflare Pages — testes e produção
 
@@ -107,3 +146,8 @@ Testes de navegador verificam entrada sem credenciais, temas, contraste, layout 
 - [Configuração do CLI](https://supabase.com/docs/guides/local-development/cli/config)
 - [Vite: variáveis e modos](https://vite.dev/guide/env-and-mode)
 - [Cloudflare Pages: frameworks](https://developers.cloudflare.com/pages/framework-guides/)
+- [Supabase Functions](https://supabase.com/docs/guides/functions)
+- [Groq JSON mode](https://console.groq.com/docs/structured-outputs)
+- [Google OAuth Web Server](https://developers.google.com/identity/protocols/oauth2/web-server)
+- [Google Calendar sincronização](https://developers.google.com/workspace/calendar/api/guides/sync)
+- [Google Calendar alterações concorrentes](https://developers.google.com/workspace/calendar/api/guides/version-resources)

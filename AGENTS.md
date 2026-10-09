@@ -84,7 +84,8 @@ Avance entre as etapas sem exigir revisão intermediária. Implemente, teste e c
 - Consultar docs/ARQUITETURA.md, docs/REQUISITOS.md, docs/CONFIGURACAO.md e docs/DECISOES.md, além de docs/STATUS.md.
 - Limite aprovado: até cinco usuários no total, incluindo o responsável caso use o aplicativo. Login Google e dados separados.
 - Ambientes pessoais exigem nome e pelo menos três palavras âncora na criação e na edição.
-- Exclusão deve mostrar os itens afetados e exigir confirmação.
+- Exclusão de ambiente mostra impacto real e exige confirmação; aprovado excluir seus itens associados.
+- Compromissos recorrentes permitem escolher ocorrência ou série na edição/exclusão. Política de edição de série com exceções continua pendente em docs/DECISOES.md.
 - Design: usar os códigos documentados em docs/referencias/design-handoff-0.1.txt. Não tratar fontes candidatas, logo ou imagens ausentes como validados.
 - Documentar decisões aprovadas, interpretações técnicas reversíveis e questões pendentes separadamente.
-- O destino dos dados após revogação de acesso é pendente. A primeira entrega bloqueia acesso, preservando dados até decisão explícita.
+- O destino dos dados após revogação de acesso é pendente. A revogação bloqueia acesso, preservando dados até decisão explícita.

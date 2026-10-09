@@ -2,30 +2,50 @@
 
 ## Aprovado
 
-React + TypeScript + Vite para a interface; Cloudflare Pages para hospedagem; Supabase para PostgreSQL, login Google e futuras Edge Functions. Google Calendar API e Groq pertencem a entregas posteriores. Planos gratuitos. Código, migrações e documentação juntos; ambientes de desenvolvimento, testes online e produção separados.
+React + TypeScript + Vite; Cloudflare Pages para a interface; Supabase PostgreSQL, login Google e Edge Functions; Google Calendar API com múltiplas contas e sincronização bidirecional; Groq para interpretar mensagens, sempre com validação da aplicação. Planos gratuitos, código/migrações/documentação juntos e execução separada em desenvolvimento, testes e produção. Integração preparada não significa integração verificada.
 
-## Primeira entrega — escolhas técnicas reversíveis
+## Implementação e isolamento
 
-- SPA sem roteador adicional: entrada, sessão verificada, acesso restrito e CRUD de ambientes pessoais.
-- Supabase JS com OAuth Google em PKCE. O SDK trata o retorno no mesmo navegador. `getUser()` verifica a sessão no Auth; o frontend consulta uma RPC que retorna apenas se o próprio usuário está autorizado.
-- Data API do Supabase verifica o JWT e PostgreSQL aplica RLS em cada operação. Identidade é `auth.uid()`, nunca um ID informado em um formulário.
-- `private.invited_users`: cinco posições possíveis, e-mails únicos normalizados; sem leitura ou escrita por clientes. Administração pelo SQL Editor com acesso administrativo seguro.
-- Função privada consulta a lista atual, `auth.users` com e-mail confirmado e identidade Google em `auth.identities`. Ela não confia em e-mail de metadados editáveis nem numa lista no navegador.
-- Hook Before User Created bloqueia cadastro de e-mails fora da lista; depende de ativação no Auth. RLS bloqueia os dados mesmo se o hook ainda não estiver configurado. Remoção da lista bloqueia a próxima operação mesmo com JWT ainda válido.
-- `public.environments`: UUID, proprietário, nome, âncoras e datas UTC. Proprietário padrão vem de `auth.uid()`. Cliente não recebe permissão para alterar proprietário, ID ou datas. Constraints validam nome e três âncoras distintas; RLS restringe todas as operações ao próprio convidado.
-- Funções com privilégios elevados ficam no schema privado, com `search_path` fixo e permissões restritas. RPC pública de acesso usa os privilégios do chamador e não recebe identidade como argumento.
-- Não é necessária Edge Function nesta etapa: persistência via Data API e RLS. Integrações externas futuras precisarão validar sessão no servidor e manter segredos fora da SPA.
+SPA com seções Agenda, Ambientes, Chat e Conexões, sem roteador adicional. Seções maiores carregam sob demanda. Supabase JS usa PKCE para login; `getUser()` verifica a sessão e `has_app_access()` consulta autorização atual. Data API verifica JWT; PostgreSQL aplica RLS por `auth.uid()` e condição de convidado a cada operação. ID do proprietário nunca vem do formulário.
 
-## Ambientes: dois conceitos
+`private.invited_users` possui cinco posições e e-mails únicos normalizados. A consulta privada exige e-mail confirmado e identidade Google reais de Auth, sem confiar em metadados editáveis. Administração via SQL Editor; clientes não leem nem alteram a lista. Hook Before User Created bloqueia cadastro não convidado quando ativado. RLS continua negando dados sem o hook. Remoção bloqueia próximas operações, inclusive com JWT emitido; não apaga dados nem desfaz informações já vistas.
 
-Ambientes pessoais são contextos organizacionais do usuário com nome e palavras âncora. Ambientes de execução são desenvolvimento, testes e produção; usam projetos, dados, chaves, URLs e OAuth separados. Um campo `VITE_APP_ENV` identifica o build, mas não cria isolamento entre projetos: a separação precisa ser configurada nos provedores.
+As quatro migrações devem ser aplicadas em ordem:
 
-## Design e limites
+| Migração | Entidades e garantias |
+| --- | --- |
+| `202610090001_initial.sql` | Lista privada, hook, consulta de acesso, ambientes pessoais e validações das âncoras. |
+| `202610090002_agenda.sql` | Tarefas, séries de compromissos e exceções; RLS e referências compostas de proprietário; impacto e exclusão confirmada de ambiente. |
+| `202610090003_chat.sql` | Histórico/propostas e confirmação atômica idempotente. |
+| `202610090004_calendar_accounts.sql` | Metadados de contas, credenciais cifradas privadas e estados OAuth descartáveis; RPCs administrativas exclusivas do servidor. |
 
-Tokens semânticos centralizados com as quatro combinações documentadas. Fallback monoespaçado do sistema até prova das fontes; nenhuma reconstrução de logo. P3 como padrão operacional reversível, acompanhando tema do dispositivo e persistindo escolha no dispositivo. Cores de marcadores de ambientes pendentes: usar nomes e bordas existentes.
+Tarefas pertencem a um ambiente e podem ter prazo. Compromissos armazenam instantes UTC, fuso IANA e recorrência diária/semanal/mensal. Exceções usam chave série + início original; herdam ambiente da série. Grants por coluna impedem alteração de proprietário, IDs e auditoria. References compostas impedem vincular registro ao ambiente/série de outra pessoa.
 
-Tarefas, compromissos, recorrência, calendário, chat e briefings não entram na primeira entrega. Não criar dados de demonstração como se viessem dos serviços.
+Exclusão de ambiente usa RPC: verifica proprietário/convidado, bloqueia registros afetados, compara a prévia de impacto com o estado atual e exclui ambiente/itens em uma transação. DELETE direto do ambiente está revogado para clientes. Uma prévia desatualizada exige nova confirmação.
 
-## Verificação
+`resolve_chat` bloqueia a proposta, valida ambiente próprio, cria item e marca confirmação na mesma transação. Repetir confirmação retorna o item criado; rejeição não cria itens. Funções elevadas ficam em `private`, com `search_path` fixo e permissões restritas; wrappers públicos usam privilégios do chamador.
 
-Tipos, lint, build e testes de validação, configuração e interface. Migração executada em PostgreSQL embutido PGlite com schemas/roles mínimos de teste para verificar constraints, grants, RLS e hook com usuários fictícios. Isso não substitui Supabase Auth, PostgREST ou OAuth real; repetir a aceitação no projeto de testes após configuração.
+## Datas e interface
+
+Temporal é usado para converter horário local e expandir recorrência no período visível, preservando horário de parede após mudança de offset. Formulários rejeitam horário local inexistente/ambíguo; expansão pula dias mensais ausentes e ocorrências em horários inválidos. Estas são escolhas técnicas registradas em `DECISOES.md`, não regras finais de Calendar.
+
+Carregamento da agenda é paginado em lotes de 200; a configuração de limite da API deve permitir esses lotes. Dados ficam na memória da seção durante a sessão; não existe persistência fictícia ou modo offline. Falhas de atualização após gravação são informadas separadamente da gravação.
+
+## Edge Functions e serviços externos
+
+- `chat-interpret`: CORS por origem exata, valida sessão/convidado no servidor, lê contextos via RLS e chama Groq com chave de servidor. Valida JSON/ações/ambientes/datas e salva somente proposta. O modelo não executa comandos.
+- `calendar-connect`: valida sessão/convidado, cria estado aleatório com hash e validade de dez minutos, guarda verificador PKCE cifrado e inicia consentimento separado do login.
+- `calendar-callback`: callback público exigido pelo OAuth, protegido por estado descartável + PKCE. Troca código no servidor, verifica identidade Google, cifra access/refresh tokens em AES-GCM e revalida acesso antes de guardar. Não devolve tokens à SPA.
+- `_shared/google-calendar.ts`: adaptador HTTP preparado para paginação, cursor incremental, ETag e erros do Google. Ainda não há seleção de calendário, processamento de sincronização ou renovação automática conectados ao produto.
+
+Chave de cifragem permanece somente nos secrets do servidor, separada do banco. Credenciais e estados privados não são expostos pela Data API. Contas de diferentes usuários têm RLS, mesmo que conectem a mesma identidade Google. Desconectar remove somente metadados/tokens locais após confirmação; não apaga eventos nem revoga permissões no Google.
+
+## Dois conceitos de ambiente
+
+Ambiente pessoal é contexto organizacional com nome e âncoras. Ambiente de execução é desenvolvimento/testes/produção com projetos, dados, chaves, URLs e OAuth distintos. `VITE_APP_ENV` é apenas rótulo de build, não isolamento de recursos.
+
+## Design e verificação
+
+Cores das quatro combinações documentadas centralizadas; fallback monoespaçado até validação das fontes, sem logo inventado. P3 como padrão operacional reversível. Métricas propostas continuam identificadas em `DESIGN.md`.
+
+PGlite verifica SQL, roles, grants, constraints e RLS com Auth mínimo fictício; não substitui Supabase/Auth/PostgREST/JWT reais. Playwright utiliza fixtures explicitamente identificadas e fora do build. Groq, consentimento OAuth, Calendar e persistência remota ainda dependem de recursos externos inexistentes nesta sessão.

@@ -1,91 +1,103 @@
 # Requisitos e critérios de aceite
 
-Fontes: instruções permanentes, solicitação da primeira entrega, esclarecimento de critérios mínimos e `referencias/design-handoff-0.1.txt`. Aprovação funcional não implica integração verificada. Questões pendentes estão em `DECISOES.md`.
+Fontes: instruções permanentes, handoff textual em `referencias/`, atualização de autonomia e respostas sobre exclusão/recorrência. Verificações executadas em `STATUS.md`; as listas abaixo são condições de aceitação, não alegações de integração real.
 
-## 1. Login e acesso — primeira entrega
+## 1. Login e acesso
 
-Campos: nenhum cadastro manual; conta Google com e-mail verificado pelo provedor. Lista administrativa contém e-mail obrigatório, único e normalizado e posição obrigatória entre 1 e 5. Até cinco usuários no total. Lista vazia nega acesso a todos; nenhuma lista ou e-mail real é embutido na aplicação.
+Conta Google com e-mail verificado, lista administrativa privada de e-mails únicos normalizados e posição 1–5. Até cinco usuários no total. Sem cadastro manual ou lista embutida; vazia nega todos. Login, logout e nova tentativa; estados indisponível/verificando/desconectado/negado/autorizado/erro. Google login usa somente identidade, separado de Calendar.
 
-Ações: entrar com Google, sair, tentar novamente após falha. Estados: configuração indisponível, sessão em verificação, desconectado, erro de autenticação, acesso negado, autorizado. Mostrar mensagem útil sem tokens, dados internos ou erro bruto do provedor. Retorno OAuth deve ficar na URL autorizada do ambiente; SDK usa PKCE. Não pedir permissões de Calendar no login.
+Falha de rede/Auth/RPC nunca libera acesso. Autorização deriva da sessão verificada no servidor/banco; RLS consulta convite atual. Logout e mudança de usuário retiram conteúdo, descartando respostas atrasadas. Revogação bloqueia próximas operações e preserva registros até decisão de retenção.
 
-Falhas: erro de rede ou RPC não libera acesso; cancelamento/erro OAuth mantém tela de entrada. A autorização é do banco, independentemente da tela. Revogação bloqueia a próxima operação; dados ficam preservados até decisão sobre descarte. Nenhum usuário pode consultar a lista de convidados pela API.
+Critérios:
+- [ ] Convidado Google entra no projeto de testes; não convidado é barrado pelo hook e não acessa dados mesmo sem hook.
+- [ ] Anônimo não lê/escreve dados nem lista privada; e-mail não confirmado/identidade sem Google não libera acesso.
+- [ ] Sexta posição e e-mail duplicado rejeitados; revogação bloqueia sessão já emitida.
+- [ ] Logout e troca de usuário descartam respostas antigas; erros/cancelamento permitem repetir sem liberar dados.
 
-Critérios verificáveis:
-- [ ] Conta Google convidada entra e obtém acesso no projeto de testes.
-- [ ] Conta não convidada não é cadastrada quando o hook está ativo; não consegue ler/escrever dados mesmo sem o hook.
-- [ ] Anônimo não acessa ambientes nem RPCs privadas; cliente não altera a lista.
-- [ ] A sexta posição e e-mail duplicado são rejeitados no banco.
-- [ ] E-mail não confirmado ou identidade sem Google não libera acesso.
-- [ ] Remover convite bloqueia operações de uma sessão já emitida.
-- [ ] Sair remove conteúdo da sessão da tela; resposta atrasada de outro usuário não repõe conteúdo.
-- [ ] Falhas de rede, migração ausente e OAuth cancelado exibem erro e possibilidade de nova tentativa sem liberar acesso.
+## 2. Ambientes pessoais
 
-## 2. Ambientes pessoais — primeira entrega
+ID/proprietário/auditoria definidos no banco. Nome obrigatório não branco; pelo menos três âncoras distintas normalizadas na criação/edição. Interpretação técnica: palavras Unicode sem espaços, hífen interno opcional, separadas por vírgula. Sem unicidade de nome, cor própria, limite de ambientes ou compartilhamento inventados.
 
-Campos: ID e proprietário gerados/derivados no banco; nome obrigatório, não vazio após remover espaços externos; palavras âncora obrigatórias, no mínimo três distintas após normalização de caixa e espaços externos; datas de criação/atualização geradas no banco em UTC.
+Listar/criar/editar/cancelar/excluir, com carregamento/vazio/formulário/salvando/erro. Falhas preservam entradas; mutações duplicadas são impedidas enquanto ocupadas. Exclusão mostra listas e contagens reais de tarefas, séries e exceções; confirmado, exclui itens junto ao ambiente atomicamente. Mudança no impacto exige nova confirmação.
 
-Interpretação técnica reversível: cada âncora é uma palavra sem espaços, com letras Unicode e hífen interno opcional; entrada separada por vírgulas; nenhuma associação automática de mensagens nesta entrega. Nome e âncoras aceitam acentos. Não foram aprovados unicidade de nome, cores de ambiente, limite máximo de âncoras, ordenação manual ou compartilhamento.
+Critérios:
+- [ ] Nome vazio/âncoras insuficientes, repetidas, nulas ou inválidas rejeitados no cliente e banco.
+- [ ] Usuário não envia/altera proprietário nem lê/edita/exclui UUID de outro usuário.
+- [ ] Ambiente persiste após recarregar e nova sessão real.
+- [ ] Prévia mostra itens afetados; cancelamento preserva tudo, confirmação exclui apenas ambiente próprio e seus itens.
+- [ ] Prévia desatualizada não autoriza exclusão; acesso revogado/falha não produz sucesso fictício.
 
-Ações: listar, criar, editar, cancelar edição, solicitar exclusão, confirmar ou cancelar exclusão, repetir carregamento após falha. Estados: carregando, vazio, conteúdo, formulário inválido, salvando, falha e confirmação de exclusão. Manter valores do formulário em falha; não exibir sucesso sem confirmação do banco. Evitar envio duplicado enquanto operação está em curso.
+## 3. Tarefas
 
-Exclusão: mostrar nome e itens afetados e exigir confirmação explícita. Não há tarefas/compromissos implementados nesta entrega, portanto não há itens associados. Antes da etapa 2, preparar consulta de impacto real e definir tratamento dos itens; não manter contagem fixa quando existirem associações. Exclusão é definitiva após confirmação; cancelar não altera dados.
+Título e ambiente pessoal obrigatórios; prazo opcional (`timestamptz` finito), concluída booleano inicialmente falso; ID/proprietário/auditoria do banco. Criar, editar, concluir/reabrir e excluir após confirmação. Sem prazo fica separado; futuras ordenadas por prazo, atrasadas por último; concluídas em seção expansível. Tarefas com prazo também aparecem no calendário; concluídas saem das pendências.
 
-Critérios verificáveis:
-- [ ] Convidado cria, lista, edita e exclui apenas os próprios ambientes.
-- [ ] Nome em branco e menos de três âncoras são rejeitados na interface e no banco.
-- [ ] Âncoras repetidas por diferença de caixa não contam como três; null, espaços e palavras inválidas são rejeitados no banco.
-- [ ] Criação não aceita proprietário de outro usuário; cliente não pode mudar proprietário na edição.
-- [ ] Consulta, edição ou exclusão por UUID de outro usuário não revela nem altera registros.
-- [ ] Ambiente criado permanece após recarregar e após nova sessão real de login.
-- [ ] Exclusão mostra impacto, cancelar preserva ambiente e confirmar remove apenas o registro escolhido.
-- [ ] Falha ou revogação durante mutação não apresenta sucesso; formulário permanece recuperável.
+Critérios:
+- [ ] Título branco/ambiente ausente ou estrangeiro rejeitados; prazo válido se informado.
+- [ ] Criar/editar/concluir/reabrir/excluir persiste; falha mantém estado anterior e informa erro.
+- [ ] Sem prazo não ganha data inventada; atrasadas são separadas, conclusão não altera outro usuário.
+- [ ] Arraste muda prazo somente após salvar prévia; botão Editar oferece alternativa no teclado/celular.
 
-## 3. Base, design e ambientes de execução — primeira entrega
+## 4. Compromissos e recorrência
 
-Campos de configuração públicos: URL Supabase, chave publishable/anon e identificador de ambiente de execução. Valores desconhecidos ficam vazios em `.env.example`, sem URLs fictícias operacionais. Segredos Google e chaves administrativas não entram em `VITE_*`.
+Título/ambiente/início/fuso obrigatórios, fim opcional na entrada (padrão aprovado 30 minutos) e obrigatório persistido depois do início. Fuso IANA válido; instantes finitos. Frequência nenhuma/diária/semanal/mensal, intervalo inteiro positivo, data final opcional inclusiva >= início local. Estas frequências e validações são escolhas técnicas iniciais, não aprovação de recorrências avançadas.
 
-Critérios verificáveis:
-- [ ] `npm ci`, tipos, lint, testes pertinentes e build passam.
-- [ ] Sem configuração, interface explica indisponibilidade e não simula login/persistência.
-- [ ] Desenvolvimento, testes e produção possuem instruções distintas, sem reuso de dados ou credenciais de produção.
-- [ ] Interface tem labels, foco visível, navegação por teclado, toque e layout sem rolagem horizontal em celular.
-- [ ] Tokens usam o documento de design, quatro temas e nenhum logo/fontes finais inventados.
-- [ ] Publicação de produção não ocorre automaticamente.
+Criar, detalhes/editar e excluir com confirmação. Recorrente permite ocorrência ou série. Ocorrência grava exceção vinculada ao início original; cancelamento suprime só aquela ocorrência, sem apagar série. Ambiente de exceção herda da série. Excluir série mostra escolha explícita e remove suas exceções. Editar série com exceções está bloqueado até decidir preservação/substituição.
 
-## 4. Tarefas, compromissos e recorrência — etapa 2
+Critérios:
+- [ ] Início obrigatório, fim posterior, fuso/intervalo/data final válidos nos dois lados.
+- [ ] Fim omitido produz 30 minutos; horários inválidos/ambíguos no fuso solicitam correção.
+- [ ] Expansão preserva horário local após DST; mês sem dia correspondente não desloca a série; período visível limita expansão.
+- [ ] Editar/cancelar uma ocorrência não altera as demais; escolher série sem exceções modifica série; excluir série remove exceções.
+- [ ] Exceção deslocada para dentro/fora do período não duplica nem mantém original indevidamente.
+- [ ] Proprietário não controlável pelo cliente; nenhuma associação cruzada de ambiente/série.
 
-Aprovado: tarefas/pendências, compromissos recorrentes, duração padrão de 30 minutos quando fim ausente, detalhes por clique, hover complementar. Itens de pendência sem prazo em bloco separado; atrasadas por último. Títulos, ambiente e prazo/início/fim são citados na referência, mas obrigatoriedade, formatos, estados de conclusão e regras de edição/exclusão não foram especificados.
+## 5. Calendário, painéis, conflitos e briefing
 
-Pendentes: campos finais, obrigatoriedade, fusos, dia inteiro, regras de recorrência e edição de série/ocorrência, duração zero/negativa, efeitos da exclusão de ambiente e detecção/resolução de conflitos. Não implementar sem resolver essas decisões. Falhas deverão preservar entrada, informar erro e impedir mutações parciais.
+Semanal inicial (segunda como escolha reversível), navegação anterior/hoje/próximo e mensal, ambientes na lateral, filtro por ambiente e fuso da visualização. Eventos exibem título, horário, ambiente/recorrência; detalhes via clique/toque/teclado. Painéis expansíveis abaixo: Pendências e Compromissos. Sobreposição é aviso, com ajuste manual; horários adjacentes não conflitam. Briefing na tela resume ocorrências do período, pendências e conflitos, sem envio agendado.
 
-Critérios a detalhar após decisões: validações nos dois lados; isolamento; persistência; datas em fusos distintos e horário de verão; ocorrência versus série; conflitos; exclusão com impacto; recuperação de falhas.
+Critérios:
+- [ ] Navegação entre semanas/meses e fusos mantém registros; filtros não alteram dados.
+- [ ] Painéis expandem/recolhem, tarefas sem prazo e atrasadas ficam separadas.
+- [ ] Sobreposição detectada corretamente; nenhuma resolução automática silenciosa.
+- [ ] Arraste abre edição confirmável, cancelamento preserva original; menu/botão permite mesmo ajuste.
+- [ ] Celular 375 px sem rolagem horizontal, controles rotulados, foco, toque, zoom, movimento reduzido e teclado utilizáveis.
+- [ ] Falha de carregar/atualizar é visível; dados antigos não são apresentados como sincronizados.
 
-## 5. Calendário e painéis — etapa 2
+## 6. Google Calendar
 
-Aprovado: visão semanal inicial, navegação entre semanas, acesso ao mês, Pendências e Compromissos abaixo do calendário, painéis expansíveis, ambientes na lateral. Eventos mostram título, horário, ambiente e detalhes. Pendentes: início da semana, intervalo de horários, filtros, ordenação completa, estado vazio e seleção/persistência de visualizações.
+Aprovado: múltiplas contas e sincronização bidirecional, conectadas separadamente do login. Implementado preparatoriamente: OAuth offline/PKCE, metadados isolados, tokens cifrados privados, conta conectável/desconectável após confirmação, adaptador HTTP com paginação/cursor/ETag. **Seleção/mapeamento, renovação de tokens e processamento de sincronização ainda não estão implementados no produto.**
 
-Critérios: navegação correta entre semanas/meses e fusos; painéis preservam dados; detalhes funcionam por clique/toque/teclado; sem prazo separado e atrasadas por último; falhas exibidas sem representar calendário desatualizado como sincronizado.
+Sem callback/segredos, conexão informa indisponibilidade. Desconexão atual remove tokens/metadados locais, preservando eventos e autorização Google; revogação Google é manual. Política de conflito, calendários elegíveis e propagação de exclusões pendentes antes do comportamento dependente.
 
-## 6. Google Calendar — etapa 3
+Critérios da integração completa:
+- [ ] Duas contas de teste conectam por consentimento distinto, com estado descartável/PKCE, isoladas por proprietário.
+- [ ] Tokens não aparecem no navegador/Git/logs nem em tabelas acessíveis aos clientes; estado expirado/reutilizado e revogação de convite barrados.
+- [ ] Calendário selecionado e mapeado; criar/editar nos dois lados sincroniza eventos reais fictícios sem duplicatas.
+- [ ] Cursor expirado, 401/revogação, 412/conflito, quotas e rede têm recuperação correta e estado visível.
+- [ ] Renovação/reautorização verificadas; exclusão externa exige política aprovada e confirmação aplicável.
 
-Aprovado: múltiplas contas e sincronização bidirecional; login da Allgenda distinto da conexão das contas Calendar. Campos/estados previstos para especificação: conta conectada, calendário selecionado, vínculo do evento e status de sincronização, sem afirmar esquema final aprovado.
+## 7. Chat inteligente
 
-Pendentes: calendário(s) elegíveis, escopos mínimos, criação/exclusão, campos sincronizados, frequência, duplicatas, conflitos, recorrência, renovação/revogação e destino dos eventos ao desconectar. Falhas deverão indicar sincronização pendente e permitir recuperação sem duplicação. Tokens Google permanecem no servidor; nenhuma credencial em navegador/logs.
+Mensagem obrigatória (até 4.000 caracteres como limite técnico), fuso e contextos próprios. Groq interpreta uma criação de tarefa ou compromisso; histórico mantém proposta/estado. Preview editável com tipo/título/ambiente/datas/recorrência; ausência opcional não impede criar, ausência obrigatória exige preencher antes de confirmar. Não inventar data ausente, associação obrigatória ou ação fora da lista permitida.
 
-Critérios após decisões: duas contas conectadas e isoladas por usuário; ida e volta verificadas com eventos reais de teste; retries sem duplicatas; expiração/revogação e conflito tratados; nenhum dado de produção em teste.
+Interpretar nunca cria item de agenda. Confirmar valida e cria atomicamente com status confirmado; repetir não duplica. Rejeitar marca histórico sem item; rejeitada não pode confirmar, confirmada não pode fingir rejeição. Falhas de Groq mantêm mensagem, sem simulação; falha na atualização do histórico distingue gravação concluída de carregamento falho. Últimas 100 mensagens exibidas; retenção/descarte final pendente.
 
-## 7. Chat inteligente — etapa 4
+Critérios:
+- [ ] Interpretação real de mensagem fictícia gera proposta válida sem executar ação.
+- [ ] Proposta incompleta pode editar campos/rejeitar; inválida/ambiente alheio/data impossível não confirma.
+- [ ] Confirmação/repetição produz um só item próprio; rejeição nenhum.
+- [ ] Sessão/convidado verificados na função e no banco; resposta do modelo validada antes de persistir proposta.
+- [ ] Serviço ausente/erro/limite/rede preserva mensagem e informa indisponibilidade; mocks são identificados como testes.
 
-Aprovado: linguagem natural, histórico, Groq para interpretação, validação pela aplicação, prévia editável e Confirmar/Editar/Rejeitar. Campos opcionais ausentes não são erros obrigatórios. Nenhuma gravação antes da confirmação.
+## 8. Base, design e ambientes de execução
 
-Pendentes: ações permitidas, campos finais, regras para ambiguidade, uso das âncoras, histórico/retenção, modelo, quotas gratuitas e exemplos de aceite. Falhas deverão preservar mensagem, informar ausência/ambiguidade e impedir execução não confirmada.
+URL/chave pública Supabase e rótulo de ambiente são `VITE_*`; segredos somente no servidor/provedor. Desenvolvimento/testes/produção têm recursos e dados próprios, sem deploy de produção automático. Cores do material textual centralizadas; imagens/fontes/logo finais ausentes, métricas propostas identificadas.
 
-Critérios após decisões: mensagem fictícia gera prévia correta; campos ausentes/ambíguos sinalizados; confirmação valida e persiste apenas no usuário atual; rejeição não grava; falhas/limites do serviço não produzem ação silenciosa.
+Critérios:
+- [ ] Instalação por lockfile, tipos, lint, testes pertinentes, build e tipos de Edge Functions aprovados.
+- [ ] Sem configuração não há login/banco/modelo fictício na aplicação; fixtures ficam fora do build.
+- [ ] Chave administrativa rejeitada no build; nenhum segredo em variável pública ou arquivo versionado.
+- [ ] Quatro temas, labels/foco/teclado/toque/zoom/movimento reduzido; fidelidade final depende das imagens/fontes.
+- [ ] `STATUS.md` registra verificações locais e externas separadamente, bloqueios e próxima tarefa.
 
-## 8. Briefings, arrastar, celular e revisão — etapa 5
-
-Aprovado: briefings, arrastar itens para mudar horários, alternativa via menu, adaptação móvel de calendário e painéis. Pendentes: conteúdo/frequência de briefings, interação de arraste, confirmação/undo, regras de conflito e revisão final.
-
-Critérios após decisões: mesmo resultado por arraste/menu; erro preserva horário anterior; celular, teclado, toque, zoom, movimento reduzido e conteúdos longos verificados; briefings respeitam isolamento e regras aprovadas.
-
-Menus de Hábitos, Metas e Insights são ilustrativos e estão fora do escopo aprovado. O modo autônomo autoriza avançar pelas etapas 2–5 sem revisão intermediária, respeitando as decisões de produto e configurações realmente pendentes.
+Menus ilustrativos Hábitos, Metas e Insights ficam fora do escopo. Continuidade não exige aprovação entre entregas; pendências significativas não são convertidas em decisões.
