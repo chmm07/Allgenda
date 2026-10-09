@@ -91,7 +91,7 @@ Critérios:
 
 ## 8. Base, design e ambientes de execução
 
-URL/chave pública Supabase e rótulo de ambiente são `VITE_*`; segredos somente no servidor/provedor. Desenvolvimento/testes/produção têm recursos e dados próprios, sem deploy de produção automático. Cores do material textual centralizadas; imagens/fontes/logo finais ausentes, métricas propostas identificadas.
+URL/chave pública Supabase e rótulo de ambiente são `VITE_*`; segredos somente no servidor/provedor. Desenvolvimento/testes/produção têm recursos e dados próprios, deploys autorizados após configuração e verificações do destino correto, respeitando proteções. Cores do material textual centralizadas; imagens/fontes/logo finais ausentes, métricas propostas identificadas.
 
 Critérios:
 - [ ] Instalação por lockfile, tipos, lint, testes pertinentes, build e tipos de Edge Functions aprovados.

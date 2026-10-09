@@ -4,7 +4,7 @@ Não é preciso configurar tudo de uma vez. Primeiro faça Supabase + Google de 
 
 ## 1. Lista de acesso
 
-Escolha os e-mails Google de até cinco usuários no total, incluindo você. Pode informar os e-mails no chat para preparar a configuração administrativa, mas a lista real não será versionada no repositório público. A aplicação inicia sem convidados e nega acesso até a lista ser configurada.
+Concluído o recebimento inicial: três e-mails Google, incluindo o responsável, com duas vagas disponíveis. A inclusão está preparada em SQL administrativo local ignorado pelo Git; a lista real não é versionada no repositório público. Ainda falta aplicá-la no Supabase após criar o projeto e executar as migrações. A aplicação nega acesso até essa configuração. O usuário quer acompanhar cada passo junto com o agente.
 
 ## 2. Supabase de testes
 
@@ -14,7 +14,7 @@ Escolha os e-mails Google de até cinco usuários no total, incluindo você. Pod
 4. Traga o nome do projeto, project ref, URL e chave publishable (pública). Confirme explicitamente que é o projeto de testes. Se preferir, coloque esses valores diretamente no ambiente seguro e informe apenas os nomes das variáveis.
 5. As quatro migrações devem ser aplicadas em ordem nesse projeto; depois configure os e-mails na lista privada e o hook de convidados seguindo `CONFIGURACAO.md`. Posso orientar essas etapas depois de identificar o projeto.
 
-Não crie produção agora nem reutilize dados reais. PostgreSQL local e testes embutidos usam somente fixtures fictícias.
+Começar por testes; produção tem deploy autorizado, mas depende de recursos/configuração separados e verificação. Não reutilizar dados reais nos testes. PostgreSQL local e testes embutidos usam somente fixtures fictícias.
 
 ## 3. Google Cloud e login
 
@@ -32,12 +32,12 @@ Traga: project ID do Google Cloud, client ID (público), callback copiado do Sup
 ## 4. Cloudflare Pages de testes
 
 1. Entre em [Cloudflare](https://dash.cloudflare.com/), abra Workers & Pages e crie um projeto **Pages de testes**.
-2. Conecte o repositório `chmm07/Allgenda`; use `main` apenas se o destino for esse projeto de testes. Código em main não autoriza produção.
+2. Conecte o repositório `chmm07/Allgenda`; use `main` apenas se o destino for esse projeto de testes. Deploy de produção já está autorizado, mas usa projeto/configuração próprios após verificações.
 3. Configure Node 24, build `npm run build:test`, diretório `dist` e as três variáveis públicas do projeto Supabase de testes: `VITE_APP_ENV=test`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`.
 4. Não adicionar segredos Google, senha do banco ou chaves secret/service_role ao build.
 5. Obtenha a URL Pages real. Adicione essa origem no cliente Google e nas URLs permitidas do Supabase.
 
-Traga: nome do projeto Pages, URL real, branch vinculada, resultado/log sanitizado do build. Não configure deploy automático para uma instalação de produção. Produção terá projetos/dados/OAuth separados e só será publicada com instrução explícita.
+Traga: nome do projeto Pages, URL real, branch vinculada, resultado/log sanitizado do build. Produção terá projetos/dados/OAuth separados e publicação já autorizada após configuração/verificações. Configurar automação apenas para o destino correto, respeitando as proteções do repositório.
 
 ## 5. Google Calendar — depois do login
 
@@ -53,7 +53,7 @@ Entre em [Groq Console](https://console.groq.com/), mantenha o plano gratuito e 
 
 ## Lista do que trazer na próxima configuração
 
-- E-mails de até cinco usuários; identificar quem administra acesso.
+- Lista inicial recebida; só trazer novos e-mails se quiser ocupar as duas vagas restantes.
 - Nome/ref/URL do Supabase de testes e chave publishable pública, ou confirmação de variáveis configuradas com segurança.
 - Project ID Google, client ID e callback real; confirmação de consentimento, usuários de teste e client secret configurado no Supabase.
 - Nome/URL/branch do Cloudflare Pages de testes, se já criado.

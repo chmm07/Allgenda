@@ -8,3 +8,6 @@ supabase/.branches/
 *.log
 test-results/
 playwright-report/
+
+# Configuração administrativa pessoal, sem versionamento.
+.local/

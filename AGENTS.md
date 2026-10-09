@@ -52,7 +52,7 @@ Informe verificações bloqueadas e configurações externas ausentes.
 ## AMBIENTES
 Separe desenvolvimento local, testes online e produção.
 Não reutilize dados ou credenciais de produção nos testes.
-Não publique produção automaticamente.
+Deploys de testes e produção autorizados pelo usuário após configuração e verificações do ambiente correto. Não é necessário pedir nova aprovação para publicação dentro do escopo aprovado.
 
 ## SEQUÊNCIA
 1. Base, login Google, persistência e ambientes.
@@ -74,7 +74,7 @@ Avance entre as etapas sem exigir revisão intermediária. Implemente, teste e c
 - Fazer commits organizados e enviar progresso ao GitHub. Para o piloto, commits verificados podem ir à main, respeitando proteções e trabalho remoto existente.
 - Não parar para pedir permissão para continuar; atualizações de progresso não são pedidos de aprovação.
 - Se uma integração estiver bloqueada, avançar nas partes independentes. Não inventar credenciais nem apresentar simulações como integrações reais.
-- Não contornar proteções ou aprovações exigidas pela plataforma. Não publicar produção automaticamente: enviar código à main não autoriza deploy de produção.
+- Autorizado editar o repositório, revisar/aprovar/mesclar pull requests e fazer deploys, incluindo produção após configuração e verificações pertinentes. Esta autorização substitui a restrição anterior de publicação, mas não permite contornar proteções ou aprovações exigidas pela plataforma. Não contratar serviços pagos nem executar ações com risco de perda de dados reais sem tratar essas condições.
 - Manter docs/STATUS.md com estado real, verificações, bloqueios e próxima tarefa para continuidade entre sessões.
 - Ao concluir o escopo, informar o que funciona, testes, links dos commits e pendências reais.
 - Esta orientação substitui exigências anteriores de revisão entre entregas e o limite anterior à primeira entrega.
@@ -89,3 +89,9 @@ Avance entre as etapas sem exigir revisão intermediária. Implemente, teste e c
 - Design: usar os códigos documentados em docs/referencias/design-handoff-0.1.txt. Não tratar fontes candidatas, logo ou imagens ausentes como validados.
 - Documentar decisões aprovadas, interpretações técnicas reversíveis e questões pendentes separadamente.
 - O destino dos dados após revogação de acesso é pendente. A revogação bloqueia acesso, preservando dados até decisão explícita.
+
+## CONFIGURAÇÃO ACOMPANHADA
+- O usuário quer configurar os quatro passos junto com o agente, informando o que aparece no painel. Orientar um passo de cada vez.
+- Recebidos três e-mails autorizados, incluindo o responsável; preservar a lista em configuração administrativa local ignorada pelo Git, nunca no repositório público. Ainda não aplicada em nenhum banco remoto.
+- Lista administrativa preparada em `.local/convidados.sql`; diretório ignorado e arquivo com permissão restrita. Não incluir em commits, fixtures, frontend ou logs.
+- Permissão para deploy/repositório não equivale a sessão autenticada nos provedores. Recursos e credenciais ainda precisam ser configurados com segurança.

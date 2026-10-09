@@ -1,10 +1,10 @@
 # Status — Allgenda
 
-Atualizado em: 9 de outubro de 2026, UTC. Consultar este arquivo e confirmar branch, histórico, árvore de trabalho e configuração real ao retomar.
+Atualizado em: 9 de outubro de 2026, America/Fortaleza. Consultar este arquivo e confirmar branch, histórico, árvore de trabalho e configuração real ao retomar.
 
 ## Trabalho e GitHub
 
-Construção autônoma autorizada, sem revisão intermediária. Base começou em `dev/primeira-entrega`; continuidade na **main**, permitida para commits verificados no piloto. Repositório: https://github.com/chmm07/Allgenda. Nenhuma publicação de testes/produção, criação de conta, convite real ou migração remota foi realizada.
+Construção autônoma autorizada, sem revisão intermediária. Base começou em `dev/primeira-entrega`; continuidade na **main**, permitida para commits verificados no piloto. Repositório: https://github.com/chmm07/Allgenda. Nenhuma publicação de testes/produção, criação de conta, convite real no banco ou migração remota foi realizada. O usuário autorizou explicitamente deploys, edição do repositório e aprovação/merge de PRs; publicação continua dependendo da configuração e verificação do ambiente correto, sem novo pedido de aprovação.
 
 Commits verificados e enviados por push normal (sem force):
 - `22e3721`: base React/Supabase/convidados/ambientes e documentação inicial.
@@ -50,7 +50,7 @@ Edição de série com exceções está bloqueada na interface até decisão sob
 
 ## Intervenções e pendências reais
 
-1. Criar **testes**, começando por Supabase e Google; trazer e-mails de até cinco usuários, ref/URL/chave pública Supabase, IDs públicos e callbacks Google e URL Pages. Seguir `PRIMEIROS_PASSOS_SERVICOS.md`; segredos ficam nos painéis/armazenamento seguro, nunca no chat/Git.
+1. Criar **testes**, começando por Supabase e Google; trazer ref/URL/chave pública Supabase, IDs públicos e callbacks Google e URL Pages. Os três e-mails iniciais já foram recebidos e a inclusão está preparada em SQL administrativo local ignorado pelo Git, ainda não executado. Seguir `PRIMEIROS_PASSOS_SERVICOS.md`; segredos ficam nos painéis/armazenamento seguro, nunca no chat/Git.
 2. Resolver conflito simultâneo Allgenda/Calendar: escolher versão ou usar mais recente? Pergunta enviada, sem resposta registrada.
 3. Resolver edição de série com exceções: preservar individuais ou substituí-las mediante confirmação? Pergunta enviada, sem resposta registrada.
 4. Definir calendários elegíveis/mapeamento e propagação de exclusões externas antes do comportamento de sincronização dependente.
@@ -58,4 +58,13 @@ Edição de série com exceções está bloqueada na interface até decisão sob
 
 ## Próxima tarefa e retomada
 
-Confirmar repositório/main/commits, ler decisões e respostas novas. Aplicar somente decisões aprovadas; seguir nas partes independentes sem pedir revisão intermediária. Com recursos de testes disponíveis, aplicar migrações em ordem, configurar convidados/hook/OAuth/secrets, implantar funções e executar aceite real com duas contas autorizadas e uma não autorizada. Registrar resultados sanitizados e só então afirmar integração verificada. Concluir sincronização conforme política/mapeamento aprovados. Não resetar dados reais, contratar serviço ou publicar produção automaticamente.
+Confirmar repositório/main/commits, ler decisões e respostas novas. Aplicar somente decisões aprovadas; seguir nas partes independentes sem pedir revisão intermediária. Com recursos de testes disponíveis, aplicar migrações em ordem, configurar convidados/hook/OAuth/secrets, implantar funções e executar aceite real com duas contas autorizadas e uma não autorizada. Registrar resultados sanitizados e só então afirmar integração verificada. Concluir sincronização conforme política/mapeamento aprovados. Não resetar dados reais nem contratar serviço pago sem intervenção. Deploy está autorizado após configuração e verificação, respeitando proteções e separação de ambientes.
+
+## Configuração acompanhada — estado atual
+
+1. **Lista recebida:** três usuários, incluindo o responsável; duas posições restantes. SQL privado em `.local/convidados.sql`, sem versionamento e sem aplicação remota.
+2. **Supabase:** próxima etapa; o usuário fará login no painel e informará o que aparece. Não há integração direta com Supabase/Cloudflare disponível nesta sessão, nem CLI autenticado ou projeto identificado.
+3. **Google OAuth:** aguardando projeto Supabase e callback real.
+4. **Cloudflare Pages:** aguardando configuração do projeto de testes.
+
+Autorização mais recente inclui deploy/repositório/PRs. Alteração apenas documental e configuração administrativa local; sem mudança de aplicação. Verificar diff, ignoramento/permissões da lista e ausência dos e-mails nos arquivos versionados antes do commit.

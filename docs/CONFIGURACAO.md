@@ -70,7 +70,7 @@ values (1, lower(trim('<EMAIL_AUTORIZADO>')));
 delete from private.invited_users where slot = 1;
 ```
 
-Não fazer upsert silencioso sobre uma posição ocupada. Reutilizar posição somente após remoção intencional. Inclusão autoriza cadastro/login; remoção bloqueia novas operações RLS imediatamente após commit, inclusive de sessões existentes. Não apaga ambientes nem registros Auth, nem retira informações já vistas pelo usuário. Para encerrar também sessões de Auth, usar procedimento administrativo de revogação do Supabase no servidor/painel; nunca enviar chave administrativa ao navegador. O destino final dos dados continua pendente. A lista real não é versionada; fixtures de testes usam domínios `.test`.
+Não fazer upsert silencioso sobre uma posição ocupada. Reutilizar posição somente após remoção intencional. Inclusão autoriza cadastro/login; remoção bloqueia novas operações RLS imediatamente após commit, inclusive de sessões existentes. Não apaga ambientes nem registros Auth, nem retira informações já vistas pelo usuário. Para encerrar também sessões de Auth, usar procedimento administrativo de revogação do Supabase no servidor/painel; nunca enviar chave administrativa ao navegador. O destino final dos dados continua pendente. A lista real não é versionada; fixtures de testes usam domínios `.test`. Três e-mails foram recebidos e a inclusão está preparada em `.local/convidados.sql`, ignorado pelo Git e ainda não executado. Aplicar somente no projeto identificado, após as migrações; não fazer upload desse arquivo ao repositório.
 
 ## OAuth: login Google
 
@@ -126,9 +126,9 @@ Implantar `chat-interpret`, entrar com conta de teste convidada e interpretar me
 
 ## Cloudflare Pages — testes e produção
 
-Configuração preparada, não executada: comando de build `npm run build:test` para testes, diretório `dist`, versão Node compatível, variáveis públicas do Supabase de testes. Separar projeto/branch de produção; desativar publicação automática de produção antes de conectar o repositório. SPA serve entrada na raiz. Nenhuma publicação é realizada por `npm run build`.
+Configuração preparada, não executada: comando de build `npm run build:test` para testes, diretório `dist`, versão Node compatível, variáveis públicas do Supabase de testes. Separar projeto/branch e recursos de produção. O usuário autorizou deploys; configurar a publicação do destino correto apenas após as verificações pertinentes. SPA serve entrada na raiz. Nenhuma publicação é realizada por `npm run build`.
 
-Quando houver URLs de testes reais, ajustar OAuth e executar a aceitação do `REQUISITOS.md`. Produção exige configuração separada e instrução explícita de publicação; a revisão entre entregas de código não é condição para continuar. Commits verificados podem ir à main para o piloto, respeitando proteções e sem acionar produção automaticamente. Confirmar limites gratuitos nos provedores; não contratar serviços pagos.
+Quando houver URLs de testes reais, ajustar OAuth e executar a aceitação do `REQUISITOS.md`. Produção exige configuração separada e verificações pertinentes; a publicação já foi autorizada explicitamente pelo usuário, sem necessidade de pedir nova aprovação; a revisão entre entregas de código não é condição para continuar. Commits verificados podem ir à main para o piloto, respeitando proteções; somente publicar no ambiente efetivamente configurado e verificado. Confirmar limites gratuitos nos provedores; não contratar serviços pagos.
 
 ## Recuperação e verificação externa
 

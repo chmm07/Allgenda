@@ -2,9 +2,9 @@
 
 ## Aprovadas pelo usuário
 
-- Arquitetura e sequência de `AGENTS.md`, planos gratuitos e produção somente por instrução explícita.
-- Construção de ponta a ponta sem revisão intermediária; commits verificados podem ir à main no piloto, respeitando proteções. Envio de código não autoriza deploy de produção.
-- Até cinco usuários no total, login Google, lista de e-mails e dados separados.
+- Arquitetura e sequência de `AGENTS.md`, planos gratuitos. A autorização mais recente inclui deploys de testes/produção após configuração e verificação do ambiente correto, edição do repositório e revisão/aprovação/merge de PRs, respeitando proteções.
+- Construção de ponta a ponta sem revisão intermediária; commits verificados podem ir à main no piloto, respeitando proteções. A autorização explícita de deploy substitui a restrição anterior; não é necessária nova aprovação de publicação dentro do escopo aprovado.
+- Até cinco usuários no total, login Google, lista de e-mails e dados separados. Recebidos três e-mails, incluindo o responsável, em configuração local ignorada pelo Git. Banco remoto ainda não configurado.
 - Ambientes com nome e no mínimo três palavras âncora; exclusão mostra impacto e exige confirmação.
 - **Ao excluir ambiente, excluir também tarefas e compromissos associados após confirmação.** Resposta explícita mais recente; decisão anterior pendente foi resolvida.
 - **Ao editar/excluir compromisso recorrente, permitir escolher ocorrência ou série.** Resposta explícita mais recente.
@@ -30,7 +30,7 @@
 
 | Questão | Dependência e comportamento atual |
 | --- | --- |
-| E-mails e responsável por administrar lista; recursos/URLs/segredos de testes | Antes de login, persistência e integrações reais; guia entregue, lista vazia. |
+| Recursos/URLs/segredos de testes | Três e-mails e responsável recebidos; SQL local preparado, ainda não aplicado. Faltam recursos para login, persistência e integrações reais. |
 | Conflito de mudanças simultâneas Allgenda/Google: escolher versão ou usar a mais recente | Pergunta enviada, sem resposta; sincronização automática não implementada. ETag preparado detecta conflito. |
 | Editar série com exceções: preservar edições individuais ou substituí-las com confirmação | Pergunta enviada, sem resposta; edição de série que possui exceções bloqueada na interface. Ocorrência, série sem exceções e exclusão confirmada de série estão disponíveis. |
 | Calendários elegíveis/mapeamento para ambientes; propagação de exclusões nos dois lados | Antes de sincronização; nenhum evento externo é alterado/excluído nesta sessão. |
@@ -41,4 +41,4 @@
 
 ## Conciliação
 
-A atualização de modo de trabalho substituiu exigência de revisão entre entregas e limite à primeira entrega. Arquivos históricos foram preservados como registro. Intervenção segue necessária somente para decisão significativa de produto, custo, credenciais/configuração externa, risco para dados/permissões ou restrição de plataforma. A ausência de recursos externos não bloqueia código/testes independentes, mas impede alegar integração funcionando.
+A atualização de modo de trabalho substituiu exigência de revisão entre entregas e limite à primeira entrega. A autorização explícita posterior inclui deploy, edição do repositório e aprovação/merge de PRs; substitui a exigência anterior de nova instrução para publicar produção, preservando configuração, verificações, planos gratuitos e proteções. Arquivos históricos foram preservados como registro. Intervenção segue necessária somente para decisão significativa de produto, custo, credenciais/configuração externa, risco para dados/permissões ou restrição de plataforma. A ausência de recursos externos não bloqueia código/testes independentes, mas impede alegar integração funcionando.
