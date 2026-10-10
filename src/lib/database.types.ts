@@ -39,6 +39,7 @@ export type Database = {
       has_app_access: { Args: Record<string, never>; Returns: boolean }
       environment_impact: { Args: { target_id: string }; Returns: EnvironmentImpact }
       delete_environment_confirmed: { Args: { target_id: string; expected_impact: EnvironmentImpact }; Returns: undefined }
+      replace_appointment_series: {Args:{target_id:string;edited_value:Record<string,unknown>;expected_updated_at:string;expected_exceptions:AppointmentException[]};Returns:Appointment}
       resolve_chat: {Args:{history_id:string;edited_proposal:Record<string,unknown>;reject:boolean};Returns:{id?:string;kind?:string;status:string}}
     }
     Enums: { [key in never]: never }

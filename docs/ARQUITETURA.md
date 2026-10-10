@@ -10,7 +10,7 @@ SPA com seções Agenda, Ambientes, Chat e Conexões, sem roteador adicional. Se
 
 `private.invited_users` possui cinco posições e e-mails únicos normalizados. A consulta privada exige e-mail confirmado e identidade Google reais de Auth, sem confiar em metadados editáveis. Administração via SQL Editor; clientes não leem nem alteram a lista. Hook Before User Created bloqueia cadastro não convidado quando ativado. RLS continua negando dados sem o hook. Remoção bloqueia próximas operações, inclusive com JWT emitido; não apaga dados nem desfaz informações já vistas.
 
-As quatro migrações devem ser aplicadas em ordem:
+As migrações devem ser aplicadas em ordem; a quinta ainda requer aplicação no projeto remoto de testes:
 
 | Migração | Entidades e garantias |
 | --- | --- |
@@ -18,10 +18,11 @@ As quatro migrações devem ser aplicadas em ordem:
 | `202610090002_agenda.sql` | Tarefas, séries de compromissos e exceções; RLS e referências compostas de proprietário; impacto e exclusão confirmada de ambiente. |
 | `202610090003_chat.sql` | Histórico/propostas e confirmação atômica idempotente. |
 | `202610090004_calendar_accounts.sql` | Metadados de contas, credenciais cifradas privadas e estados OAuth descartáveis; RPCs administrativas exclusivas do servidor. |
+| `202610100005_series_edit.sql` | Edição atômica de série com substituição confirmada de exceções; invoker/RLS, validação e recusa de prévia desatualizada. |
 
 Tarefas pertencem a um ambiente e podem ter prazo. Compromissos armazenam instantes UTC, fuso IANA e recorrência diária/semanal/mensal. Exceções usam chave série + início original; herdam ambiente da série. Grants por coluna impedem alteração de proprietário, IDs e auditoria. References compostas impedem vincular registro ao ambiente/série de outra pessoa.
 
-Exclusão de ambiente usa RPC: verifica proprietário/convidado, bloqueia registros afetados, compara a prévia de impacto com o estado atual e exclui ambiente/itens em uma transação. DELETE direto do ambiente está revogado para clientes. Uma prévia desatualizada exige nova confirmação.
+Exclusão de ambiente usa RPC: verifica proprietário/convidado, bloqueia registros afetados, compara a prévia de impacto com o estado atual e exclui ambiente/itens em uma transação. DELETE direto do ambiente está revogado para clientes. Uma prévia desatualizada exige nova confirmação. Edição de série também usa RPC invoker transacional: bloqueia série/exceções, compara a versão da série e todas as exceções com a confirmação, atualiza campos editáveis e remove exceções; falha mantém ambos. Não altera grants de colunas nem usa privilégio elevado.
 
 `resolve_chat` bloqueia a proposta, valida ambiente próprio, cria item e marca confirmação na mesma transação. Repetir confirmação retorna o item criado; rejeição não cria itens. Funções elevadas ficam em `private`, com `search_path` fixo e permissões restritas; wrappers públicos usam privilégios do chamador.
 

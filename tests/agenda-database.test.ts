@@ -10,7 +10,7 @@ async function asUser(id:string){await db.exec('reset role;set role authenticate
 beforeAll(async()=>{
   db=new PGlite()
   await db.exec(`create role anon;create role authenticated;create role supabase_auth_admin;create role service_role;create schema auth;grant usage on schema public,auth to anon,authenticated;create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);create table auth.identities(user_id uuid,provider text);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;`)
-  for(const file of ['202610090001_initial.sql','202610090002_agenda.sql','202610090003_chat.sql','202610090004_calendar_accounts.sql'])await db.exec(await readFile(new URL(`../supabase/migrations/${file}`,import.meta.url),'utf8'))
+  for(const file of ['202610090001_initial.sql','202610090002_agenda.sql','202610090003_chat.sql','202610090004_calendar_accounts.sql','202610100005_series_edit.sql'])await db.exec(await readFile(new URL(`../supabase/migrations/${file}`,import.meta.url),'utf8'))
   await db.query("insert into auth.users values($1,'a@example.test',now()),($2,'b@example.test',now());",[a,b]);await db.query("insert into auth.identities values($1,'google'),($2,'google')",[a,b]);await db.exec("insert into private.invited_users(slot,email) values(1,'a@example.test'),(2,'b@example.test')")
 })
 beforeEach(async()=>{await db.exec('reset role;truncate public.environments cascade;truncate public.chat_history;');await asUser(a);env=(await db.query<{id:string}>("insert into public.environments(name,anchor_words) values('Fictício',array['um','dois','três']) returning id")).rows[0].id})
@@ -54,6 +54,56 @@ function exceptionRepository(){
   return agendaRepository(client)
 }
 describe('agenda no PostgreSQL',()=>{
+  async function seriesWithExceptions(){
+    const id=await event()
+    await db.query("insert into public.appointment_exceptions(appointment_id,original_start,title,starts_at,ends_at,timezone,cancelled) values($1,'2026-10-09T12:00Z','Alterada','2026-10-09T13:00Z','2026-10-09T13:30Z','America/Fortaleza',false),($1,'2026-10-16T12:00Z','Cancelada','2026-10-16T12:00Z','2026-10-16T12:30Z','America/Fortaleza',true)",[id])
+    const series=(await db.query<{value:Record<string,unknown>}>('select to_jsonb(a) as value from public.appointments a where id=$1',[id])).rows[0].value
+    const exceptions=(await db.query<{value:unknown}>('select to_jsonb(e) as value from public.appointment_exceptions e where appointment_id=$1 order by original_start',[id])).rows.map(row=>row.value)
+    return {id,series,exceptions}
+  }
+  async function replace(snapshot:Awaited<ReturnType<typeof seriesWithExceptions>>,changes:Record<string,unknown>={}){
+    return db.query('select public.replace_appointment_series($1,$2::jsonb,$3::timestamptz,$4::jsonb)',[snapshot.id,JSON.stringify({...snapshot.series,title:'Nova série',...changes}),snapshot.series.updated_at,JSON.stringify(snapshot.exceptions)])
+  }
+  it('edição de série substitui edições e cancelamentos atomicamente e preserva identidade',async()=>{
+    const snapshot=await seriesWithExceptions()
+    await replace(snapshot)
+    expect((await db.query('select * from public.appointment_exceptions')).rows).toEqual([])
+    expect((await db.query('select id,user_id,title from public.appointments')).rows).toEqual([{id:snapshot.id,user_id:a,title:'Nova série'}])
+  })
+  it('campos inválidos ou confirmação incompleta não descartam exceções',async()=>{
+    const snapshot=await seriesWithExceptions()
+    await expect(replace(snapshot,{ends_at:'2026-10-09T11:00Z'})).rejects.toThrow()
+    await expect(replace({...snapshot,exceptions:[]})).rejects.toThrow(/ocorrências mudaram/)
+    expect((await db.query('select * from public.appointment_exceptions')).rows).toHaveLength(2)
+    expect((await db.query<{title:string}>('select title from public.appointments')).rows[0].title).toBe('Fictício')
+  })
+  it('alteração ou criação de exceção depois da prévia exige nova confirmação',async()=>{
+    const snapshot=await seriesWithExceptions()
+    await db.query("update public.appointment_exceptions set title='Mudou após prévia' where appointment_id=$1 and cancelled=false",[snapshot.id])
+    await expect(replace(snapshot)).rejects.toThrow(/ocorrências mudaram/)
+    expect((await db.query<{title:string}>('select title from public.appointments')).rows[0].title).toBe('Fictício')
+    await db.query("insert into public.appointment_exceptions(appointment_id,original_start,title,starts_at,ends_at,timezone) values($1,'2026-10-23T12:00Z','Nova alteração','2026-10-23T12:00Z','2026-10-23T12:30Z','America/Fortaleza')",[snapshot.id])
+    await expect(replace(snapshot)).rejects.toThrow(/ocorrências mudaram/)
+    expect((await db.query('select * from public.appointment_exceptions')).rows).toHaveLength(3)
+  })
+  it('série desatualizada, UUID alheio e anônimo não alteram registros',async()=>{
+    const snapshot=await seriesWithExceptions()
+    await expect(replace({...snapshot,series:{...snapshot.series,updated_at:'2020-01-01T00:00Z'}})).rejects.toThrow(/série mudou/)
+    await asUser(b);await expect(replace(snapshot)).rejects.toThrow(/indisponível/)
+    await db.exec('reset role;set role anon;');await expect(replace(snapshot)).rejects.toThrow(/permission denied/)
+    await asUser(a);expect((await db.query('select * from public.appointment_exceptions')).rows).toHaveLength(2)
+  })
+  it('ambiente alheio e acesso revogado impedem edição e preservam exceções',async()=>{
+    const snapshot=await seriesWithExceptions()
+    await asUser(b)
+    const foreign=(await db.query<{id:string}>("insert into public.environments(name,anchor_words) values('Outro',array['um','dois','três']) returning id")).rows[0].id
+    await asUser(a);await expect(replace(snapshot,{environment_id:foreign})).rejects.toThrow()
+    await db.exec("reset role;delete from private.invited_users where email='a@example.test'")
+    await asUser(a);await expect(replace(snapshot)).rejects.toThrow(/indisponível/)
+    await db.exec("reset role;insert into private.invited_users(slot,email) values(1,'a@example.test')")
+    await asUser(a);expect((await db.query('select * from public.appointment_exceptions')).rows).toHaveLength(2)
+    expect((await db.query<{title:string}>('select title from public.appointments')).rows[0].title).toBe('Fictício')
+  })
   it('repositório cria, edita e cancela ocorrência mantendo chaves protegidas e isolamento',async()=>{
     const id=await event(),repository=exceptionRepository()
     const value:ExceptionInput={appointment_id:id,original_start:'2026-10-09T12:00:00Z',title:'Ocorrência editada',starts_at:'2026-10-09T13:00:00Z',ends_at:'2026-10-09T13:30:00Z',timezone:'America/Fortaleza',cancelled:false}
