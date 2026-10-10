@@ -13,6 +13,7 @@ Critérios:
 - [ ] Anônimo não lê/escreve dados nem lista privada; e-mail não confirmado/identidade sem Google não libera acesso.
 - [ ] Sexta posição e e-mail duplicado rejeitados; revogação bloqueia sessão já emitida.
 - [ ] Logout e troca de usuário descartam respostas antigas; erros/cancelamento permitem repetir sem liberar dados.
+- [ ] Tela de erro permite voltar à entrada ou usar outra conta Google; saída limitada ao navegador atual, seletor de conta em cada tentativa, botões recuperáveis após falha e parâmetros de callback removidos mesmo se Auth falhar.
 
 ## 2. Ambientes pessoais
 

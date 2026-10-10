@@ -23,15 +23,22 @@ function ConnectedApp({ client }: { client: AppClient }) {
   async function login() {
     setBusy(true); setError('')
     try {
-      const { error: authError } = await client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
+      const { error: signOutError } = await client.auth.signOut({ scope: 'local' })
+      if (signOutError) throw signOutError
+      const { error: authError } = await client.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/`, queryParams: { prompt: 'select_account' } },
+      })
       if (authError) throw authError
-    } catch { setError('Não foi possível iniciar o login. Tente novamente.'); setBusy(false) }
+    } catch { setError('Não foi possível iniciar o login. Tente novamente.') }
+    finally { setBusy(false) }
   }
   async function logout() {
     setBusy(true); setError('')
     try {
-      const { error: authError } = await client.auth.signOut()
+      const { error: authError } = await client.auth.signOut({ scope: 'local' })
       if (authError) throw authError
+      retry()
     } catch { setError('Não foi possível sair. Confira a conexão e tente novamente.') }
     finally { setBusy(false) }
   }
@@ -47,8 +54,8 @@ function ConnectedApp({ client }: { client: AppClient }) {
         <p role="alert">Esta conta não está na lista de convidados autorizados.</p><button disabled={busy} onClick={() => { void logout() }}>Sair e usar outra conta</button>
       </> : <>
         <p>Uma agenda para os seus contextos. Acesso exclusivo para convidados.</p>
-        {access.status === 'error' && <><p role="alert" className="error">{access.message}</p><button onClick={retry}>Verificar novamente</button></>}
-        <button className="primary" disabled={busy} onClick={() => { void login() }}>{busy ? 'Abrindo login…' : 'Entrar com Google'}</button>
+        {access.status === 'error' && <><p role="alert" className="error">{access.message}</p><button disabled={busy} onClick={retry}>Verificar novamente</button><button disabled={busy} onClick={() => { void logout() }}>Voltar para o login</button></>}
+        <button className="primary" disabled={busy} onClick={() => { void login() }}>{busy ? 'Abrindo login…' : access.status === 'error' ? 'Usar outra conta Google' : 'Entrar com Google'}</button>
       </>}
     </section>}
     {error && <p role="alert" className="error">{error}</p>}
