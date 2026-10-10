@@ -19,7 +19,7 @@ export async function synchronizeCalendar(state:SyncState,google:ReturnType<type
     page=await google.events(state.binding.calendar_id)
   }
   const remote=new Map(page.events.map(event=>[event.id,event]))
-  const seen=new Set<string>(),linkedLocal=new Set<string>()
+  const seen=new Set<string>(),linkedLocal=new Set<string>(),replacedParents=new Set<string>()
   let imported=0,exported=0,deleted=0,skipped=0
   const get=async(id:string)=>{
     deadline()
@@ -46,7 +46,7 @@ export async function synchronizeCalendar(state:SyncState,google:ReturnType<type
   const persist=async(local:CalendarAppointment,event:GoogleEvent,operation='ack',tombstone?:{deleted_at:string})=>{
     if(!event.etag?.trim()||event.etag.trim()==='*')throw new Error('Resposta Google sem versão específica.')
     const result=await transition(operation,{appointment_id:local.id,...version(operation==='remote'&&tombstone?null:local,tombstone),google_id:event.id,etag:event.etag,google_updated_at:event.updated??null,...(operation==='remote'?{value:fromGoogle(event,state.binding.environment_id!)}:{})}) as CalendarAppointment
-    parents.set(local.id,result?.id?result:local);parentLinks.set(local.id,event.id)
+    parents.set(local.id,result?.id?result:local);parentLinks.set(local.id,event.id);seen.add(event.id)
   }
   const exceptionTransition:Rpc=async(operation,payload)=>{
     const result=await transition(operation,payload) as CalendarException
@@ -63,7 +63,11 @@ export async function synchronizeCalendar(state:SyncState,google:ReturnType<type
   for(const reset of pendingResets){
     const local=parents.get(reset.appointment_id),parentId=parentLinks.get(reset.appointment_id)
     if(!local||!parentId)continue
-    const original=fromGoogle(await get(parentId),state.binding.environment_id!)
+    const event=await get(parentId)
+    // Uma série excluída não possui instâncias a restaurar. Resolver primeiro
+    // o conflito da série, sem tentar interpretar o recurso mínimo cancelado.
+    if(event.status==='cancelled')continue
+    const original=fromGoogle(event,state.binding.environment_id!)
     if(!sameTime(original.starts_at,local.starts_at)||original.timezone!==local.timezone||original.frequency!==local.frequency||original.repeat_interval!==local.repeat_interval||original.repeat_until!==local.repeat_until)throw new Error('Mudança de horário ou regra da série com exceções exige verificar o remapeamento Google; dados preservados.')
     resetParents.set(local.id,local)
   }
@@ -95,6 +99,18 @@ export async function synchronizeCalendar(state:SyncState,google:ReturnType<type
     if(remoteDeleted){
       if(localChanged){
         if(newestSide(local.updated_at,event.updated)==='local'){
+          const oldLinks=(state.exception_links??[]).filter(item=>item.appointment_id===local.id)
+          if(oldLinks.length&&local.frequency==='none')throw new Error('Mudança de regra com exceções exige verificar o remapeamento Google; dados preservados.')
+          // Esquecer somente os vínculos privados antes de trocar a série.
+          // Exceções/reset locais sobrevivem e serão enviados às novas instâncias.
+          // Se houver falha parcial, o vínculo da série antiga continua no banco:
+          // a repetição completa esta limpeza antes de confirmar o novo ID.
+          for(const oldLink of oldLinks){
+            const item=state.exceptions.find(item=>item.appointment_id===local.id&&sameTime(item.original_start,oldLink.original_start))
+            const reset=state.exception_resets?.find(item=>item.appointment_id===local.id&&sameTime(item.original_start,oldLink.original_start))
+            await exceptionTransition('exception_forget',{appointment_id:local.id,original_start:oldLink.original_start,expected_parent_updated_at:local.updated_at,expected_updated_at:item?.updated_at??null,expected_deleted_at:reset?.deleted_at??null})
+          }
+          replacedParents.add(event.id)
           await persist(local,await recreate(local,event.id),'remote');exported++;continue
         }
       }
@@ -153,7 +169,7 @@ export async function synchronizeCalendar(state:SyncState,google:ReturnType<type
   }
   // A prévia do delta é anterior à restauração. Ler a versão atual das
   // ocorrências já tratadas evita reimportar a exceção que acabamos de remover.
-  const exceptionEvents=page.events.filter(event=>!pendingResets.some(reset=>resetParents.has(reset.appointment_id)&&parentLinks.get(reset.appointment_id)===event.recurringEventId&&!!event.originalStartTime?.dateTime&&sameTime(reset.original_start,event.originalStartTime.dateTime)))
+  const exceptionEvents=page.events.filter(event=>!replacedParents.has(event.recurringEventId??'')&&!pendingResets.some(reset=>resetParents.has(reset.appointment_id)&&parentLinks.get(reset.appointment_id)===event.recurringEventId&&!!event.originalStartTime?.dateTime&&sameTime(reset.original_start,event.originalStartTime.dateTime)))
   const exceptions=await synchronizeExceptions({parents,parentLinks,exceptions:state.exceptions,links:state.exception_links??[],resets:state.exception_resets??[],events:exceptionEvents,google,calendar:state.binding.calendar_id,rpc:exceptionTransition,deadline})
   imported+=exceptions.imported;exported+=exceptions.exported;skipped+=exceptions.skipped
   const warning=skipped?`${skipped} eventos de dia inteiro ou recorrência avançada preservados somente no Google.`:''

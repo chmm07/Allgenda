@@ -93,6 +93,8 @@ Critérios:
 
 ## 8. Base, design e ambientes de execução
 
+Prioridade mais recente: concluir funcionalidades e integrações antes de retomar o design. O visual atual não foi aceito; a última etapa deve concentrar-se na interface e no design system, com aceite antes da publicação de produção. Testes funcionais e suas publicações em testes podem continuar.
+
 URL/chave pública Supabase e rótulo de ambiente são `VITE_*`; segredos somente no servidor/provedor. Desenvolvimento/testes/produção têm recursos e dados próprios, deploys autorizados após configuração e verificações do destino correto, respeitando proteções. Cores do material textual centralizadas; imagens/fontes/logo finais ausentes, métricas propostas identificadas.
 
 Critérios:

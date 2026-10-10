@@ -2,6 +2,8 @@
 
 ## Aprovadas pelo usuário
 
+- **Prioridade atualizada em 10/10/2026:** o usuário não aceitou o visual atual. Prosseguir com funcionalidades, integrações e testes; deixar refinamento da interface e aplicação final do design system para a última etapa, com foco exclusivo antes da publicação de produção. Deploys funcionais de testes continuam autorizados. Não tratar a entrega visual anterior como design aprovado/concluído.
+
 - Arquitetura e sequência de `AGENTS.md`, planos gratuitos. A autorização mais recente inclui deploys de testes/produção após configuração e verificação do ambiente correto, edição do repositório e revisão/aprovação/merge de PRs, respeitando proteções.
 - Construção de ponta a ponta sem revisão intermediária; commits verificados podem ir à main no piloto, respeitando proteções. A autorização explícita de deploy substitui a restrição anterior; não é necessária nova aprovação de publicação dentro do escopo aprovado.
 - Até cinco usuários no total, login Google, lista de e-mails e dados separados. Recebidos três e-mails iniciais, incluindo o responsável, em configuração local ignorada pelo Git; quarta conta pessoal autorizada posteriormente. Inclusão dessa conta na posição 4 do Supabase e nos usuários OAuth confirmada pelo usuário; uma vaga livre. Login, persistência e separação visual da segunda conta em relação à primeira relatados pelo usuário. Acesso negado, isolamento inverso e acesso direto a registros alheios ainda pendentes. Endereços reais não são publicados.

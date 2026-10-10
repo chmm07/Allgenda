@@ -19,6 +19,8 @@ Não invente funcionalidades, dados ou decisões ausentes.
 - Planos gratuitos; não contratar serviços pagos sem aprovação.
 
 ## DESIGN
+Por orientação mais recente de 10/10/2026, concluir primeiro funcionalidades, integrações e testes. O visual atual não foi aceito pelo usuário. Concentrar o refinamento visual e a aplicação final do design system na última etapa, antes da publicação de produção; não publicar produção antes dessa etapa e de seu aceite. Publicações funcionais no ambiente de testes continuam autorizadas.
+
 Use o design system aprovado: P3 e versão original.
 Slogan: “Tudo converge aqui”.
 Consulte as imagens e documentos anexados.
