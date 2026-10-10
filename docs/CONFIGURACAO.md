@@ -4,6 +4,8 @@
 
 As quatro migrações iniciais foram aplicadas pelo usuário conforme registro anterior. A entrega de substituição confirmada de exceções adiciona somente `supabase/migrations/202610100005_series_edit.sql`. **Não reaplicar o SQL combinado inicial.** Confirmar o projeto de testes `xhzunwrkntmlmrftmffk`, executar apenas essa nova migração no SQL Editor autenticado e verificar sucesso antes de publicar a interface que usa a RPC `replace_appointment_series`. A migração cria uma função invoker transacional; não modifica nem exclui registros durante sua instalação. A edição futura altera somente a série própria e suas exceções, após confirmação e comparação da prévia. Configuração/aceite remoto dessa entrega ainda não realizados pelo agente.
 
+Atualização: usuário executou a quinta migração no projeto de testes; resultado `Success. No rows returned` confirmado no SQL Editor. PR #4 integrado em `60e7cb2`, deploy Cloudflare confirmado, edição de série com substituição de exceções validada pela interface/API reais. A etapa acima está concluída; não repetir a instalação. Detalhes e limpeza dos dados fictícios em `STATUS.md`.
+
 Políticas Calendar aprovadas: seleção explícita de calendários, versão mais recente em conflitos e exclusão propagada nos dois sentidos. Falta implementar/implantar a sincronização e configurar OAuth/segredos; essas decisões não tornam a integração preparada uma integração ativa.
 
 ## Planejado versus realizado

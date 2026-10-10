@@ -10,7 +10,7 @@ SPA com seções Agenda, Ambientes, Chat e Conexões, sem roteador adicional. Se
 
 `private.invited_users` possui cinco posições e e-mails únicos normalizados. A consulta privada exige e-mail confirmado e identidade Google reais de Auth, sem confiar em metadados editáveis. Administração via SQL Editor; clientes não leem nem alteram a lista. Hook Before User Created bloqueia cadastro não convidado quando ativado. RLS continua negando dados sem o hook. Remoção bloqueia próximas operações, inclusive com JWT emitido; não apaga dados nem desfaz informações já vistas.
 
-As migrações devem ser aplicadas em ordem; a quinta ainda requer aplicação no projeto remoto de testes:
+As migrações devem ser aplicadas em ordem; a quinta foi aplicada no projeto de testes e sua RPC verificada no aceite remoto:
 
 | Migração | Entidades e garantias |
 | --- | --- |
