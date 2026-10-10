@@ -8,6 +8,7 @@
 - Ambientes com nome e no mínimo três palavras âncora; exclusão mostra impacto e exige confirmação.
 - **Ao excluir ambiente, excluir também tarefas e compromissos associados após confirmação.** Resposta explícita mais recente; decisão anterior pendente foi resolvida.
 - **Ao editar/excluir compromisso recorrente, permitir escolher ocorrência ou série.** Resposta explícita mais recente.
+- **Decisões de 10/10/2026:** em conflito Allgenda/Google, usar a alteração mais recente; editar série substitui alterações individuais após confirmação; usuário escolhe quais calendários sincronizar; exclusões propagam nos dois sentidos. Estas políticas estão aprovadas, mas ainda precisam de implementação e aceite das integrações reais.
 - Design P3 e Original/Brasa, claro/escuro, com cores do anexo textual. Imagens/fontes finais continuam ausentes.
 - Calendário inicialmente semanal, acesso ao mês, painéis de Pendências/Compromissos expansíveis abaixo e ambientes na lateral; sem prazo separado e atrasadas por último.
 - Fim ausente de compromisso: duração de 30 minutos. Chat tem histórico, prévia editável e confirmação/rejeição antes de criar item. Briefings, arraste com alternativa por menu e adaptação móvel fazem parte do escopo.
@@ -33,9 +34,7 @@
 | Questão | Dependência e comportamento atual |
 | --- | --- |
 | Recursos/URLs/segredos de testes | Quatro contas autorizadas, incluindo o responsável; inclusão Supabase/OAuth confirmada pelo usuário; SQL local aplicado no painel com sucesso informado pelo usuário, sem verificação independente. Projeto Supabase de testes criado; URL/chave pública configuradas; hook configurado conforme captura; OAuth/Pages configurados e login autorizado relatado; login, persistência entre sessões e separação visual em uma direção relatados pelo usuário; faltam acesso negado, isolamento inverso/direto e reprodução independente, configurar demais integrações, conciliar histórico de migrações do CLI e liberar o domínio do projeto na rede do executor para verificação remota pelo agente. |
-| Conflito de mudanças simultâneas Allgenda/Google: escolher versão ou usar a mais recente | Pergunta enviada, sem resposta; sincronização automática não implementada. ETag preparado detecta conflito. |
-| Editar série com exceções: preservar edições individuais ou substituí-las com confirmação | Pergunta enviada, sem resposta; edição de série que possui exceções bloqueada na interface. Ocorrência, série sem exceções e exclusão confirmada de série estão disponíveis. |
-| Calendários elegíveis/mapeamento para ambientes; propagação de exclusões nos dois lados | Antes de sincronização; nenhum evento externo é alterado/excluído nesta sessão. |
+| Mapeamento de calendários selecionados para ambientes pessoais | Seleção de calendários e propagação de exclusões aprovadas. Associação ao ambiente deve ser explícita; sem adivinhar contexto de eventos externos. Implementação/aceite da sincronização ainda faltam. |
 | Destino/retenção/exportação dos dados de convidado removido | Antes de descarte real; acesso revogado preserva registros e tokens inacessíveis. |
 | Imagens P3/original, símbolo final, aprovação de fontes/métricas/marcadores de ambiente | Antes de afirmar fidelidade/marca final; cores textuais disponíveis, demais valores propostos. |
 | Modelo Groq e limites disponíveis na conta gratuita; retenção final do histórico | Modelo configura-se no servidor, sem nome inventado; sem política de descarte automático. |

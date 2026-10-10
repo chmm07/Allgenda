@@ -1,5 +1,5 @@
 import type { AppClient } from './supabase'
-import type { AppointmentInput, ExceptionInput, TaskInput } from './database.types'
+import type { Appointment, AppointmentException, AppointmentInput, ExceptionInput, TaskInput } from './database.types'
 
 async function allRows<T>(fetchPage:(from:number,to:number)=>PromiseLike<{data:T[]|null;error:unknown}>):Promise<T[]> {
   const rows:T[]=[]
@@ -46,6 +46,11 @@ export function agendaRepository(client: AppClient) {
       const {appointment_id,original_start,...changes}=value
       const {data,error}=await client.from('appointment_exceptions').update(changes).eq('appointment_id',appointment_id).eq('original_start',original_start).select('*').single()
       if(error)throw new Error('Não foi possível alterar esta ocorrência.')
+      return data
+    },
+    async replaceSeries(value:AppointmentInput,series:Appointment,exceptions:AppointmentException[]) {
+      const {data,error}=await client.rpc('replace_appointment_series',{target_id:series.id,edited_value:{...value},expected_updated_at:series.updated_at,expected_exceptions:exceptions})
+      if(error)throw new Error('Não foi possível alterar a série. Recarregue os dados e confirme novamente.')
       return data
     },
     async removeAppointment(id:string) {

@@ -85,7 +85,8 @@ Avance entre as etapas sem exigir revisão intermediária. Implemente, teste e c
 - Limite aprovado: até cinco usuários no total, incluindo o responsável caso use o aplicativo. Login Google e dados separados.
 - Ambientes pessoais exigem nome e pelo menos três palavras âncora na criação e na edição.
 - Exclusão de ambiente mostra impacto real e exige confirmação; aprovado excluir seus itens associados.
-- Compromissos recorrentes permitem escolher ocorrência ou série na edição/exclusão. Política de edição de série com exceções continua pendente em docs/DECISOES.md.
+- Compromissos recorrentes permitem escolher ocorrência ou série na edição/exclusão. Editar série substitui alterações individuais após confirmação explícita, conforme decisão de 10/10/2026.
+- Calendar: usuário escolhe os calendários sincronizados; mudanças conflitantes usam a mais recente; exclusões propagam nos dois sentidos. Implementar e verificar essas políticas sem apresentar preparação como integração real.
 - Design: usar os códigos documentados em docs/referencias/design-handoff-0.1.txt. Não tratar fontes candidatas, logo ou imagens ausentes como validados.
 - Documentar decisões aprovadas, interpretações técnicas reversíveis e questões pendentes separadamente.
 - O destino dos dados após revogação de acesso é pendente. A revogação bloqueia acesso, preservando dados até decisão explícita.

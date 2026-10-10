@@ -27,6 +27,7 @@ export function Agenda({repository}:{repository:AgendaRepository}) {
   const [taskDue,setTaskDue]=useState('')
   const [selected,setSelected]=useState<Occurrence|null>(null)
   const [scope,setScope]=useState<'occurrence'|'series'>('occurrence')
+  const [replaceConfirmed,setReplaceConfirmed]=useState(false)
   const [eventDraft,setEventDraft]=useState(()=>blankEvent(deviceTimezone()))
   const [openDialog,setOpenDialog]=useState<'task'|'event'|'delete'|null>(null)
   const [confirm,setConfirm]=useState<{kind:'task';task:Task}|{kind:'event';event:Occurrence;scope:'occurrence'|'series'}|null>(null)
@@ -66,6 +67,7 @@ export function Agenda({repository}:{repository:AgendaRepository}) {
   const filteredTasks=data.tasks.filter(item=>!environment||item.environment_id===environment)
   const groups=taskGroups(filteredTasks)
   const envName=(id:string)=>data.environments.find(item=>item.id===id)?.name??'Ambiente indisponível'
+  const seriesExceptions=selected?data.exceptions.filter(item=>item.appointment_id===selected.appointment_id):[]
   const days=[]
   for(let day=range.start;Temporal.PlainDate.compare(day,range.end)<0;day=day.add({days:1}))days.push(day)
 
@@ -81,19 +83,19 @@ export function Agenda({repository}:{repository:AgendaRepository}) {
     await mutate(()=>repository.saveTask({title:taskTitle.trim(),environment_id:taskEnvironment,due_at:due,completed:task?.completed??false},task?.id),'Tarefa salva.',taskDialog.current)
   }
   function showEvent(item?:Occurrence, movedDate?:string) {
-    setSelected(item??null);setScope('occurrence');setError('')
+    setSelected(item??null);setScope('occurrence');setReplaceConfirmed(false);setError('')
     const draft=item?draftFrom(item):{...blankEvent(zone),environment_id:environment,start:movedDate?`${movedDate}T09:00`:''}
     if(item&&movedDate){const duration=Date.parse(item.ends_at)-Date.parse(item.starts_at);draft.start=`${movedDate}T${draft.start.split('T')[1]}`;try{draft.end=instantToLocal(Temporal.Instant.from(localToInstant(draft.start,draft.timezone)).add({milliseconds:duration}).toString(),draft.timezone)}catch{draft.end=''}}
     setEventDraft(draft);setOpenDialog('event');eventDialog.current?.showModal()
   }
   function changeScope(next:'occurrence'|'series') {
-    setScope(next)
+    setScope(next);setReplaceConfirmed(false);setError('')
     if(selected){const source=next==='series'?data.appointments.find(item=>item.id===selected.appointment_id):selected;if(source)setEventDraft(draftFrom(source))}
   }
   async function saveEvent(event:FormEvent) {
     event.preventDefault()
-    if(selected?.recurring&&scope==='series'&&data.exceptions.some(item=>item.appointment_id===selected.appointment_id)){
-      setError('Esta série possui ocorrências editadas individualmente. A edição da série ainda não está disponível; edite uma ocorrência.');return
+    if(selected?.recurring&&scope==='series'&&seriesExceptions.length&&!replaceConfirmed){
+      setError('Confirme a substituição das alterações individuais antes de salvar a série.');return
     }
     let value:AppointmentInput
     try {
@@ -102,6 +104,11 @@ export function Agenda({repository}:{repository:AgendaRepository}) {
       value=validateAppointment({title:eventDraft.title,environment_id:eventDraft.environment_id,starts_at:start,ends_at:end,timezone:eventDraft.timezone,frequency:eventDraft.frequency,repeat_interval:Number(eventDraft.interval),repeat_until:eventDraft.until||null})
     }catch{setError('Confira título, ambiente, datas, fuso e recorrência. O fim deve ser após o início; horários locais inexistentes/ambíguos precisam ser corrigidos.');return}
     if(selected?.recurring&&scope==='occurrence')await mutate(()=>repository.saveException({appointment_id:selected.appointment_id,original_start:selected.original_start,title:value.title,starts_at:value.starts_at,ends_at:value.ends_at,timezone:value.timezone,cancelled:false}),'Ocorrência salva.',eventDialog.current)
+    else if(selected?.recurring&&scope==='series'){
+      const series=data.appointments.find(item=>item.id===selected.appointment_id)
+      if(!series){setError('Série indisponível. Recarregue a agenda.');return}
+      await mutate(()=>repository.replaceSeries(value,series,seriesExceptions),'Série salva; alterações individuais substituídas.',eventDialog.current)
+    }
     else await mutate(()=>repository.saveAppointment(value,selected?.appointment_id),'Compromisso salvo.',eventDialog.current)
   }
   function askDelete(value:NonNullable<typeof confirm>){setConfirm(value);setError('');setOpenDialog('delete');deleteDialog.current?.showModal()}
@@ -136,6 +143,7 @@ export function Agenda({repository}:{repository:AgendaRepository}) {
     <dialog onClose={()=>setOpenDialog(current=>current==='task'?null:current)} ref={taskDialog} aria-labelledby="task-form-heading" onCancel={event=>{if(busy)event.preventDefault()}}><h2 id="task-form-heading">{task?'Editar tarefa':'Nova tarefa'}</h2><form onSubmit={event=>{void saveTask(event)}}><label htmlFor="task-title">Título da tarefa</label><input id="task-title" required value={taskTitle} disabled={busy} onChange={event=>setTaskTitle(event.target.value)}/><label htmlFor="task-environment">Ambiente da tarefa</label><select id="task-environment" required value={taskEnvironment} disabled={busy} onChange={event=>setTaskEnvironment(event.target.value)}><option value="">Escolha um ambiente</option>{data.environments.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}</select><label htmlFor="task-due">Prazo (opcional)</label><input id="task-due" type="datetime-local" value={taskDue} disabled={busy} onChange={event=>setTaskDue(event.target.value)}/><p className="secondary">Fuso: {zone}. Deixe vazio para “Sem prazo”.</p>{error&&<p role="alert" className="error">{error}</p>}<div className="actions"><button className="primary" disabled={busy}>Salvar tarefa</button><button type="button" disabled={busy} onClick={()=>taskDialog.current?.close()}>Cancelar</button></div></form></dialog>
     <dialog onClose={()=>setOpenDialog(current=>current==='event'?null:current)} ref={eventDialog} aria-labelledby="event-form-heading" onCancel={event=>{if(busy)event.preventDefault()}}><h2 id="event-form-heading">{selected?'Detalhes do compromisso':'Novo compromisso'}</h2>
     {selected?.recurring&&<fieldset disabled={busy}><legend>Aplicar alteração</legend><label><input type="radio" checked={scope==='occurrence'} onChange={()=>changeScope('occurrence')}/> Somente esta ocorrência</label><label><input type="radio" checked={scope==='series'} onChange={()=>changeScope('series')}/> Toda a série</label></fieldset>}
+    {selected?.recurring&&scope==='series'&&seriesExceptions.length>0&&<section aria-label="Alterações individuais afetadas"><p>Esta série tem {seriesExceptions.length} alterações individuais. Salvar a série substitui essas alterações, incluindo cancelamentos; as ocorrências voltarão a seguir a nova série.</p><ul>{seriesExceptions.map(item=><li key={item.original_start}>{formatInstant(item.original_start,zone)} · {item.title}{item.cancelled?' · Cancelada':''}</li>)}</ul><label><input type="checkbox" disabled={busy} checked={replaceConfirmed} onChange={event=>setReplaceConfirmed(event.target.checked)}/> Confirmo substituir as alterações individuais desta série</label></section>}
     <form onSubmit={event=>{void saveEvent(event)}}><label htmlFor="event-title">Título do compromisso</label><input id="event-title" required disabled={busy} value={eventDraft.title} onChange={event=>setEventDraft({...eventDraft,title:event.target.value})}/><label htmlFor="event-environment">Ambiente do compromisso</label><select id="event-environment" required disabled={busy||!!(selected?.recurring&&scope==='occurrence')} value={eventDraft.environment_id} onChange={event=>setEventDraft({...eventDraft,environment_id:event.target.value})}><option value="">Escolha um ambiente</option>{data.environments.map(item=><option key={item.id} value={item.id}>{item.name}</option>)}</select>{selected?.recurring&&scope==='occurrence'&&<p className="secondary">O ambiente pertence à série. Escolha “Toda a série” para alterá-lo.</p>}<label htmlFor="event-zone">Fuso do compromisso</label><select id="event-zone" disabled={busy} value={eventDraft.timezone} onChange={event=>setEventDraft({...eventDraft,timezone:event.target.value})}>{Array.from(new Set([eventDraft.timezone,...Intl.supportedValuesOf('timeZone')])).map(item=><option key={item} value={item}>{item}</option>)}</select><label htmlFor="event-start">Início</label><input id="event-start" type="datetime-local" required disabled={busy} value={eventDraft.start} onChange={event=>setEventDraft({...eventDraft,start:event.target.value})}/><label htmlFor="event-end">Fim (opcional)</label><input id="event-end" type="datetime-local" disabled={busy} value={eventDraft.end} onChange={event=>setEventDraft({...eventDraft,end:event.target.value})}/><p className="secondary">Sem fim informado: duração de 30 minutos.</p>
     {(!selected?.recurring||scope==='series')&&<><label htmlFor="event-frequency">Recorrência</label><select id="event-frequency" disabled={busy} value={eventDraft.frequency} onChange={event=>setEventDraft({...eventDraft,frequency:event.target.value as Frequency,until:event.target.value==='none'?'':eventDraft.until})}><option value="none">Não repetir</option><option value="daily">Diária</option><option value="weekly">Semanal</option><option value="monthly">Mensal</option></select>{eventDraft.frequency!=='none'&&<><label htmlFor="event-interval">Repetir a cada</label><input id="event-interval" type="number" min="1" step="1" required disabled={busy} value={eventDraft.interval} onChange={event=>setEventDraft({...eventDraft,interval:event.target.value})}/><label htmlFor="event-until">Repetir até (opcional)</label><input id="event-until" type="date" disabled={busy} value={eventDraft.until} onChange={event=>setEventDraft({...eventDraft,until:event.target.value})}/></>}</>}
     {error&&<p role="alert" className="error">{error}</p>}<div className="actions"><button className="primary" disabled={busy}>Salvar compromisso</button><button type="button" disabled={busy} onClick={()=>eventDialog.current?.close()}>Cancelar</button>{selected&&<button type="button" className="danger" disabled={busy} onClick={()=>{eventDialog.current?.close();askDelete({kind:'event',event:selected,scope})}}>Excluir</button>}</div></form></dialog>

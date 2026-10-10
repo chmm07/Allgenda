@@ -11,6 +11,7 @@ const repository:AgendaRepository={
   async removeTask(id){data.tasks=data.tasks.filter(item=>item.id!==id)},
   async saveAppointment(value,id){const item={...value,id:id??crypto.randomUUID(),user_id:'user-test',created_at:new Date().toISOString(),updated_at:new Date().toISOString()};data.appointments=id?data.appointments.map(old=>old.id===id?item:old):[...data.appointments,item];return item},
   async saveException(value){const item={...value,user_id:'user-test',created_at:new Date().toISOString(),updated_at:new Date().toISOString()};data.exceptions=[...data.exceptions.filter(old=>old.appointment_id!==value.appointment_id||old.original_start!==value.original_start),item];return item},
+  async replaceSeries(value,series,exceptions){if(JSON.stringify(data.exceptions.filter(item=>item.appointment_id===series.id))!==JSON.stringify(exceptions))throw new Error('Confirmação desatualizada');const saved=await repository.saveAppointment(value,series.id);data.exceptions=data.exceptions.filter(item=>item.appointment_id!==series.id);return saved},
   async removeAppointment(id){data.appointments=data.appointments.filter(item=>item.id!==id);data.exceptions=data.exceptions.filter(item=>item.appointment_id!==id)},
 }
 createRoot(document.getElementById('root')!).render(<main><p>Fixture fictícia. Sem integração.</p><Agenda repository={repository}/></main>)

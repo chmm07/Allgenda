@@ -43,7 +43,7 @@ Critérios:
 
 Título/ambiente/início/fuso obrigatórios, fim opcional na entrada (padrão aprovado 30 minutos) e obrigatório persistido depois do início. Fuso IANA válido; instantes finitos. Frequência nenhuma/diária/semanal/mensal, intervalo inteiro positivo, data final opcional inclusiva >= início local. Estas frequências e validações são escolhas técnicas iniciais, não aprovação de recorrências avançadas.
 
-Criar, detalhes/editar e excluir com confirmação. Recorrente permite ocorrência ou série. Ocorrência grava exceção vinculada ao início original; cancelamento suprime só aquela ocorrência, sem apagar série. Ambiente de exceção herda da série. Excluir série mostra escolha explícita e remove suas exceções. Editar série com exceções está bloqueado até decidir preservação/substituição.
+Criar, detalhes/editar e excluir com confirmação. Recorrente permite ocorrência ou série. Ocorrência grava exceção vinculada ao início original; cancelamento suprime só aquela ocorrência, sem apagar série. Ambiente de exceção herda da série. Excluir série mostra escolha explícita e remove suas exceções. Editar série substitui suas alterações individuais após mostrar as ocorrências afetadas e exigir confirmação explícita, incluindo cancelamentos. Gravação da série e descarte das exceções são atômicos; prévia desatualizada exige recarregar e confirmar novamente.
 
 Critérios:
 - [ ] Início obrigatório, fim posterior, fuso/intervalo/data final válidos nos dois lados.
@@ -67,7 +67,7 @@ Critérios:
 
 ## 6. Google Calendar
 
-Aprovado: múltiplas contas e sincronização bidirecional, conectadas separadamente do login. Implementado preparatoriamente: OAuth offline/PKCE, metadados isolados, tokens cifrados privados, conta conectável/desconectável após confirmação, adaptador HTTP com paginação/cursor/ETag. **Seleção/mapeamento, renovação de tokens e processamento de sincronização ainda não estão implementados no produto.**
+Aprovado: múltiplas contas e sincronização bidirecional, conectadas separadamente do login; selecionar quais calendários sincronizar, usar a alteração mais recente em conflitos e propagar exclusões nos dois sentidos. Implementado preparatoriamente: OAuth offline/PKCE, metadados isolados, tokens cifrados privados, conta conectável/desconectável após confirmação, adaptador HTTP com paginação/cursor/ETag. **Seleção/mapeamento, renovação de tokens e processamento de sincronização ainda não estão implementados no produto.**
 
 Sem callback/segredos, conexão informa indisponibilidade. Desconexão atual remove tokens/metadados locais, preservando eventos e autorização Google; revogação Google é manual. Política de conflito, calendários elegíveis e propagação de exclusões pendentes antes do comportamento dependente.
 
