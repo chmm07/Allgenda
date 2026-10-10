@@ -169,3 +169,5 @@ Testes de navegador verificam entrada sem credenciais, temas, contraste, layout 
 - [Google Calendar alterações concorrentes](https://developers.google.com/workspace/calendar/api/guides/version-resources)
 
 Referências da recuperação de login: [Google OpenID Connect — prompt/select_account](https://developers.google.com/identity/openid-connect/openid-connect) e [Supabase signOut — scope local](https://supabase.com/docs/reference/javascript/auth-signout).
+
+Publicação da correção de recuperação de login: PR #1 integrado em `40fb04a` após CI do head aprovado. Checagem Cloudflare Pages no GitHub confirmou sucesso do deployment `1a2825cb-5ad9-462c-9360-a73111cbec27` no projeto de testes. Isso confirma publicação do commit; recuperação OAuth, persistência e isolamento reais ainda exigem os testes de aceite.
