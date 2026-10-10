@@ -1,5 +1,7 @@
 # Design — origem dos tokens
 
+**Prioridade em 10/10/2026:** o usuário informou que o visual atual está longe do desejado. O refinamento anterior permanece uma implementação provisória, sem aceite visual. Prosseguir com o restante funcional e reservar a última etapa para foco exclusivo em interface/design system, antes da publicação de produção. Não fazer novos refinamentos agora nem considerar fidelidade final validada.
+
 Referência textual recebida e lida: `referencias/design-handoff-0.1.txt`. Imagens da mistura original e P3 não vieram anexadas e não foram encontradas. Não é possível extrair geometria do símbolo, identificar fontes reais ou comparar fidelidade visual sem elas.
 
 ## Aprovado no documento

@@ -153,6 +153,8 @@ Implantar `chat-interpret`, entrar com conta de teste convidada e interpretar me
 
 ## Cloudflare Pages — testes e produção
 
+Prioridade atualizada pelo usuário em 10/10/2026: continuar publicações funcionais de testes e concluir integrações/aceite funcional; reservar a última etapa para interface/design system e seu aceite. A autorização anterior de produção permanece condicionada à conclusão dessa etapa e à configuração/verificação dos recursos separados. O visual publicado em testes não foi aceito.
+
 Configuração de testes executada pelo usuário, com sucesso de publicação relatado em https://allgenda-testes.pages.dev/: comando de build `npm run build:test` para testes, diretório `dist`, versão Node compatível, variáveis públicas do Supabase de testes. Separar projeto/branch e recursos de produção. O usuário autorizou deploys; configurar a publicação do destino correto apenas após as verificações pertinentes. SPA serve entrada na raiz. Nenhuma publicação é realizada por `npm run build`.
 
 Quando houver URLs de testes reais, ajustar OAuth e executar a aceitação do `REQUISITOS.md`. Produção exige configuração separada e verificações pertinentes; a publicação já foi autorizada explicitamente pelo usuário, sem necessidade de pedir nova aprovação; a revisão entre entregas de código não é condição para continuar. Commits verificados podem ir à main para o piloto, respeitando proteções; somente publicar no ambiente efetivamente configurado e verificado. Confirmar limites gratuitos nos provedores; não contratar serviços pagos.

@@ -1,5 +1,16 @@
 # Status — Allgenda
 
+## Prioridade funcional e recuperação Calendar — 10 de outubro de 2026
+
+Orientação mais recente: o usuário não aceitou o visual atual. Concluir o restante funcional primeiro e reservar a última etapa para foco exclusivo na interface/design system, antes da publicação de produção. O refinamento registrado abaixo é provisório e não tem aceite visual. Deploys funcionais de testes continuam autorizados.
+
+- Corrigida a restauração de série excluída no Google quando a alteração local é mais recente: retirar os vínculos privados das instâncias antigas antes de confirmar o novo pai, preservar exceções/reset locais e usar as instâncias da nova série. CAS de série/ocorrência e lease continuam obrigatórios; falha não avança cursor. Repetição após interrupção usa ID determinístico e verifica marcadores de propriedade no 409. Não reimporta o pai já recuperado da mesma página nem os deltas das instâncias da série excluída.
+- Nenhuma mudança de layout, nova migração, alteração de permissões, segredo ou dado real nesta correção. Conversão para item único com vínculos individuais permanece protegida até verificar remapeamento; recusas a instâncias de outra série continuam cobertas.
+- Regressões de transporte fictício e processamento contra as sete migrações no PGlite verificam preservação das exceções, retomada após falha, CAS, cursor e isolamento entre roles fictícias. Não representam aceite Google ou Supabase remoto.
+- Verificações locais: **166 testes em 15 arquivos**, lint, tipos/build de testes e Deno das quatro funções/bundle aprovados. Ferramentas de Chrome/navegador interno conferidas antes dos testes; o Chromium do cache Playwright não estava instalado, então o navegador de testes utiliza o Chrome já instalado com perfil temporário, sem alterar a sessão do usuário.
+
+**Sequência restante:** configurar Calendar/Groq com credenciais seguras e testar integrações reais com dados fictícios; concluir remapeamento de séries; finalizar isolamento/negação/revogação com duas contas; consolidar regressão funcional; então dedicar a última etapa ao design e seu aceite; somente depois preparar/verificar e publicar produção separada. Ausência de secrets e do segundo perfil acessível ainda impede o aceite externo completo; não inventar credenciais nem pedir segredos no chat.
+
 ## MVP: interface e processamento Calendar — 10 de outubro de 2026
 
 Este registro atualiza as pendências das entradas históricas abaixo. O MVP ainda não tem aceite completo das integrações externas.
