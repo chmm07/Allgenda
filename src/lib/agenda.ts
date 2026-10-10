@@ -39,7 +39,12 @@ export function agendaRepository(client: AppClient) {
       return data
     },
     async saveException(value:ExceptionInput) {
-      const {data,error}=await client.from('appointment_exceptions').upsert(value,{onConflict:'appointment_id,original_start'}).select('*').single()
+      // Merge-upsert also updates the conflict keys, which the column grants protect.
+      const inserted=await client.from('appointment_exceptions').upsert(value,{onConflict:'appointment_id,original_start',ignoreDuplicates:true}).select('*').maybeSingle()
+      if(inserted.error)throw new Error('Não foi possível alterar esta ocorrência.')
+      if(inserted.data)return inserted.data
+      const {appointment_id,original_start,...changes}=value
+      const {data,error}=await client.from('appointment_exceptions').update(changes).eq('appointment_id',appointment_id).eq('original_start',original_start).select('*').single()
       if(error)throw new Error('Não foi possível alterar esta ocorrência.')
       return data
     },

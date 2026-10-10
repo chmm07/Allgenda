@@ -1,6 +1,9 @@
 import {readFile} from 'node:fs/promises'
 import {PGlite} from '@electric-sql/pglite'
 import {afterAll,beforeAll,beforeEach,describe,expect,it} from 'vitest'
+import {createClient} from '@supabase/supabase-js'
+import {agendaRepository} from '../src/lib/agenda'
+import type {Database,ExceptionInput} from '../src/lib/database.types'
 const a='00000000-0000-4000-8000-000000000001',b='00000000-0000-4000-8000-000000000002'
 let db:PGlite,env:string
 async function asUser(id:string){await db.exec('reset role;set role authenticated;');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[id])}
@@ -13,7 +16,62 @@ beforeAll(async()=>{
 beforeEach(async()=>{await db.exec('reset role;truncate public.environments cascade;truncate public.chat_history;');await asUser(a);env=(await db.query<{id:string}>("insert into public.environments(name,anchor_words) values('Fictício',array['um','dois','três']) returning id")).rows[0].id})
 afterAll(async()=>{await db?.close()})
 async function event(){return (await db.query<{id:string}>("insert into public.appointments(environment_id,title,starts_at,ends_at,timezone,frequency) values($1,'Fictício','2026-10-09T12:00Z','2026-10-09T12:30Z','America/Fortaleza','weekly') returning id",[env])).rows[0].id}
+
+// Minimal PostgREST transport for this regression: real SDK requests execute SQL
+// under the migration's actual grants/RLS. This is not a remote JWT/HTTP test.
+function exceptionRepository(){
+  const columns=new Set(['appointment_id','original_start','title','starts_at','ends_at','timezone','cancelled'])
+  const client=createClient<Database>('https://example.test','public-test-key',{
+    auth:{persistSession:false,autoRefreshToken:false},
+    global:{fetch:async(input,init)=>{
+      const request=new Request(input,init),url=new URL(request.url)
+      if(url.pathname!=='/rest/v1/appointment_exceptions')throw new Error('Unexpected test endpoint')
+      const value=await request.json() as Record<string,unknown>,keys=Object.keys(value)
+      if(keys.some(key=>!columns.has(key)))throw new Error('Unexpected test column')
+      const values=keys.map(key=>value[key]),placeholders=keys.map((_,index)=>`$${index+1}`)
+      let sql:string
+      if(request.method==='POST'){
+        const ignore=request.headers.get('Prefer')?.includes('resolution=ignore-duplicates')
+        const conflict=ignore?'do nothing':`do update set ${keys.map(key=>`${key}=excluded.${key}`).join(',')}`
+        sql=`insert into public.appointment_exceptions(${keys.join(',')}) values(${placeholders.join(',')}) on conflict(appointment_id,original_start) ${conflict} returning *`
+      }else if(request.method==='PATCH'){
+        values.push(url.searchParams.get('appointment_id')?.slice(3),url.searchParams.get('original_start')?.slice(3))
+        sql=`update public.appointment_exceptions set ${keys.map((key,index)=>`${key}=$${index+1}`).join(',')} where appointment_id=$${keys.length+1} and original_start=$${keys.length+2} returning *`
+      }else throw new Error('Unexpected test method')
+      try{
+        const result=await db.query(sql,values)
+        if(request.headers.get('Accept')==='application/vnd.pgrst.object+json'){
+          if(result.rows.length!==1)return new Response(JSON.stringify({code:'PGRST116',details:`The result contains ${result.rows.length} rows`,message:'Expected one row'}),{status:406,headers:{'Content-Type':'application/json'}})
+          return new Response(JSON.stringify(result.rows[0]),{status:200,headers:{'Content-Type':'application/json'}})
+        }
+        return new Response(JSON.stringify(result.rows),{status:200,headers:{'Content-Type':'application/json'}})
+      }catch(error){
+        const failure=error as {code?:string;message:string}
+        return new Response(JSON.stringify({code:failure.code,message:failure.message}),{status:failure.code==='42501'?403:400,headers:{'Content-Type':'application/json'}})
+      }
+    }},
+  })
+  return agendaRepository(client)
+}
 describe('agenda no PostgreSQL',()=>{
+  it('repositório cria, edita e cancela ocorrência mantendo chaves protegidas e isolamento',async()=>{
+    const id=await event(),repository=exceptionRepository()
+    const value:ExceptionInput={appointment_id:id,original_start:'2026-10-09T12:00:00Z',title:'Ocorrência editada',starts_at:'2026-10-09T13:00:00Z',ends_at:'2026-10-09T13:30:00Z',timezone:'America/Fortaleza',cancelled:false}
+    const inserted=await repository.saveException(value)
+    expect(inserted.title).toBe(value.title)
+    const updated=await repository.saveException({...value,title:'Ocorrência reeditada'})
+    expect(updated.title).toBe('Ocorrência reeditada')
+    expect(updated.appointment_id).toBe(id)
+    const cancelled=await repository.saveException({...value,cancelled:true})
+    expect(cancelled.cancelled).toBe(true)
+    expect((await db.query('select * from public.appointment_exceptions')).rows).toHaveLength(1)
+    expect((await db.query<{title:string}>('select title from public.appointments where id=$1',[id])).rows[0].title).toBe('Fictício')
+    await expect(db.query("update public.appointment_exceptions set original_start='2026-10-10T12:00Z' where appointment_id=$1",[id])).rejects.toThrow(/permission denied/)
+    await asUser(b)
+    await expect(repository.saveException({...value,title:'Intrusão'})).rejects.toThrow(/Não foi possível/)
+    await asUser(a)
+    expect((await db.query<{cancelled:boolean}>('select cancelled from public.appointment_exceptions')).rows[0].cancelled).toBe(true)
+  })
   it('datas infinitas são rejeitadas antes de corromper a visualização',async()=>{
     await expect(db.query("insert into public.tasks(environment_id,title,due_at) values($1,'Fictício','infinity')",[env])).rejects.toThrow(/check constraint/)
     const id=await event()
