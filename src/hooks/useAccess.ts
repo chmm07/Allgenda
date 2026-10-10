@@ -23,8 +23,6 @@ export function useAccess(client: AppClient) {
         const { data: { user }, error } = await client.auth.getUser()
         if (disposed || current !== generation) return
         if (error && error.name !== 'AuthSessionMissingError') throw error
-        // SDK já tratou o callback. Remover código/erros/fragmentos da barra de endereço.
-        if (window.location.search || window.location.hash) window.history.replaceState(null, '', window.location.pathname)
         if (!user) {
           visibleUserId = null
           setAccess(callbackFailed ? { status: 'error', message: 'O login não foi concluído. Tente entrar novamente.' } : { status: 'anonymous' })
@@ -37,6 +35,11 @@ export function useAccess(client: AppClient) {
         setAccess(data === true ? { status: 'allowed', user } : { status: 'denied' })
       } catch {
         if (!disposed && current === generation) setAccess({ status: 'error', message: 'Não foi possível verificar seu acesso. Confira a conexão e tente novamente.' })
+      } finally {
+        // Após o SDK processar o retorno, limpar também callbacks que falharam.
+        if (!disposed && current === generation && (window.location.search || window.location.hash)) {
+          window.history.replaceState(null, '', window.location.pathname)
+        }
       }
     }
 

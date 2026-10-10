@@ -2,7 +2,7 @@
 
 ## Planejado versus realizado
 
-Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, quatro migrações, documentação e verificações registradas em `STATUS.md`. O usuário confirmou criação do projeto Supabase de testes; ref `xhzunwrkntmlmrftmffk` identificada na URL do painel. URL/chave pública recebidas e configuradas em `.env.test.local`, com build de testes aprovado. O usuário informou sucesso na aplicação do SQL combinado com migrações/convidados. Hook confirmado Enabled em captura fornecida pelo usuário, tipo Postgres function `private.before_user_created`. Projeto Google de testes criado e selecionado conforme confirmação do usuário, ID `allgenda-testes`; consentimento e cliente OAuth pendentes. Ainda faltam OAuth e execução dos testes reais de login/autorização/hook. Verificação HTTP está bloqueada pela política de rede do executor, que não permite o domínio do projeto. Nenhum deploy ou acesso administrativo remoto do agente foi configurado.
+Planejado: desenvolvimento local, projeto Supabase de testes, Cloudflare Pages de testes e produção separada. Realizado nesta sessão: arquivos locais de código, quatro migrações, documentação e verificações registradas em `STATUS.md`. O usuário confirmou criação do projeto Supabase de testes; ref `xhzunwrkntmlmrftmffk` identificada na URL do painel. URL/chave pública recebidas e configuradas em `.env.test.local`, com build de testes aprovado. O usuário informou sucesso na aplicação do SQL combinado com migrações/convidados. Hook confirmado Enabled em captura fornecida pelo usuário, tipo Postgres function `private.before_user_created`. Projeto Google de testes criado e selecionado conforme confirmação do usuário, ID `allgenda-testes`; configuração inicial OAuth criada conforme captura; três usuários de teste adicionados, cliente Web criado e provedor Google ativado conforme relato do usuário. Callback copiado do painel: `https://xhzunwrkntmlmrftmffk.supabase.co/auth/v1/callback`. Site URL/retorno Supabase `https://allgenda-testes.pages.dev/` e origem Google `https://allgenda-testes.pages.dev` salvos conforme relato. Segredos ficaram nos painéis/JSON privado, sem recebimento pelo agente. O usuário informou que o login autorizado funcionou no site; isso não comprova os demais critérios de autorização/isolamento. Ainda faltam os testes completos de autorização/isolamento/hook. Verificação HTTP está bloqueada pela política de rede do executor, que não permite o domínio do projeto. Projeto Pages de testes publicado pelo usuário após configuração acompanhada; sucesso de build/publicação relatado e URL recebida: https://allgenda-testes.pages.dev/. Orientados main, Node 24, `npm run build:test`, `dist` e variáveis públicas Supabase de testes. Sem inspeção independente das configurações/build Cloudflare pelo agente. Nenhum acesso administrativo aos painéis desses provedores foi obtido pelo agente.
 
 ## Executar a interface
 
@@ -94,10 +94,10 @@ Hook configurado conforme captura do usuário; procedimento de referência para 
 2. Em Google Auth Platform configurar audiência e usuários de teste, consentimento e cliente Web separado por ambiente conforme recursos existentes. Usar escopos de identidade `openid`, email e profile; nenhum escopo Calendar neste login.
 3. Autorizar origens reais da SPA e o callback do Supabase desse ambiente: copiar o endereço do painel, sem montar uma URL com project ref inventado. Para Supabase local, conferir `http://127.0.0.1:54321/auth/v1/callback`.
 4. No Supabase ativar somente o provedor Google; configurar client ID/secret no Auth. Desativar provedores não utilizados e métodos de senha/OTP conforme a política do projeto.
-5. Configurar Site URL e Redirect URLs exatas no Supabase. A SPA usa `window.location.origin` como `redirectTo`, retornando à raiz. Autorizar somente ambientes conhecidos, sem wildcard de produção.
+5. Configurar Site URL e Redirect URLs exatas no Supabase. A SPA usa `${window.location.origin}/` como `redirectTo`, retornando à raiz com a barra final cadastrada. Autorizar somente ambientes conhecidos, sem wildcard de produção.
 6. Ativar hook, adicionar os convidados e testar autorizado, não autorizado, logout, sessão renovada e revogação. O SDK mantém/renova sessão Supabase; isso não estabelece refresh token Google Calendar.
 
-Erro/cancelamento OAuth deve mostrar mensagem genérica e permitir repetir login. Não exibir query/fragmento contendo tokens; não enviar URLs de callback para analytics ou logs.
+Erro/cancelamento OAuth mostra mensagem genérica e permite voltar para o login ou usar outra conta. Cada tentativa solicita `prompt=select_account` e encerra somente a sessão deste navegador antes de redirecionar; não revoga outras sessões nem o consentimento Google. Não exibir query/fragmento contendo tokens; não enviar URLs de callback para analytics ou logs.
 
 ## Edge Functions de testes
 
@@ -142,7 +142,7 @@ Implantar `chat-interpret`, entrar com conta de teste convidada e interpretar me
 
 ## Cloudflare Pages — testes e produção
 
-Configuração preparada, não executada: comando de build `npm run build:test` para testes, diretório `dist`, versão Node compatível, variáveis públicas do Supabase de testes. Separar projeto/branch e recursos de produção. O usuário autorizou deploys; configurar a publicação do destino correto apenas após as verificações pertinentes. SPA serve entrada na raiz. Nenhuma publicação é realizada por `npm run build`.
+Configuração de testes executada pelo usuário, com sucesso de publicação relatado em https://allgenda-testes.pages.dev/: comando de build `npm run build:test` para testes, diretório `dist`, versão Node compatível, variáveis públicas do Supabase de testes. Separar projeto/branch e recursos de produção. O usuário autorizou deploys; configurar a publicação do destino correto apenas após as verificações pertinentes. SPA serve entrada na raiz. Nenhuma publicação é realizada por `npm run build`.
 
 Quando houver URLs de testes reais, ajustar OAuth e executar a aceitação do `REQUISITOS.md`. Produção exige configuração separada e verificações pertinentes; a publicação já foi autorizada explicitamente pelo usuário, sem necessidade de pedir nova aprovação; a revisão entre entregas de código não é condição para continuar. Commits verificados podem ir à main para o piloto, respeitando proteções; somente publicar no ambiente efetivamente configurado e verificado. Confirmar limites gratuitos nos provedores; não contratar serviços pagos.
 
@@ -167,3 +167,5 @@ Testes de navegador verificam entrada sem credenciais, temas, contraste, layout 
 - [Google OAuth Web Server](https://developers.google.com/identity/protocols/oauth2/web-server)
 - [Google Calendar sincronização](https://developers.google.com/workspace/calendar/api/guides/sync)
 - [Google Calendar alterações concorrentes](https://developers.google.com/workspace/calendar/api/guides/version-resources)
+
+Referências da recuperação de login: [Google OpenID Connect — prompt/select_account](https://developers.google.com/identity/openid-connect/openid-connect) e [Supabase signOut — scope local](https://supabase.com/docs/reference/javascript/auth-signout).

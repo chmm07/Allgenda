@@ -6,7 +6,7 @@ React + TypeScript + Vite; Cloudflare Pages para a interface; Supabase PostgreSQ
 
 ## Implementação e isolamento
 
-SPA com seções Agenda, Ambientes, Chat e Conexões, sem roteador adicional. Seções maiores carregam sob demanda. Supabase JS usa PKCE para login; `getUser()` verifica a sessão e `has_app_access()` consulta autorização atual. Data API verifica JWT; PostgreSQL aplica RLS por `auth.uid()` e condição de convidado a cada operação. ID do proprietário nunca vem do formulário.
+SPA com seções Agenda, Ambientes, Chat e Conexões, sem roteador adicional. Seções maiores carregam sob demanda. Supabase JS usa PKCE para login; `getUser()` verifica a sessão e `has_app_access()` consulta autorização atual. Login solicita seleção de conta Google a cada tentativa; recuperação de erro encerra somente a sessão do navegador e volta à entrada, com retorno OAuth à raiz cadastrada. Data API verifica JWT; PostgreSQL aplica RLS por `auth.uid()` e condição de convidado a cada operação. ID do proprietário nunca vem do formulário.
 
 `private.invited_users` possui cinco posições e e-mails únicos normalizados. A consulta privada exige e-mail confirmado e identidade Google reais de Auth, sem confiar em metadados editáveis. Administração via SQL Editor; clientes não leem nem alteram a lista. Hook Before User Created bloqueia cadastro não convidado quando ativado. RLS continua negando dados sem o hook. Remoção bloqueia próximas operações, inclusive com JWT emitido; não apaga dados nem desfaz informações já vistas.
 
@@ -48,4 +48,4 @@ Ambiente pessoal é contexto organizacional com nome e âncoras. Ambiente de exe
 
 Cores das quatro combinações documentadas centralizadas; fallback monoespaçado até validação das fontes, sem logo inventado. P3 como padrão operacional reversível. Métricas propostas continuam identificadas em `DESIGN.md`.
 
-PGlite verifica SQL, roles, grants, constraints e RLS com Auth mínimo fictício; não substitui Supabase/Auth/PostgREST/JWT reais. Playwright utiliza fixtures explicitamente identificadas e fora do build. Groq, consentimento OAuth, Calendar e persistência remota ainda dependem de recursos externos inexistentes nesta sessão.
+PGlite verifica SQL, roles, grants, constraints e RLS com Auth mínimo fictício; não substitui Supabase/Auth/PostgREST/JWT reais. Playwright utiliza fixtures explicitamente identificadas e fora do build. OAuth de login e Pages foram configurados pelo usuário, que relatou login autorizado funcionando. Autorização/isolamento completos e persistência remota entre sessões ainda exigem aceite real; Groq/Calendar permanecem sem integração real verificada.

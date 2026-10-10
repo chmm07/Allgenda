@@ -11,9 +11,11 @@
 - Design P3 e Original/Brasa, claro/escuro, com cores do anexo textual. Imagens/fontes finais continuam ausentes.
 - Calendário inicialmente semanal, acesso ao mês, painéis de Pendências/Compromissos expansíveis abaixo e ambientes na lateral; sem prazo separado e atrasadas por último.
 - Fim ausente de compromisso: duração de 30 minutos. Chat tem histórico, prévia editável e confirmação/rejeição antes de criar item. Briefings, arraste com alternativa por menu e adaptação móvel fazem parte do escopo.
-- Configuração acompanhada: o usuário criou o projeto Supabase de testes (ref `xhzunwrkntmlmrftmffk`). URL/chave pública recebidas e configuração local de testes concluída; aplicação do SQL confirmada pelo relato do usuário; hook confirmado Enabled em captura com `private.before_user_created`; projeto Google de testes criado e selecionado conforme confirmação do usuário, ID `allgenda-testes`; OAuth e testes reais ainda pendentes; guia em `PRIMEIROS_PASSOS_SERVICOS.md`.
+- Configuração acompanhada: o usuário criou o projeto Supabase de testes (ref `xhzunwrkntmlmrftmffk`). URL/chave pública recebidas e configuração local de testes concluída; aplicação do SQL confirmada pelo relato do usuário; hook confirmado Enabled em captura com `private.before_user_created`; projeto Google de testes criado e selecionado conforme confirmação do usuário, ID `allgenda-testes`; OAuth/Pages configurados e login autorizado funcionando conforme relato do usuário; autorização/isolamento completos e reprodução independente pendentes; guia em `PRIMEIROS_PASSOS_SERVICOS.md`.
 
 ## Escolhas técnicas reversíveis
+
+- Recuperação de login: seleção explícita de conta Google a cada tentativa, saída limitada à sessão deste navegador, retorno à raiz cadastrada e recuperação em erro/negação. Não muda a lista de convidados nem revoga consentimentos externos.
 
 - Base iniciada em `dev/primeira-entrega`; continuidade na main autorizada. npm/lockfile, SPA e SDK Supabase PKCE, sem roteador extra.
 - Cinco posições fixas na lista evitam corrida na contagem. Administração via SQL Editor, hook e RLS consultando autorização atual.
@@ -30,7 +32,7 @@
 
 | Questão | Dependência e comportamento atual |
 | --- | --- |
-| Recursos/URLs/segredos de testes | Três e-mails e responsável recebidos; SQL local aplicado no painel com sucesso informado pelo usuário, sem verificação independente. Projeto Supabase de testes criado; URL/chave pública configuradas; hook configurado conforme captura; faltam validar sua execução, configurar login/integrações, conciliar histórico de migrações do CLI e liberar o domínio do projeto na rede do executor para verificação remota pelo agente. |
+| Recursos/URLs/segredos de testes | Três e-mails e responsável recebidos; SQL local aplicado no painel com sucesso informado pelo usuário, sem verificação independente. Projeto Supabase de testes criado; URL/chave pública configuradas; hook configurado conforme captura; OAuth/Pages configurados e login autorizado relatado; faltam verificar acesso negado/isolamento/persistência, configurar demais integrações, conciliar histórico de migrações do CLI e liberar o domínio do projeto na rede do executor para verificação remota pelo agente. |
 | Conflito de mudanças simultâneas Allgenda/Google: escolher versão ou usar a mais recente | Pergunta enviada, sem resposta; sincronização automática não implementada. ETag preparado detecta conflito. |
 | Editar série com exceções: preservar edições individuais ou substituí-las com confirmação | Pergunta enviada, sem resposta; edição de série que possui exceções bloqueada na interface. Ocorrência, série sem exceções e exclusão confirmada de série estão disponíveis. |
 | Calendários elegíveis/mapeamento para ambientes; propagação de exclusões nos dois lados | Antes de sincronização; nenhum evento externo é alterado/excluído nesta sessão. |
