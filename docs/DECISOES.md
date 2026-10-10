@@ -16,6 +16,9 @@
 
 ## Escolhas técnicas reversíveis
 
+- Calendar no MVP: um calendário editável por ambiente, associação explícita inicialmente imutável; pausa preserva itens. Essa restrição técnica evita duplicatas e exclusões ambíguas, não constitui escolha de produto aprovada pelo usuário. Verificação em primeiro plano a cada 60 segundos e botão manual; sem worker agendado com aplicação fechada.
+- ETag e CAS protegem alterações concorrentes; timestamp Google ausente em conflito interrompe sem inventar versão. Dia inteiro e regras avançadas ficam preservados no Google. Remapeamento estrutural de séries com exceções segue pendente de validação real; preservação é preferível a propagação incorreta.
+
 - Recuperação de login: seleção explícita de conta Google a cada tentativa, saída limitada à sessão deste navegador, retorno à raiz cadastrada e recuperação em erro/negação. Não muda a lista de convidados nem revoga consentimentos externos.
 
 - Base iniciada em `dev/primeira-entrega`; continuidade na main autorizada. npm/lockfile, SPA e SDK Supabase PKCE, sem roteador extra.
@@ -34,7 +37,7 @@
 | Questão | Dependência e comportamento atual |
 | --- | --- |
 | Recursos/URLs/segredos de testes | Quatro contas autorizadas, incluindo o responsável; inclusão Supabase/OAuth confirmada pelo usuário; SQL local aplicado no painel com sucesso informado pelo usuário, sem verificação independente. Projeto Supabase de testes criado; URL/chave pública configuradas; hook configurado conforme captura; OAuth/Pages configurados e login autorizado relatado; login, persistência entre sessões e separação visual em uma direção relatados pelo usuário; faltam acesso negado, isolamento inverso/direto e reprodução independente, configurar demais integrações, conciliar histórico de migrações do CLI e liberar o domínio do projeto na rede do executor para verificação remota pelo agente. |
-| Mapeamento de calendários selecionados para ambientes pessoais | Seleção de calendários e propagação de exclusões aprovadas. Associação ao ambiente deve ser explícita; sem adivinhar contexto de eventos externos. Implementação/aceite da sincronização ainda faltam. |
+| Aceite Calendar e ampliação do mapeamento | Seleção e associação explícita implementadas; um calendário por ambiente e vínculo imutável inicialmente. Integração real, remapeamento de séries com exceções e sincronização com aplicação fechada ainda não verificados/implementados. |
 | Destino/retenção/exportação dos dados de convidado removido | Antes de descarte real; acesso revogado preserva registros e tokens inacessíveis. |
 | Imagens P3/original, símbolo final, aprovação de fontes/métricas/marcadores de ambiente | Antes de afirmar fidelidade/marca final; cores textuais disponíveis, demais valores propostos. |
 | Modelo Groq e limites disponíveis na conta gratuita; retenção final do histórico | Modelo configura-se no servidor, sem nome inventado; sem política de descarte automático. |

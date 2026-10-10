@@ -19,6 +19,8 @@ As migrações devem ser aplicadas em ordem; a quinta foi aplicada no projeto de
 | `202610090003_chat.sql` | Histórico/propostas e confirmação atômica idempotente. |
 | `202610090004_calendar_accounts.sql` | Metadados de contas, credenciais cifradas privadas e estados OAuth descartáveis; RPCs administrativas exclusivas do servidor. |
 | `202610100005_series_edit.sql` | Edição atômica de série com substituição confirmada de exceções; invoker/RLS, validação e recusa de prévia desatualizada. |
+| `202610100006_calendar_selection.sql` | Seleção explícita calendário/ambiente, RLS/grants limitados e credenciais cifradas acessíveis somente ao servidor. |
+| `202610100007_calendar_sync.sql` | Lease, cursor, vínculos, journal de exclusões/restauração de ocorrências e transições atômicas com comparação de versão. |
 
 Tarefas pertencem a um ambiente e podem ter prazo. Compromissos armazenam instantes UTC, fuso IANA e recorrência diária/semanal/mensal. Exceções usam chave série + início original; herdam ambiente da série. Grants por coluna impedem alteração de proprietário, IDs e auditoria. References compostas impedem vincular registro ao ambiente/série de outra pessoa.
 
@@ -37,7 +39,10 @@ Carregamento da agenda é paginado em lotes de 200; a configuração de limite d
 - `chat-interpret`: CORS por origem exata, valida sessão/convidado no servidor, lê contextos via RLS e chama Groq com chave de servidor. Valida JSON/ações/ambientes/datas e salva somente proposta. O modelo não executa comandos.
 - `calendar-connect`: valida sessão/convidado, cria estado aleatório com hash e validade de dez minutos, guarda verificador PKCE cifrado e inicia consentimento separado do login.
 - `calendar-callback`: callback público exigido pelo OAuth, protegido por estado descartável + PKCE. Troca código no servidor, verifica identidade Google, cifra access/refresh tokens em AES-GCM e revalida acesso antes de guardar. Não devolve tokens à SPA.
-- `_shared/google-calendar.ts`: adaptador HTTP preparado para paginação, cursor incremental, ETag e erros do Google. Ainda não há seleção de calendário, processamento de sincronização ou renovação automática conectados ao produto.
+- `calendar-manage`: verifica sessão/convidado e propriedade da conta/associação, renova tokens cifrados e oferece listagem, configuração confirmada e processamento bidirecional. RPCs administrativas recebem identidade derivada de `getUser`, revalidam convite/propriedade e não aceitam execução pelo cliente.
+- `_shared/google-calendar.ts`: paginação, cursor incremental, ETag obrigatório, consulta de instância pelo início original e erros do Google. Codec aceita eventos com horário e recorrências simples; processamento compara versões locais/Google, trata exclusões e exceções e avança cursor somente ao concluir. Journal mantém contexto após excluir/mover itens ou ambiente, sem expor credenciais/cursor ao cliente.
+
+`CalendarSync` verifica associações selecionadas a cada 60 segundos somente com aplicação aberta, online e visível; executa em sequência, interrompe acompanhamento ao sair e sinaliza atualizações sem substituir formulários abertos. Não há agendamento no servidor com aplicação fechada. Associação inicialmente imutável e um calendário por ambiente são restrições técnicas conservadoras. Mudança estrutural de série com exceções e exclusão remota sem data confiável preservam pendências até verificação; aceite Google real ainda depende dos secrets.
 
 Chave de cifragem permanece somente nos secrets do servidor, separada do banco. Credenciais e estados privados não são expostos pela Data API. Contas de diferentes usuários têm RLS, mesmo que conectem a mesma identidade Google. Desconectar remove somente metadados/tokens locais após confirmação; não apaga eventos nem revoga permissões no Google.
 

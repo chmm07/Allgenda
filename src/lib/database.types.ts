@@ -18,6 +18,7 @@ export type ExceptionInput = Omit<AppointmentException, 'user_id' | 'created_at'
 export type EnvironmentImpact = { tasks: { id: string; title: string }[]; appointments: { id: string; title: string }[]; exceptions: { appointment_id: string; original_start: string; title: string }[] }
 export type ChatHistory = {id:string;user_id:string;message:string;proposal:Record<string,unknown>;status:'draft'|'confirmed'|'rejected';created_item_id:string|null;created_at:string}
 export type GoogleAccount={id:string;user_id:string;google_subject:string;email:string;created_at:string}
+export type CalendarBinding={id:string;user_id:string;account_id:string;calendar_id:string;calendar_name:string;environment_id:string|null;enabled:boolean;last_synced_at:string|null;last_error:string|null}
 type Table<Row, Input> = { Row: Row; Insert: Input; Update: Partial<Input>; Relationships: [] }
 export type Database = {
   public: {
@@ -27,6 +28,7 @@ export type Database = {
       appointment_exceptions: Table<AppointmentException, ExceptionInput>
       chat_history: Table<ChatHistory, Pick<ChatHistory,'message'|'proposal'>>
       google_accounts: Table<GoogleAccount,never>
+      calendar_bindings: Table<CalendarBinding,never>
       environments: {
         Row: Environment
         Insert: EnvironmentInput
@@ -37,6 +39,7 @@ export type Database = {
     Views: { [key in never]: never }
     Functions: {
       has_app_access: { Args: Record<string, never>; Returns: boolean }
+      configure_calendar: {Args:{target_account:string;target_calendar:string;target_name:string;target_environment:string;activate:boolean;confirmed:boolean};Returns:string}
       environment_impact: { Args: { target_id: string }; Returns: EnvironmentImpact }
       delete_environment_confirmed: { Args: { target_id: string; expected_impact: EnvironmentImpact }; Returns: undefined }
       replace_appointment_series: {Args:{target_id:string;edited_value:Record<string,unknown>;expected_updated_at:string;expected_exceptions:AppointmentException[]};Returns:Appointment}

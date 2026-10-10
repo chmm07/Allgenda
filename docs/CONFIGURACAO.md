@@ -123,14 +123,15 @@ supabase secrets set --env-file supabase/functions/.env.local --project-ref '<PR
 supabase functions deploy chat-interpret --project-ref '<PROJECT_REF_TESTES>'
 supabase functions deploy calendar-connect --project-ref '<PROJECT_REF_TESTES>'
 supabase functions deploy calendar-callback --project-ref '<PROJECT_REF_TESTES>'
-deno check --no-lock --node-modules-dir=manual supabase/functions/chat-interpret/index.ts supabase/functions/calendar-connect/index.ts supabase/functions/calendar-callback/index.ts
+supabase functions deploy calendar-manage --project-ref '<PROJECT_REF_TESTES>'
+deno check --no-lock --node-modules-dir=manual supabase/functions/chat-interpret/index.ts supabase/functions/calendar-connect/index.ts supabase/functions/calendar-callback/index.ts supabase/functions/calendar-manage/index.ts
 ```
 
 Esses comandos não foram executados contra recursos remotos nesta sessão. `link` grava alvo para comandos seguintes: conferir projeto explicitamente antes de `db push`. Para Supabase local com Docker, usar `supabase functions serve --env-file supabase/functions/.env.local`. Não executar reset remoto, comandos de produção ou migração de dados reais sem salvaguardas apropriadas.
 
 `chat-interpret` e `calendar-connect` mantêm verificação JWT do gateway e verificam usuário/convidado dentro da função. `calendar-callback` não recebe JWT do navegador Google: é configurado como callback público, protegido por estado aleatório descartável com dez minutos de validade, PKCE e vínculo de usuário criado pelo servidor autenticado. Não alterar a configuração de autenticação para contornar erros de configuração do gateway.
 
-## OAuth: conexão Google Calendar — preparado, ainda não sincroniza
+## OAuth: conexão Google Calendar — processamento implementado, aceite real pendente
 
 Conexão distinta do login, associada ao usuário Allgenda verificado. Habilitar Calendar API no Google Cloud de testes e criar outro cliente Web. Configurar callback **real** da função `calendar-callback`, copiado da URL do projeto implantado; o mesmo valor exato deve estar no cliente Google e em `GOOGLE_CALENDAR_REDIRECT_URI`. Não usar callback do login Supabase para Calendar.
 
@@ -140,7 +141,9 @@ Definir `APP_URL` como origem real da SPA, `APP_ORIGINS` como origens exatas per
 
 OAuth pede acesso offline com PKCE e consentimento/seletor de conta. Código troca tokens no servidor, verifica identidade e guarda tokens cifrados. Várias contas podem ser conectadas; callback volta à seção Conexões e lista metadados reais via RLS. Query de retorno não é prova de sucesso. Desconexão local confirmada remove credenciais locais e mantém eventos/autorizações Google; revogar permissões manualmente na segurança da conta Google quando necessário.
 
-**Ainda faltam:** seleção/mapeamento de calendários, renovação automática de access tokens, fila/processamento de sincronização bidirecional, política de conflitos, propagação de exclusões, reautorização e revogação Google integrada. Adaptador HTTP tem testes de paginação, 401/410/412/quotas e ETag, mas não significa sincronização funcionando. Consentimento externo em teste pode expirar refresh tokens em sete dias para estes escopos; verificar condições no Google e testar reautorização. Não testar eventos reais de produção.
+Seleção/mapeamento, renovação automática de access tokens, conflitos/exclusões e processamento incremental foram implementados. A interface sincroniza manualmente e a cada 60 segundos somente quando aberta e visível. **Ainda faltam:** configurar secrets, aceitar a integração real, verificar remapeamento estrutural de séries com exceções, agendamento com aplicação fechada e revogação Google integrada. Testes de transporte fictício não significam sincronização real funcionando. Consentimento externo em teste pode expirar refresh tokens em sete dias para estes escopos; verificar condições no Google e testar reautorização. Não testar eventos reais de produção.
+
+Em 10/10/2026, sessão administrativa permitiu instalar migrações 6/7 e quatro funções no projeto de testes, sem reset/reaplicação do SQL anterior. Backup privado em `.local/backups`; contagens e grants conferidos depois. `APP_URL=https://allgenda-testes.pages.dev/` e `APP_ORIGINS=https://allgenda-testes.pages.dev` configurados; demais secrets personalizados ausentes. Para publicação via editor, `node scripts/prepare-edge-editor.mjs` gera bundles ignorados em `.local/edge-editor`, sem credenciais. Substituir todo o conteúdo do editor antes de publicar, conferindo o projeto. Tipos Deno dos fontes e bundles devem passar. Verificação JWT de chat/connect/manage permanece ativada; não desabilitar para contornar falha.
 
 ## Groq — preparado, não verificado
 

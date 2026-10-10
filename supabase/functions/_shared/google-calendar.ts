@@ -23,6 +23,11 @@ export function googleCalendarClient(accessToken:string,fetcher:typeof fetch=fet
       return {events:result,syncToken:nextSyncToken}
     },
     get:(calendarId:string,id:string)=>request<GoogleEvent>(`calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(id)}`),
+    async instance(calendarId:string,parentId:string,originalStart:string){
+      const result:GoogleEvent[]=[];let page:string|undefined
+      do{const data=await request<{items?:GoogleEvent[];nextPageToken?:string}>(`calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(parentId)}/instances?${new URLSearchParams({originalStart,showDeleted:'true',maxResults:'2500',...(page?{pageToken:page}:{})})}`);result.push(...data.items??[]);page=data.nextPageToken}while(page)
+      return result.find(item=>item.originalStartTime?.dateTime&&Date.parse(item.originalStartTime.dateTime)===Date.parse(originalStart))??null
+    },
     async create(calendarId:string,localId:string,value:Omit<GoogleEvent,'id'|'etag'>){
       // UUID -> base32hex compatível: o mesmo ID evita duplicatas em retries.
       const id=localId.replace(/-/g,'').toLowerCase()
