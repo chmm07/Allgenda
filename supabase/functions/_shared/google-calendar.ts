@@ -5,6 +5,7 @@ export class CalendarApiError extends Error{
 }
 export function googleCalendarClient(accessToken:string,fetcher:typeof fetch=fetch){
   async function request<T>(path:string,method='GET',body?:unknown,etag?:string):Promise<T>{
+    if((method==='PATCH'||method==='DELETE')&&(!etag?.trim()||etag.trim()==='*'))throw new Error('Versão do evento ausente: consulte o evento antes de alterar ou excluir.')
     const response=await fetcher(`https://www.googleapis.com/calendar/v3/${path}`,{method,headers:{Authorization:`Bearer ${accessToken}`,'Content-Type':'application/json',...(etag?{'If-Match':etag}:{})},body:body===undefined?undefined:JSON.stringify(body),signal:AbortSignal.timeout(20000)})
     if(!response.ok)throw new CalendarApiError(response.status)
     return (response.status===204?undefined:await response.json()) as T
