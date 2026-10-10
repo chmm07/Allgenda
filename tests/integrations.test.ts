@@ -18,4 +18,17 @@ describe('adaptador Calendar com HTTP fictício, sem integração real',()=>{
     await client.update('primary','um',{summary:'Fictício'},'antigo');expect(fetcher.mock.calls[0][1].headers['If-Match']).toBe('antigo')
     expect(()=>client.remove('primary','um','antigo',false)).toThrow(/confirmação/);expect(fetcher).toHaveBeenCalledTimes(1)
   })
+  it.each(['','   ','*',' * '])('edição e exclusão sem versão específica (%j) não enviam requisições',async etag=>{
+    const fetcher=vi.fn(),client=googleCalendarClient('ficticio',fetcher as typeof fetch)
+    await expect(client.update('primary','um',{summary:'Fictício'},etag)).rejects.toThrow(/Versão do evento ausente/)
+    await expect(client.remove('primary','um',etag,true)).rejects.toThrow(/Versão do evento ausente/)
+    expect(fetcher).not.toHaveBeenCalled()
+  })
+  it('conflito em edição ou exclusão não repete a chamada sem proteção',async()=>{
+    const fetcher=vi.fn().mockResolvedValue(new Response(null,{status:412})),client=googleCalendarClient('ficticio',fetcher as typeof fetch)
+    await expect(client.update('primary','um',{summary:'Fictício'},'"versao-anterior"')).rejects.toMatchObject({status:412})
+    await expect(client.remove('primary','um','"versao-anterior"',true)).rejects.toMatchObject({status:412})
+    expect(fetcher).toHaveBeenCalledTimes(2)
+    for(const [,options] of fetcher.mock.calls)expect(options.headers['If-Match']).toBe('"versao-anterior"')
+  })
 })

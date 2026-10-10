@@ -1,5 +1,16 @@
 # Status — Allgenda
 
+## Continuação: serviços ausentes e proteção de versões Calendar — 10 de outubro de 2026
+
+- Ferramentas/perfis conferidos novamente antes do aceite; somente o perfil Chrome já conectado está disponível, sem sessão Praso exposta. Nenhuma política ou sessão externa foi alterada.
+- **Chat real:** carregou contextos/histórico autenticados; duas tentativas com mensagem fictícia retornaram indisponibilidade. Resposta observada de `chat-interpret`: HTTP 404. Mensagem preservada, botão liberado para repetir, sem prévia simulada. **Calendar real:** metadados carregaram; `calendar-connect` retornou HTTP 404, mostrou erro e liberou os botões. Esses endpoints não estão disponíveis no projeto de testes; não inferir configuração dos secrets a partir do 404.
+- Consultas autenticadas após as tentativas confirmaram zero tarefas, compromissos, histórico e contas Calendar nessa sessão. Não houve criação de evento externo ou descarte de dados preexistentes.
+- Layout publicado de Agenda, Ambientes, Chat e Conexões conferido a 375 px com dados carregados: nenhuma rolagem horizontal. Override de viewport removido ao terminar. Essa verificação cobre as telas observadas, não todo o aceite móvel com formulários preenchidos.
+- **Lacuna corrigida no adaptador Calendar:** PATCH/DELETE aceitavam ETag vazio, omitindo `If-Match`, ou wildcard, sem exigir versão específica. Agora essas chamadas falham antes do HTTP; conflito 412 continua sem retry que sobrescreva alterações. [Contrato oficial Google](https://developers.google.com/workspace/calendar/api/guides/version-resources) consultado. Testes usam HTTP fictício; adaptador não foi implantado no Supabase nem representa sincronização real.
+- Verificações locais desta correção: lint, tipos/build e **102 testes em dez arquivos** aprovados; regressões do adaptador exercitam bloqueio antes do envio e conflito de edição/exclusão. CI remoto será conferido para Deno e navegador; não houve alteração de interface nesta correção.
+- Próxima configuração externa: implantar `chat-interpret`, `calendar-connect` e `calendar-callback` no projeto de testes, configurando secrets no servidor conforme `CONFIGURACAO.md`. Não reaplicar migrações nem alterar a verificação JWT para contornar configuração. Faltam sessão administrativa e configuração Groq/Calendar; não solicitar segredos no chat.
+- Pergunta sobre conflitos, edição de série com exceções, calendários e propagação de exclusões enviada novamente. Respostas continuam necessárias antes de implementar o comportamento dependente. Isolamento remoto entre duas contas permanece pendente.
+
 ## Continuação dos testes reais e correção de ocorrência — 10 de outubro de 2026
 
 - Usuário autorizou continuar e concluir os testes autonomamente. Informou que a sessão Praso já existe em outro perfil do Chrome. A conexão de navegador disponível ao Codex expõe apenas o perfil Gmail; inventário de navegadores/abas conferido, sem acesso à janela Praso. Duas abas da mesma origem nesse perfil compartilham o armazenamento da sessão; abrir outra aba não isola as contas. Não copiar cookies/perfil/tokens entre perfis nem enfraquecer a política Google. A falha de 2FA abaixo se refere à tentativa de login novo, não prova que a sessão existente esteja inválida.
