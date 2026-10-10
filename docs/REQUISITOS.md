@@ -67,9 +67,9 @@ Critérios:
 
 ## 6. Google Calendar
 
-Aprovado: múltiplas contas e sincronização bidirecional, conectadas separadamente do login; selecionar quais calendários sincronizar, usar a alteração mais recente em conflitos e propagar exclusões nos dois sentidos. Implementado preparatoriamente: OAuth offline/PKCE, metadados isolados, tokens cifrados privados, conta conectável/desconectável após confirmação, adaptador HTTP com paginação/cursor/ETag. **Seleção/mapeamento, renovação de tokens e processamento de sincronização ainda não estão implementados no produto.**
+Aprovado: múltiplas contas e sincronização bidirecional, conectadas separadamente do login; selecionar quais calendários sincronizar, usar a alteração mais recente em conflitos e propagar exclusões nos dois sentidos. Implementados OAuth offline/PKCE, tokens cifrados privados, seleção de calendários editáveis com associação explícita a ambientes, renovação de tokens e processamento incremental de compromissos/ocorrências. Ativação exige confirmação da sincronização e exclusões. Testes de transporte/SQL fictícios aprovados; **integração real ainda não aceita**.
 
-Sem callback/segredos, conexão informa indisponibilidade. Desconexão atual remove tokens/metadados locais, preservando eventos e autorização Google; revogação Google é manual. Política de conflito, calendários elegíveis e propagação de exclusões pendentes antes do comportamento dependente.
+Sem callback/segredos, conexão informa indisponibilidade. Desconexão remove tokens/metadados locais, preservando eventos e autorização Google; revogação Google é manual. Um calendário por ambiente e associação imutável inicialmente; tarefas não são eventos Calendar. Botão manual e verificação a cada 60 segundos com aplicação aberta/visível. Dia inteiro/regras avançadas preservados somente no Google; conflito sem timestamp confiável e remapeamento estrutural com exceções interrompem sem sobrescrever dados.
 
 Critérios da integração completa:
 - [ ] Duas contas de teste conectam por consentimento distinto, com estado descartável/PKCE, isoladas por proprietário.

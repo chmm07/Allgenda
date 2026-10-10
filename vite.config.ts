@@ -9,5 +9,5 @@ export default defineConfig(({ mode }) => {
     // Rejeitar chave administrativa antes de ela entrar no bundle.
     if (result.error) throw new Error(result.error)
   }
-  return { plugins: [react()], server: { port: 5173, strictPort: true } }
+  return { plugins: [react()], server: { port: 5173, strictPort: true }, build: {rolldownOptions:{input:{app:'index.html',design:'design-system.html'}}} }
 })

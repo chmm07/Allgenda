@@ -121,7 +121,7 @@ export function EnvironmentManager({ repository }: { repository: EnvironmentRepo
         <p>{impact.tasks.length+impact.appointments.length+impact.exceptions.length === 0 ? 'Itens afetados: nenhum.' : `Itens afetados: ${impact.tasks.length} tarefas, ${impact.appointments.length} séries/compromissos e ${impact.exceptions.length} exceções.`} O ambiente e os itens serão excluídos definitivamente.</p>
         <ul>{impact.tasks.map(item=><li key={item.id}>Tarefa: {item.title}</li>)}{impact.appointments.map(item=><li key={item.id}>Compromisso/série: {item.title}</li>)}{impact.exceptions.map(item=><li key={`${item.appointment_id}-${item.original_start}`}>Ocorrência: {item.title}</li>)}</ul>
       </>}</div>
-      <p>Você pode cancelar para manter o ambiente.</p>
+      <p>Se este ambiente tiver um calendário selecionado, as exclusões dos compromissos serão propagadas ao Google na próxima sincronização. Você pode cancelar para manter o ambiente.</p>
       {operationError && <p role="alert" className="error">{operationError}</p>}
       <div className="actions"><button autoFocus disabled={busy} onClick={() => dialog.current?.close()}>Cancelar</button><button className="danger" disabled={busy || !impact} onClick={() => { void confirmDelete() }}>{busy ? 'Aguarde…' : 'Confirmar exclusão'}</button></div>
     </dialog>

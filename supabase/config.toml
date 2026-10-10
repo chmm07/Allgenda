@@ -43,6 +43,9 @@ verify_jwt = true
 [functions.calendar-connect]
 verify_jwt = true
 
+[functions.calendar-manage]
+verify_jwt = true
+
 # Retorno OAuth do Google não contém JWT; estado one-time/PKCE verifica o vínculo.
 [functions.calendar-callback]
 verify_jwt = false

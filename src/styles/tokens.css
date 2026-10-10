@@ -8,6 +8,7 @@
   --radius-control: 4px; --radius-dialog: 8px; --border-width: 1px;
   --control-height: 44px; --transition: 160ms;
   --line-body: 1.6; --line-heading: 1.2;
+  --content-width: 1440px; --sidebar-width: 240px; --form-width: 680px;
 }
 [data-palette="petroleo"][data-theme="dark"] {
   color-scheme: dark;

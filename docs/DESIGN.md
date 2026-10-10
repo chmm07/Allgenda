@@ -17,3 +17,9 @@ Fredoka e IBM Plex Mono são candidatas a prova, não fontes aprovadas. A interf
 Botão principal/secundário/destrutivo, hover, foco, desabilitado e salvando; campos com label, ajuda e erro; cartões; vazio, carregamento, falha, acesso negado e diálogo de exclusão. Conteúdo da aplicação vem do Supabase e interpretação real depende de Groq configurado; não há agenda ou chat simulados. Calendário, painéis e prévias reutilizam os tokens; não foi inventada uma paleta de ambientes.
 
 Recalcular contraste dos fundos e estados utilizados, testar quatro combinações, teclado, foco, toque, zoom, movimento reduzido e conteúdo longo. Acessibilidade e comparação visual não estão automaticamente validadas pelo documento de referência.
+
+## Refinamento do MVP — 10/10/2026
+
+Aplicados tokens às quatro seções, navegação selecionada, cartões, badges textuais de ambiente, estados, calendário/dia atual, painéis e confirmações. Conteúdo máximo 1440 px, lateral 240 px e formulário 680 px são métricas propostas centralizadas; não derivadas de imagem ausente. Layout se adapta ao celular com controles de 44 px e textos longos sem rolagem horizontal.
+
+`/design-system.html` é uma galeria independente, incluída no build, que reutiliza Appearance/tokens/componentes e identifica dados fictícios. Não carrega sessão, banco ou integrações. Testes de navegador verificaram quatro temas em 375, 768 e 1440 px, texto longo, foco/retorno por Escape e movimento reduzido, além dos fluxos existentes. Esses resultados não provam fidelidade ao símbolo/fontes que ainda faltam.

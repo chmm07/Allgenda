@@ -7,6 +7,8 @@ import type { AppClient } from './lib/supabase'
 import type { AppEnvironment } from './lib/config'
 import {chatRepository} from './lib/chat'
 import { agendaRepository } from './lib/agenda'
+import {connectionsRepository} from './lib/connections'
+import {CalendarSync} from './components/CalendarSync'
 const Agenda=lazy(()=>import('./components/Agenda').then(module=>({default:module.Agenda})))
 const Chat=lazy(()=>import('./components/Chat').then(module=>({default:module.Chat})))
 const Connections=lazy(()=>import('./components/Connections').then(module=>({default:module.Connections})))
@@ -18,6 +20,7 @@ function ConnectedApp({ client }: { client: AppClient }) {
   const repository = useMemo(() => environmentRepository(client), [client])
   const agenda = useMemo(() => agendaRepository(client), [client])
   const chat=useMemo(()=>chatRepository(client),[client])
+  const connections=useMemo(()=>connectionsRepository(client),[client])
   const [calendarReturn] = useState(()=>new URLSearchParams(window.location.search).get('calendar'))
   const [section,setSection] = useState<'agenda'|'environments'|'chat'|'connections'>(()=>new URLSearchParams(window.location.search).has('calendar')?'connections':'agenda')
   async function login() {
@@ -45,9 +48,10 @@ function ConnectedApp({ client }: { client: AppClient }) {
   return <>
     {access.status === 'allowed' ? <>
       <div className="session"><p>Você está conectado.</p><button disabled={busy} onClick={() => { void logout() }}>Sair</button></div>
-      <nav className="actions" aria-label="Seções"><button aria-pressed={section==='agenda'} onClick={()=>setSection('agenda')}>Agenda</button><button aria-pressed={section==='environments'} onClick={()=>setSection('environments')}>Ambientes</button><button aria-pressed={section==='chat'} onClick={()=>setSection('chat')}>Chat</button><button aria-pressed={section==='connections'} onClick={()=>setSection('connections')}>Conexões</button></nav>
+      <CalendarSync key={access.user.id} repository={connections}/>
+      <nav className="section-nav" aria-label="Seções"><button aria-pressed={section==='agenda'} onClick={()=>setSection('agenda')}>Agenda</button><button aria-pressed={section==='environments'} onClick={()=>setSection('environments')}>Ambientes</button><button aria-pressed={section==='chat'} onClick={()=>setSection('chat')}>Chat</button><button aria-pressed={section==='connections'} onClick={()=>setSection('connections')}>Conexões</button></nav>
       {section==='connections'&&calendarReturn==='error'&&<p role="alert">A autorização do Google Calendar não foi concluída. Confira a configuração ou tente novamente.</p>}
-      <Suspense fallback={<p role="status">Abrindo seção…</p>}>{section==='agenda'?<Agenda key={access.user.id} repository={agenda}/>:section==='environments'?<EnvironmentManager key={access.user.id} repository={repository} />:section==='chat'?<Chat key={access.user.id} repository={chat}/>:<Connections key={access.user.id} client={client}/>}</Suspense>
+      <Suspense fallback={<p role="status">Abrindo seção…</p>}>{section==='agenda'?<Agenda key={access.user.id} repository={agenda}/>:section==='environments'?<EnvironmentManager key={access.user.id} repository={repository} />:section==='chat'?<Chat key={access.user.id} repository={chat}/>:<Connections key={access.user.id} repository={connections}/>}</Suspense>
     </> : <section className="card entrance" aria-labelledby="access-heading">
       <h1 id="access-heading">Tudo converge aqui</h1>
       {access.status === 'loading' ? <p role="status">Verificando seu acesso…</p> : access.status === 'denied' ? <>
