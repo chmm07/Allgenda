@@ -24,6 +24,7 @@ Listar/criar/editar/cancelar/excluir, com carregamento/vazio/formulário/salvand
 Critérios:
 - [ ] Nome vazio/âncoras insuficientes, repetidas, nulas ou inválidas rejeitados no cliente e banco.
 - [ ] Usuário não envia/altera proprietário nem lê/edita/exclui UUID de outro usuário.
+- [x] Separação observada na listagem: segunda conta não vê os ambientes da primeira, conforme relato do usuário no teste acompanhado de 10/10/2026. Sentido inverso e acesso direto a registros alheios ainda pendentes; este resultado não encerra o critério de isolamento acima.
 - [x] Ambiente persiste na nova sessão real: usuário confirmou que os ambientes permanecem após sair/entrar, no teste acompanhado de 10/10/2026. Reprodução direta pelo agente e persistência de tarefas/compromissos ainda não verificadas.
 - [ ] Prévia mostra itens afetados; cancelamento preserva tudo, confirmação exclui apenas ambiente próprio e seus itens.
 - [ ] Prévia desatualizada não autoriza exclusão; acesso revogado/falha não produz sucesso fictício.

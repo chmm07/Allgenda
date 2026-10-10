@@ -4,11 +4,11 @@ Não é preciso configurar tudo de uma vez. Primeiro faça Supabase + Google de 
 
 ## 1. Lista de acesso
 
-Concluído o recebimento inicial: três e-mails Google, incluindo o responsável, com duas vagas disponíveis. A inclusão está preparada em SQL administrativo local ignorado pelo Git; a lista real não é versionada no repositório público. O usuário informou sucesso na execução do SQL que inclui a lista no Supabase. Login autorizado funcionando conforme relato do usuário; falta completar os testes de autorização/isolamento reais. O usuário quer acompanhar cada passo junto com o agente.
+Concluído o recebimento inicial: três e-mails Google iniciais, incluindo o responsável. Posteriormente uma quarta conta pessoal foi autorizada; inclusão por INSERT separado na posição 4 do Supabase e nos usuários OAuth confirmada pelo usuário. Há uma vaga disponível. A inclusão está preparada em SQL administrativo local ignorado pelo Git; a lista real não é versionada no repositório público. O usuário informou sucesso na execução do SQL que inclui a lista no Supabase. Login autorizado funcionando conforme relato do usuário; falta completar os testes de autorização/isolamento reais. O usuário quer acompanhar cada passo junto com o agente.
 
 ## 2. Supabase de testes
 
-Estado acompanhado: login realizado e projeto criado pelo usuário, ref `xhzunwrkntmlmrftmffk`. URL da API e chave publishable pública recebidas e configuradas localmente; build de testes aprovado. O usuário informou sucesso na execução do SQL administrativo no SQL Editor. Hook Before User Created confirmado Enabled, Postgres function `private.before_user_created`. Projeto Google Cloud de testes `allgenda-testes` criado e selecionado conforme confirmação do usuário. OAuth/Pages configurados e login autorizado funcionando conforme relato do usuário. Próxima ação: corrigir recuperação após erro e testar acesso negado/isolamento/persistência; execução real do hook será validada depois do login. Não reaplicar o script combinado. A verificação da API pelo agente depende de liberar o domínio do projeto na rede do ambiente. Não copiar secret/service_role ou senha. Os passos de criação abaixo são mantidos como referência de configuração.
+Estado acompanhado: login realizado e projeto criado pelo usuário, ref `xhzunwrkntmlmrftmffk`. URL da API e chave publishable pública recebidas e configuradas localmente; build de testes aprovado. O usuário informou sucesso na execução do SQL administrativo no SQL Editor. Hook Before User Created confirmado Enabled, Postgres function `private.before_user_created`. Projeto Google Cloud de testes `allgenda-testes` criado e selecionado conforme confirmação do usuário. OAuth/Pages configurados e login autorizado funcionando conforme relato do usuário. Recuperação de login publicada após CI aprovado; persistência e separação visual em uma direção confirmadas pelo usuário. Próxima ação: completar isolamento inverso/direto e testar acesso negado; execução real do hook será validada depois do login. Não reaplicar o script combinado. A verificação da API pelo agente depende de liberar o domínio do projeto na rede do ambiente. Não copiar secret/service_role ou senha. Os passos de criação abaixo são mantidos como referência de configuração.
 
 1. Entre em [Supabase](https://supabase.com/dashboard), crie a organização/projeto de testes no plano gratuito e dê um nome que identifique testes.
 2. Escolha e guarde a senha do banco em um gerenciador seguro; não a envie no chat.
@@ -20,7 +20,7 @@ Começar por testes; produção tem deploy autorizado, mas depende de recursos/c
 
 ## 3. Google Cloud e login
 
-Estado acompanhado: projeto de testes criado e selecionado pelo usuário, ID `allgenda-testes`, também presente na URL do painel. Configuração inicial OAuth criada conforme captura; três usuários de teste adicionados, cliente Web criado e provedor Google ativado conforme relato do usuário. Callback copiado do painel: `https://xhzunwrkntmlmrftmffk.supabase.co/auth/v1/callback`. Site URL/retorno Supabase `https://allgenda-testes.pages.dev/` e origem Google `https://allgenda-testes.pages.dev` salvos conforme relato. Segredos ficaram nos painéis/JSON privado, sem recebimento pelo agente. O usuário informou que o login autorizado funcionou no site; isso não comprova os demais critérios de autorização/isolamento.
+Estado acompanhado: projeto de testes criado e selecionado pelo usuário, ID `allgenda-testes`, também presente na URL do painel. Configuração inicial OAuth criada conforme captura; três usuários de teste iniciais adicionados e uma quarta conta incluída depois conforme confirmação do usuário, cliente Web criado e provedor Google ativado conforme relato do usuário. Callback copiado do painel: `https://xhzunwrkntmlmrftmffk.supabase.co/auth/v1/callback`. Site URL/retorno Supabase `https://allgenda-testes.pages.dev/` e origem Google `https://allgenda-testes.pages.dev` salvos conforme relato. Segredos ficaram nos painéis/JSON privado, sem recebimento pelo agente. O usuário informou que o login autorizado funcionou no site; isso não comprova os demais critérios de autorização/isolamento.
 
 1. Entre em [Google Cloud Console](https://console.cloud.google.com/) e crie um projeto de desenvolvimento/testes.
 2. Abra Google Auth Platform, configure Branding com nome Allgenda e contatos exigidos, e Audience em teste, incluindo os e-mails dos usuários de teste.
@@ -59,7 +59,7 @@ Entre em [Groq Console](https://console.groq.com/), mantenha o plano gratuito e 
 
 ## Lista do que trazer na próxima configuração
 
-- Lista inicial recebida; só trazer novos e-mails se quiser ocupar as duas vagas restantes.
+- Lista inicial recebida; só trazer novos e-mails se quiser ocupar a vaga restante.
 - Nome/ref/URL do Supabase de testes e chave publishable pública, ou confirmação de variáveis configuradas com segurança.
 - Project ID Google, client ID e callback real; confirmação de consentimento, usuários de teste e client secret configurado no Supabase.
 - Nome/URL/branch do Cloudflare Pages de testes, se já criado.
