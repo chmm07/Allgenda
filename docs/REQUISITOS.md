@@ -80,9 +80,9 @@ Critérios da integração completa:
 
 ## 7. Chat inteligente
 
-Mensagem obrigatória (até 4.000 caracteres como limite técnico), fuso e contextos próprios. Groq interpreta uma criação de tarefa ou compromisso; histórico mantém proposta/estado. Preview editável com tipo/título/ambiente/datas/recorrência; ausência opcional não impede criar, ausência obrigatória exige preencher antes de confirmar. Não inventar data ausente, associação obrigatória ou ação fora da lista permitida.
+Mensagem obrigatória (até 4.000 caracteres como limite técnico), fuso e contextos próprios. Cloudflare Workers AI interpreta uma criação de tarefa ou compromisso; histórico mantém proposta/estado. Preview editável com tipo/título/ambiente/datas/recorrência; ausência opcional não impede criar, ausência obrigatória exige preencher antes de confirmar. Não inventar data ausente, associação obrigatória ou ação fora da lista permitida.
 
-Interpretar nunca cria item de agenda. Confirmar valida e cria atomicamente com status confirmado; repetir não duplica. Rejeitar marca histórico sem item; rejeitada não pode confirmar, confirmada não pode fingir rejeição. Falhas de Groq mantêm mensagem, sem simulação; falha na atualização do histórico distingue gravação concluída de carregamento falho. Últimas 100 mensagens exibidas; retenção/descarte final pendente.
+Interpretar nunca cria item de agenda. Confirmar valida e cria atomicamente com status confirmado; repetir não duplica. Rejeitar marca histórico sem item; rejeitada não pode confirmar, confirmada não pode fingir rejeição. Falhas de Cloudflare Workers AI mantêm mensagem, sem simulação; falha na atualização do histórico distingue gravação concluída de carregamento falho. Últimas 100 mensagens exibidas; retenção/descarte final pendente.
 
 Critérios:
 - [ ] Interpretação real de mensagem fictícia gera proposta válida sem executar ação.

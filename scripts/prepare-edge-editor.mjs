@@ -3,7 +3,7 @@
 import {readFile,mkdir,writeFile} from 'node:fs/promises'
 import ts from 'typescript'
 const helpers={
-  'chat-interpret':['proposal'],
+  'chat-interpret':['proposal','workers-ai'],
   'calendar-connect':['calendar-crypto'],
   'calendar-callback':['calendar-crypto'],
   'calendar-manage':['calendar-crypto','calendar-tokens','google-calendar','calendar-codec','calendar-exceptions','calendar-sync'],

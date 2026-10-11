@@ -2,6 +2,8 @@
 
 ## Aprovadas pelo usuário
 
+- **11/10/2026:** usuário delegou a escolha do substituto do Groq e autorizou prosseguir com Cloudflare Workers AI. Manter plano gratuito, interpretação no servidor, validação própria, prévia e confirmação. Modelo inicial reversível: `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, documentado com JSON Mode; qualidade em português, limites e inferência real ainda exigem aceite. Não alternar automaticamente entre provedores/modelos.
+
 - **Prioridade atualizada em 10/10/2026:** o usuário não aceitou o visual atual. Prosseguir com funcionalidades, integrações e testes; deixar refinamento da interface e aplicação final do design system para a última etapa, com foco exclusivo antes da publicação de produção. Deploys funcionais de testes continuam autorizados. Não tratar a entrega visual anterior como design aprovado/concluído.
 
 - Arquitetura e sequência de `AGENTS.md`, planos gratuitos. A autorização mais recente inclui deploys de testes/produção após configuração e verificação do ambiente correto, edição do repositório e revisão/aprovação/merge de PRs, respeitando proteções.

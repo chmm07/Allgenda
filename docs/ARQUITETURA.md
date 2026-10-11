@@ -2,7 +2,7 @@
 
 ## Aprovado
 
-React + TypeScript + Vite; Cloudflare Pages para a interface; Supabase PostgreSQL, login Google e Edge Functions; Google Calendar API com múltiplas contas e sincronização bidirecional; Groq para interpretar mensagens, sempre com validação da aplicação. Planos gratuitos, código/migrações/documentação juntos e execução separada em desenvolvimento, testes e produção. Integração preparada não significa integração verificada.
+React + TypeScript + Vite; Cloudflare Pages para a interface; Supabase PostgreSQL, login Google e Edge Functions; Google Calendar API com múltiplas contas e sincronização bidirecional; Cloudflare Workers AI para interpretar mensagens, sempre com validação da aplicação. Planos gratuitos, código/migrações/documentação juntos e execução separada em desenvolvimento, testes e produção. Integração preparada não significa integração verificada.
 
 ## Implementação e isolamento
 
@@ -36,7 +36,7 @@ Carregamento da agenda é paginado em lotes de 200; a configuração de limite d
 
 ## Edge Functions e serviços externos
 
-- `chat-interpret`: CORS por origem exata, valida sessão/convidado no servidor, lê contextos via RLS e chama Groq com chave de servidor. Valida JSON/ações/ambientes/datas e salva somente proposta. O modelo não executa comandos.
+- `chat-interpret`: CORS por origem exata, valida sessão/convidado no servidor, lê contextos via RLS e chama Cloudflare Workers AI com chave de servidor. Valida JSON/ações/ambientes/datas e salva somente proposta. O modelo não executa comandos.
 - `calendar-connect`: valida sessão/convidado, cria estado aleatório com hash e validade de dez minutos, guarda verificador PKCE cifrado e inicia consentimento separado do login.
 - `calendar-callback`: callback público exigido pelo OAuth, protegido por estado descartável + PKCE. Troca código no servidor, verifica identidade Google, cifra access/refresh tokens em AES-GCM e revalida acesso antes de guardar. Não devolve tokens à SPA.
 - `calendar-manage`: verifica sessão/convidado e propriedade da conta/associação, renova tokens cifrados e oferece listagem, configuração confirmada e processamento bidirecional. RPCs administrativas recebem identidade derivada de `getUser`, revalidam convite/propriedade e não aceitam execução pelo cliente.
@@ -54,4 +54,4 @@ Ambiente pessoal é contexto organizacional com nome e âncoras. Ambiente de exe
 
 Cores das quatro combinações documentadas centralizadas; fallback monoespaçado até validação das fontes, sem logo inventado. P3 como padrão operacional reversível. Métricas propostas continuam identificadas em `DESIGN.md`.
 
-PGlite verifica SQL, roles, grants, constraints e RLS com Auth mínimo fictício; não substitui Supabase/Auth/PostgREST/JWT reais. Playwright utiliza fixtures explicitamente identificadas e fora do build. OAuth de login e Pages foram configurados pelo usuário, que relatou login autorizado funcionando. Autorização/isolamento completos e persistência remota entre sessões ainda exigem aceite real; Groq/Calendar permanecem sem integração real verificada.
+PGlite verifica SQL, roles, grants, constraints e RLS com Auth mínimo fictício; não substitui Supabase/Auth/PostgREST/JWT reais. Playwright utiliza fixtures explicitamente identificadas e fora do build. OAuth de login e Pages foram configurados pelo usuário, que relatou login autorizado funcionando. Autorização/isolamento completos e persistência remota entre sessões ainda exigem aceite real; Cloudflare Workers AI/Calendar permanecem sem integração real verificada.

@@ -14,7 +14,7 @@ Não invente funcionalidades, dados ou decisões ausentes.
 - Cloudflare Pages para hospedagem da interface.
 - Supabase: PostgreSQL, login Google e Edge Functions.
 - Google Calendar API: múltiplas contas e sincronização bidirecional.
-- Groq: interpretação de mensagens, com validação pela aplicação.
+- Cloudflare Workers AI: interpretação de mensagens, com validação pela aplicação (substituição do Groq aprovada em 11/10/2026).
 - Código, migrações e documentação no mesmo repositório.
 - Planos gratuitos; não contratar serviços pagos sem aprovação.
 
