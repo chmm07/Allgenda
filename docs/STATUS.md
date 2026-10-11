@@ -1,5 +1,12 @@
 # Status — Allgenda
 
+## Chat migrado para Workers AI — 11 de outubro de 2026
+
+- Usuário escolheu delegar o substituto do Groq e autorizou prosseguir com Cloudflare Workers AI. Código de `chat-interpret` usa inferência REST oficial, modelo fixo `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, JSON Schema e validação própria da proposta. Não altera banco, interface, isolamento ou confirmação transacional; não há fallback Groq/simulado nem upgrade automático.
+- Conta Cloudflare acessível no navegador interno e ID conferido pela navegação real. Ainda é necessário criar/configurar token dedicado Workers AI Read/Edit, conforme template REST oficial no servidor e aceitar inferência real com dados fictícios. Nenhuma credencial criada ou exposta. Autenticação/CORS continuam obrigatórios antes de chamar inferência.
+- Transporte fictício cobre envelopes/JSON, campos ausentes, ambiente alheio, ações/datas/fusos inválidos, 401/403/429/500, rede, tamanho e configuração/path. Saída rejeitada não chega ao histórico; o modelo não executa alterações da agenda.
+- **188 testes em 16 arquivos**, lint, tipos/build de testes e Deno das quatro funções/bundle do chat aprovados localmente. Navegadores conferidos antes dos testes. Inferência real ainda depende de token configurado diretamente pelo usuário nos painéis; não apresentar teste HTTP fictício como qualidade do modelo validada.
+
 ## Cadastro Groq bloqueado e suporte acionado — 11 de outubro de 2026
 
 - Usuário relatou `signup error` também após tentar Google; falha já observada com GitHub no Chrome e navegador interno. Causa ainda não determinada. Não repetir tentativas de login sem informação nova nem afirmar que o problema é o endereço ou um navegador específico.

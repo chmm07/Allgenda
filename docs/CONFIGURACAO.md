@@ -1,5 +1,15 @@
 # Configuração e execução
 
+## Chat com Cloudflare Workers AI — substituição aprovada em 11/10/2026
+
+Esta seção substitui as instruções históricas Groq abaixo. A função `chat-interpret` permanece no Supabase; chama somente o endpoint oficial de inferência Cloudflare e usa `@cf/meta/llama-3.3-70b-instruct-fp8-fast` com JSON Schema. Não é necessário migrar banco, interface ou histórico. `GROQ_API_KEY`/`GROQ_MODEL` deixam de ser utilizados pelo código atual.
+
+Nos secrets do **Supabase de testes**, configurar `CLOUDFLARE_ACCOUNT_ID` (ID de 32 caracteres hexadecimais da conta correta) e `CLOUDFLARE_WORKERS_AI_TOKEN` (token dedicado, restrito à conta e à permissão Workers AI Read/Edit, conforme template REST oficial). O token é credencial de servidor: criar e transferir diretamente nos painéis seguros, nunca enviar ao chat ou colocar em VITE/build/Git. Não usar Global API Key ou ampliar permissões para Pages, DNS, banco ou outros recursos. A criação/entrada da credencial exige execução direta pelo usuário; preparar e conferir os escopos antes dessa etapa.
+
+Conferir Workers Free e a disponibilidade do modelo na conta. Não ativar upgrade, billing ou modelos que exigem pagamento. Sem secrets válidos, a função responde indisponibilidade. Limites/quota, autenticação, rede e saídas inválidas não geram item ou proposta fictícia; nenhuma troca automática de provedor. Preservar `APP_ORIGINS` exato e verificação JWT.
+
+Publicar somente `chat-interpret` após tipos/testes/bundle passarem. Aceite com mensagem e ambiente fictícios: proposta em português, ausência de item antes da confirmação, datas/fuso/ambiguidade, edição/rejeição e confirmação idempotente. HTTP fictício não substitui esse aceite. Referências: [REST e modelo](https://developers.cloudflare.com/workers-ai/models/llama-3.3-70b-instruct-fp8-fast/), [JSON Mode](https://developers.cloudflare.com/workers-ai/features/json-mode/), [preços](https://developers.cloudflare.com/workers-ai/platform/pricing/), [uso de dados](https://developers.cloudflare.com/workers-ai/platform/data-usage/).
+
 ## Nova migração de edição de série — 10/10/2026
 
 As quatro migrações iniciais foram aplicadas pelo usuário conforme registro anterior. A entrega de substituição confirmada de exceções adiciona somente `supabase/migrations/202610100005_series_edit.sql`. **Não reaplicar o SQL combinado inicial.** Confirmar o projeto de testes `xhzunwrkntmlmrftmffk`, executar apenas essa nova migração no SQL Editor autenticado e verificar sucesso antes de publicar a interface que usa a RPC `replace_appointment_series`. A migração cria uma função invoker transacional; não modifica nem exclui registros durante sua instalação. A edição futura altera somente a série própria e suas exceções, após confirmação e comparação da prévia. Configuração/aceite remoto dessa entrega ainda não realizados pelo agente.
@@ -41,7 +51,7 @@ Preencher `.env.local` com URL/chave pública do projeto de desenvolvimento e `V
 | `SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET` | Supabase local/Auth | Segredo Google; nunca prefixar com VITE ou incluir no Git. |
 | Chaves administrativas/secret/service_role e senha do banco | Administração segura | Não necessárias à SPA. Não registrar em arquivos versionados/logs. |
 | `APP_URL`, `APP_ORIGINS` | Edge Functions | URL da interface e origens exatas separadas por vírgula; sem wildcard. |
-| `GROQ_API_KEY`, `GROQ_MODEL` | Secrets das funções | Chave secreta e ID de modelo disponível no plano gratuito; nunca VITE. |
+| `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_WORKERS_AI_TOKEN` | Secrets das funções | Conta e token restrito Workers AI Read/Edit, conforme template REST oficial; nunca VITE. Modelo fixo documentado no servidor. |
 | `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`, `GOOGLE_CALENDAR_REDIRECT_URI` | Secrets das funções | Cliente separado do login e callback real do servidor. |
 | `CALENDAR_TOKEN_ENCRYPTION_KEY` | Secrets das funções | Chave aleatória de 32 bytes em Base64, separada do banco. Não compartilhar em chat/Git/logs. |
 | Tokens Google Calendar | Banco privado cifrado | Nunca retornados à SPA; refresh automático ainda não implementado. |

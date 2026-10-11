@@ -2,7 +2,7 @@
 
 Tudo converge aqui.
 
-React/TypeScript/Vite com Supabase/RLS: acesso Google para até cinco usuários, ambientes pessoais com três âncoras, tarefas, calendário semanal/mensal, compromissos recorrentes, exceções por ocorrência, conflitos, arraste confirmável e briefing na tela. Chat com Groq, prévia editável e confirmação atômica; conexão de múltiplas contas Google com PKCE e tokens cifrados preparada.
+React/TypeScript/Vite com Supabase/RLS: acesso Google para até cinco usuários, ambientes pessoais com três âncoras, tarefas, calendário semanal/mensal, compromissos recorrentes, exceções por ocorrência, conflitos, arraste confirmável e briefing na tela. Chat com Cloudflare Workers AI, prévia editável e confirmação atômica; conexão de múltiplas contas Google com PKCE e tokens cifrados preparada.
 
 **Serviços externos ainda não configurados ou verificados. Sincronização Google Calendar completa ainda não está disponível.** Sem configuração, a aplicação informa indisponibilidade; não simula login, banco ou IA.
 
