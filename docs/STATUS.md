@@ -1,5 +1,13 @@
 # Status — Allgenda
 
+## Cadastro Groq bloqueado e suporte acionado — 11 de outubro de 2026
+
+- Usuário relatou `signup error` também após tentar Google; falha já observada com GitHub no Chrome e navegador interno. Causa ainda não determinada. Não repetir tentativas de login sem informação nova nem afirmar que o problema é o endereço ou um navegador específico.
+- Usuário autorizou contato com o suporte. E-mail enviado a `support@groq.com`, endereço verificado na documentação oficial, pela conta Gmail conectada; conector confirmou mensagem com label SENT. Relato inclui métodos, navegadores, data e dois trace IDs observados; não inclui credenciais, tokens ou dados da agenda. Envio não equivale a ticket atendido/resolvido. Identificadores da comunicação ficam somente em registro local ignorado.
+- Alternativas pesquisadas em fontes oficiais: Cloudflare Workers AI (franquia gratuita diária e JSON Mode; conteúdo não usado para treinamento sem consentimento), Gemini API (tier gratuito e saída estruturada; conteúdo gratuito pode ser usado para melhoria) e OpenRouter (modelos gratuitos com limite de 50 solicitações/dia e políticas por provedor). Recomendação preliminar: avaliar Cloudflare Workers AI primeiro; nenhuma substituição foi aprovada, implementada ou configurada nesta análise. Comparar qualidade em português, extração de datas/ambientes e limites com dados fictícios antes de ativar.
+- Troca de provedor afeta a interpretação no servidor; preservar validação da proposta, isolamento, prévia e confirmação transacional. Não expor chave no frontend, contratar plano pago ou alterar a política de compartilhamento de dados por inferência.
+- Fontes consultadas em 11/10/2026: [contato Groq na FAQ oficial](https://console.groq.com/docs/billing-faqs), [Cloudflare preço](https://developers.cloudflare.com/workers-ai/platform/pricing/), [uso de dados](https://developers.cloudflare.com/workers-ai/platform/data-usage/), [JSON Mode](https://developers.cloudflare.com/workers-ai/features/json-mode/), [Gemini preço/uso de conteúdo](https://ai.google.dev/gemini-api/docs/pricing) e [OpenRouter preço/limites](https://openrouter.ai/pricing).
+
 ## Prioridade funcional e recuperação Calendar — 10 de outubro de 2026
 
 Orientação mais recente: o usuário não aceitou o visual atual. Concluir o restante funcional primeiro e reservar a última etapa para foco exclusivo na interface/design system, antes da publicação de produção. O refinamento registrado abaixo é provisório e não tem aceite visual. Deploys funcionais de testes continuam autorizados.
