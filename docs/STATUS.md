@@ -1,5 +1,13 @@
 # Status — Allgenda
 
+## Preparação do aceite Calendar — 11 de outubro de 2026
+
+- Navegadores conferidos antes dos testes: somente um perfil Chrome está exposto; sessão Praso independente ainda indisponível. Aplicação de testes carrega Conexões autenticada, sem conta Calendar conectada.
+- Google Cloud inicialmente exigiu confirmação de identidade. Usuário concluiu acesso à conta responsável e selecionou projeto `allgenda-testes`, conferido no painel; cliente existente é somente o login. Calendar API ativada diretamente pelo usuário e status `Ativado` verificado pelo agente. Não houve contratação de plano ou alteração de autenticação.
+- Formulário de cliente Web dedicado `Allgenda - Calendar testes` preparado com callback exato da função Supabase de testes, sem origens JavaScript adicionais. Criação final/segredo delegados ao usuário; não ler/capturar credenciais após criação.
+- Seleção de consentimento preparada com openid, userinfo.email, calendar.events e calendar.calendarlist.readonly. Salvamento final ainda pendente. Credenciais Calendar e chave de cifragem continuam ausentes no servidor; integração real ainda não aceita.
+- Roteiro de aceite real em `ACEITE_INTEGRACOES.md`; revisão corrigida para as sete migrações e decisões já aprovadas. Próximo passo: concluir cliente, salvar escopos, conferir público de testes e transferir credenciais diretamente aos secrets seguros. Não reaplicar migrações, copiar sessões entre perfis ou alterar o cliente de login.
+
 ## Aceite real do chat Workers AI — 11 de outubro de 2026
 
 - Token criado e salvo diretamente pelo usuário no Supabase de testes. Presença dos dois secrets conferida sem ler valores. Inferência real funcionou no Pages com sessão normal autorizada, mantendo JWT, CORS, isolamento e plano gratuito.

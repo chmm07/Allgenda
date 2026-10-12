@@ -4,9 +4,9 @@ A revisão do resultado não é condição para continuar entre entregas. Constr
 
 1. Ler `STATUS.md`: separar código verificado localmente, integrações não verificadas e funcionalidades ainda incompletas.
 2. Conferir `DECISOES.md` e `REQUISITOS.md`, especialmente exclusão com impacto, ocorrência/série e questões ainda pendentes.
-3. Revisar as quatro migrações: lista privada, grants/RLS, referências por proprietário, impacto/exclusão atômica e chat idempotente; tokens privados e RPCs Calendar somente de servidor.
+3. Revisar as sete migrações: lista privada, grants/RLS, referências por proprietário, impacto/exclusão atômica, edição confirmada de séries e chat idempotente; tokens privados, seleção, cursor/lease/journal e RPCs Calendar somente de servidor.
 4. Revisar `src/hooks/useAccess.ts`, `src/lib/` e `supabase/functions/`: identidade verificada, erros seguros e nenhuma ação de modelo executada sem confirmação.
-5. Executar comandos de `README.md`. Browser tests usam fixtures explícitas fora do build; não comprovam persistência remota, OAuth ou Groq.
+5. Executar comandos de `README.md`. Browser tests usam fixtures explícitas fora do build; não comprovam persistência remota, OAuth ou inferência Workers AI. O aceite real do chat está registrado em `STATUS.md`.
 6. Seguir `PRIMEIROS_PASSOS_SERVICOS.md` para criar testes e `CONFIGURACAO.md` para executar configuração/migrações/aceitação real. Deploys já estão autorizados; manter testes/produção separados e verificar antes de publicar.
 
-Intervenções reais: recursos ainda inexistentes (três e-mails recebidos, sem aplicação remota); política de conflito Calendar, edição de série com exceções e mapeamento/exclusões de sincronização; imagens/fontes finais. Revogação de convidado continua preservando dados até decisão de retenção. Nenhum desses pontos exige aprovação para seguir nas partes independentes.
+Intervenções reais atuais: acesso/configuração Google Cloud e secrets Calendar; disponibilização dos dois perfis autorizados para isolamento remoto; imagens/fontes e aceite visual final. Conflitos usam a alteração mais recente, séries substituem exceções após confirmação e exclusões propagam nos dois sentidos; essas decisões já foram aprovadas. Revogação de convidado continua preservando dados até decisão de retenção. Seguir o roteiro em `ACEITE_INTEGRACOES.md`, sem tratar preparação como integração aceita.
