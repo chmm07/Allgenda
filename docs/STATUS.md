@@ -10,6 +10,8 @@
 - Correção publicada somente na função do projeto de testes. **189 testes em 16 arquivos**, lint, tipos/build de testes e Deno da função/bundle aprovados localmente. Testes de transporte permanecem fictícios; o aceite descrito acima usou o serviço real e cobre somente esses pedidos, sem alegar precisão geral do modelo.
 - Próximas pendências: secrets/OAuth e aceite real Google Calendar, isolamento direto/revogação entre os dois perfis autorizados e revisão final exclusiva do design antes de produção. Chat não depende mais do cadastro Groq; migrações existentes não foram reaplicadas.
 
+- [PR #8](https://github.com/chmm07/Allgenda/pull/8), head `849651a`, integrado em `a90b15e` após [CI aprovado](https://github.com/chmm07/Allgenda/actions/runs/38187445823), incluindo testes de navegador e Deno das quatro funções. Árvore local/remota idêntica antes da integração; main local atualizada por fast-forward. Backend de testes já corrigido e validado no aceite acima.
+
 ## Chat migrado para Workers AI — 11 de outubro de 2026
 
 - Usuário escolheu delegar o substituto do Groq e autorizou prosseguir com Cloudflare Workers AI. Código de `chat-interpret` usa inferência REST oficial, modelo fixo `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, JSON Schema e validação própria da proposta. Não altera banco, interface, isolamento ou confirmação transacional; não há fallback Groq/simulado nem upgrade automático.
