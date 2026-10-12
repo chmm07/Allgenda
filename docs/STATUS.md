@@ -1,5 +1,15 @@
 # Status — Allgenda
 
+## Aceite real do chat Workers AI — 11 de outubro de 2026
+
+- Token criado e salvo diretamente pelo usuário no Supabase de testes. Presença dos dois secrets conferida sem ler valores. Inferência real funcionou no Pages com sessão normal autorizada, mantendo JWT, CORS, isolamento e plano gratuito.
+- Cinco mensagens fictícias exercitaram tarefa sem prazo, ambiente não indicado, compromisso e tarefa com prazo. Antes de confirmar a primeira prévia, API retornou zero tarefas/compromissos; edição do título foi persistida após confirmação. Repetir a RPC da mesma mensagem confirmou o mesmo ID, mantendo exatamente uma tarefa.
+- Ambiente ausente impediu confirmação; rejeição não criou item. Um pedido explícito de compromisso foi inicialmente classificado como tarefa: prévia rejeitada, sem salvar o resultado incorreto. Prompt e descrição do schema passaram a explicitar tipo e separação entre prazo/início. Mesma mensagem, após publicação da correção, retornou compromisso correto. Regressão real de tarefa com prazo continuou `task`, com início/fim nulos.
+- Compromisso confirmado às 10h de 13/10 em America/Fortaleza: API conferiu início 13:00 UTC e fim 13:30 UTC. Término estava vazio na prévia; duração padrão de 30 minutos aplicada na confirmação.
+- Limpeza pela interface conferiu impacto de uma tarefa, um compromisso e zero exceções; removeu somente o ambiente fictício desta execução. API final: um ambiente preexistente preservado, zero tarefas e zero compromissos. Cinco históricos mantidos, dois confirmados e três rejeitados, sem rascunho pendente. Evidência visual `chat-ia-aceite-real.png` fora do repositório.
+- Correção publicada somente na função do projeto de testes. **189 testes em 16 arquivos**, lint, tipos/build de testes e Deno da função/bundle aprovados localmente. Testes de transporte permanecem fictícios; o aceite descrito acima usou o serviço real e cobre somente esses pedidos, sem alegar precisão geral do modelo.
+- Próximas pendências: secrets/OAuth e aceite real Google Calendar, isolamento direto/revogação entre os dois perfis autorizados e revisão final exclusiva do design antes de produção. Chat não depende mais do cadastro Groq; migrações existentes não foram reaplicadas.
+
 ## Chat migrado para Workers AI — 11 de outubro de 2026
 
 - Usuário escolheu delegar o substituto do Groq e autorizou prosseguir com Cloudflare Workers AI. Código de `chat-interpret` usa inferência REST oficial, modelo fixo `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, JSON Schema e validação própria da proposta. Não altera banco, interface, isolamento ou confirmação transacional; não há fallback Groq/simulado nem upgrade automático.
