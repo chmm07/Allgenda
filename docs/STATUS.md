@@ -10,6 +10,9 @@
 - Verificações locais: **196 testes em 16 arquivos**, tipos/build de testes, lint e Deno de calendar-manage/bundle. Testes de transporte e SQL usam fixtures; somente os casos descritos acima têm aceite Google real.
 - Pendentes: remapeamento ao mudar início/fuso ou converter série em item único, conflitos concorrentes e revogação reais, isolamento direto/inverso entre dois usuários autorizados e revisão funcional final. Sincronização com aplicação fechada continua sem agendamento no servidor. Design permanece última etapa exclusiva, com aceite antes de produção. Próximo passo: integrar esta correção verificada e concluir os casos pendentes acessíveis, sem reutilizar dados reais.
 
+
+- **Entrega integrada:** [PR #9](https://github.com/chmm07/Allgenda/pull/9), head `7191baf`, merge `6904e19`, após [CI aprovado](https://github.com/chmm07/Allgenda/actions/runs/38479360171). Árvores local/remota idênticas; main local atualizada por fast-forward. Backend de testes já publicado e aceito nos casos acima. Dois perfis Chrome agora acessíveis, mas consulta normal Auth retornou a mesma identidade Gmail nos dois; não constituem sessão Praso independente. Nenhum token copiado, permissão alterada ou sessão encerrada. Próximo passo: concluir remapeamentos/casos de falha e isolamento quando houver sessão distinta. Prova visual do vínculo pausado após limpeza salva fora do repositório.
+
 As entradas abaixo são históricas; configuração Calendar/Workers AI ausente descrita nelas foi resolvida nos aceites posteriores.
 
 ## Preparação do aceite Calendar — 11 de outubro de 2026
