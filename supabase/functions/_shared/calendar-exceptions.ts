@@ -7,6 +7,20 @@ export type ExceptionReset={appointment_id:string;original_start:string;deleted_
 type ExceptionRpc=(operation:string,payload:Record<string,unknown>)=>Promise<unknown>
 const exceptionKey=(parent:string,start:string)=>`${parent}|${Temporal.Instant.from(start).toString()}`
 const equalTime=(one:string|null|undefined,two:string|null|undefined)=>one==null||two==null?one==null&&two==null:Date.parse(one)===Date.parse(two)
+// Confere a pertença à regra simples antes de restaurar uma exceção removida.
+export function isSeriesOccurrence(parent:CalendarAppointment,original:string){
+  const anchor=Temporal.Instant.from(parent.starts_at).toZonedDateTimeISO(parent.timezone)
+  const target=Temporal.Instant.from(original).toZonedDateTimeISO(parent.timezone)
+  if(Temporal.Instant.compare(target.toInstant(),anchor.toInstant())<0||!target.toPlainTime().equals(anchor.toPlainTime()))return false
+  const date=target.toPlainDate(),base=anchor.toPlainDate()
+  if(parent.repeat_until&&Temporal.PlainDate.compare(date,Temporal.PlainDate.from(parent.repeat_until))>0)return false
+  const days=base.until(date,{largestUnit:'day'}).days
+  if(parent.frequency==='none')return days===0
+  if(parent.frequency==='daily')return days%parent.repeat_interval===0
+  if(parent.frequency==='weekly')return days%(7*parent.repeat_interval)===0
+  const months=(date.year-base.year)*12+date.month-base.month
+  return date.day===base.day&&months%parent.repeat_interval===0
+}
 function originalValue(parent:CalendarAppointment,original:string){
   const duration=Date.parse(parent.ends_at)-Date.parse(parent.starts_at)
   return {title:parent.title,starts_at:Temporal.Instant.from(original).toString(),ends_at:Temporal.Instant.from(original).add({milliseconds:duration}).toString(),timezone:parent.timezone,cancelled:false}
@@ -25,7 +39,7 @@ export async function synchronizeExceptions(options:{
   for(const event of options.events){
     if(!event.recurringEventId)continue
     const parent=reverse.get(event.recurringEventId)
-    if(!parent||!parents.has(parent)){skipped++;continue}
+    if(!parent||!parents.has(parent)){if(event.status!=='cancelled')skipped++;continue}
     if(!event.originalStartTime?.dateTime)throw new Error('Ocorrência sem início original; série preservada.')
     remote.set(exceptionKey(parent,event.originalStartTime.dateTime),event)
   }
@@ -48,6 +62,16 @@ export async function synchronizeExceptions(options:{
     }
     if(event.recurringEventId&&event.recurringEventId!==googleParent)throw new Error('Ocorrência pertence a outra série; dados preservados.')
     if(event.originalStartTime?.dateTime&&!equalTime(event.originalStartTime.dateTime,original))throw new Error('Início original mudou; dados preservados.')
+    if(!item&&reset&&!isSeriesOccurrence(parent,original)){
+      // A confirmação da nova regra descartou esta ocorrência. Não restaurar
+      // uma exceção fora dela; conferir CAS e versão antes de remover no Google.
+      if(event.status!=='cancelled'){
+        if(newestSide(reset.deleted_at,event.updated)!=='local')throw new Error('Ocorrência Google mudou após a confirmação; dados preservados.')
+        await rpc('exception_check',payload)
+        await google.remove(options.calendar,event.id,event.etag,true);exported++
+      }
+      await rpc('exception_forget',payload);continue
+    }
     const localChanged=!link||!equalTime(item?.updated_at,link.local_updated_at)||!equalTime(reset?.deleted_at,link.local_deleted_at)
     const remoteChanged=!link||(event.etag||null)!==link.etag
     if(!localChanged&&!remoteChanged)continue
