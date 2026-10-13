@@ -1,5 +1,17 @@
 # Status — Allgenda
 
+## Aceite real Calendar e substituição de exceções — 13 de outubro de 2026
+
+- Secrets do cliente Calendar e chave de cifragem salvos diretamente pelo usuário; presença conferida sem ler valores. Escopos persistidos e consentimento concluído pelo usuário. API real lista calendários editáveis e duas contas Calendar na mesma sessão Allgenda; isso não constitui isolamento entre dois usuários.
+- Criados somente ambiente e calendário exclusivos de aceite, com dados fictícios e sem convidados. Associação explícita confirmou propagação de exclusões. Criação Allgenda→Google, edição nos dois sentidos sem duplicação, criação Google→Allgenda e exclusão nos dois sentidos verificadas na interface Google e na API autenticada normal. Horários Fortaleza/UTC conferidos. Criações locais deste aceite usaram Data API com RLS: a automação não preencheu datetime-local no formulário novo, cuja validação impediu salvar; não alegar aceite desse formulário por esse caminho.
+- Série semanal exportada e ocorrência individual editada nos dois sentidos. Editar toda a série sem confirmar substituição foi bloqueado. Após confirmação, mudança para intervalo quinzenal inicialmente interrompeu com proteção conservadora, preservando pendências. Correção permite mudar a regra recorrente mantendo início e fuso: restaura ocorrências ainda pertencentes à regra e remove exceções fora dela antes de atualizar o pai, com CAS, ETag e proteção contra edição Google posterior.
+- Correção publicada somente em calendar-manage no Supabase de testes. Repetição real passou para exceção mantida e exceção descartada pela nova regra; semana intermediária vazia, ocorrências quinzenais presentes e zero exceções locais reimportadas. Repetir sincronização retornou zero alterações. JWT permaneceu ativado; nenhuma migração, segredo ou permissão alterada. Cancelamento remoto sem pai conhecido não gera aviso de regra avançada; eventos ativos sem pai conhecido continuam preservados e sinalizados.
+- Limpeza confirmada pela interface removeu somente ambiente fictício e suas duas séries; exclusões propagadas e calendário exclusivo ficou vazio. Ambiente preexistente preservado; API final com zero compromissos/exceções e associação pausada, sem ambiente e sem erro. Calendário vazio e conexões mantidos.
+- Verificações locais: **196 testes em 16 arquivos**, tipos/build de testes, lint e Deno de calendar-manage/bundle. Testes de transporte e SQL usam fixtures; somente os casos descritos acima têm aceite Google real.
+- Pendentes: remapeamento ao mudar início/fuso ou converter série em item único, conflitos concorrentes e revogação reais, isolamento direto/inverso entre dois usuários autorizados e revisão funcional final. Sincronização com aplicação fechada continua sem agendamento no servidor. Design permanece última etapa exclusiva, com aceite antes de produção. Próximo passo: integrar esta correção verificada e concluir os casos pendentes acessíveis, sem reutilizar dados reais.
+
+As entradas abaixo são históricas; configuração Calendar/Workers AI ausente descrita nelas foi resolvida nos aceites posteriores.
+
 ## Preparação do aceite Calendar — 11 de outubro de 2026
 
 - Navegadores conferidos antes dos testes: somente um perfil Chrome está exposto; sessão Praso independente ainda indisponível. Aplicação de testes carrega Conexões autenticada, sem conta Calendar conectada.

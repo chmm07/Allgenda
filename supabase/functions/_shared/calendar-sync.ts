@@ -68,7 +68,9 @@ export async function synchronizeCalendar(state:SyncState,google:ReturnType<type
     // o conflito da série, sem tentar interpretar o recurso mínimo cancelado.
     if(event.status==='cancelled')continue
     const original=fromGoogle(event,state.binding.environment_id!)
-    if(!sameTime(original.starts_at,local.starts_at)||original.timezone!==local.timezone||original.frequency!==local.frequency||original.repeat_interval!==local.repeat_interval||original.repeat_until!==local.repeat_until)throw new Error('Mudança de horário ou regra da série com exceções exige verificar o remapeamento Google; dados preservados.')
+    if(!sameTime(original.starts_at,local.starts_at)||original.timezone!==local.timezone||local.frequency==='none')throw new Error('Mudança de início/fuso ou conversão em item único com exceções exige verificar o remapeamento Google; dados preservados.')
+    const changedRule=original.frequency!==local.frequency||original.repeat_interval!==local.repeat_interval||original.repeat_until!==local.repeat_until
+    if(changedRule&&newestSide(local.updated_at,event.updated)!=='local')throw new Error('A regra Google mudou após a confirmação local; dados preservados.')
     resetParents.set(local.id,local)
   }
   if(resetParents.size){

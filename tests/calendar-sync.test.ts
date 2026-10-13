@@ -108,9 +108,49 @@ describe('Calendar com transporte fictício — não é aceite Google',()=>{
     expect(google.update.mock.calls.map(call=>call[1])).toEqual(['child','google'])
     expect(rpc.mock.calls.map(call=>call[0])).toEqual(['exception_check','exception_ack','check','ack','finish'])
   })
-  it('mudança estrutural com exceção removida preserva Google até verificar remapeamento',async()=>{
+  function changedRule(original=local.starts_at,childUpdated='2026-10-10T13:00Z'){
+    const changed={...local,title:'Série quinzenal',repeat_interval:2,updated_at:'2026-10-10T14:00Z'}
+    let child:GoogleEvent={id:'child',etag:'child-old',recurringEventId:'google',originalStartTime:{dateTime:original},updated:childUpdated,summary:'Exceção antiga',start:{dateTime:original,timeZone:local.timezone},end:{dateTime:new Date(Date.parse(original)+1800000).toISOString(),timeZone:local.timezone}}
+    const result=setup({appointments:[changed],links:[{appointment_id:local.id,google_id:'google',etag:'new',local_updated_at:local.updated_at}],exception_links:[{appointment_id:local.id,original_start:original,google_id:child.id,etag:child.etag,local_updated_at:'2026-10-10T12:00Z',local_deleted_at:null}],exception_resets:[{appointment_id:local.id,original_start:original,deleted_at:changed.updated_at}]})
+    result.google.events.mockResolvedValue({events:[remote,child],syncToken:'next'})
+    result.google.get.mockImplementation(async(_calendar,id)=>id==='child'?child:remote)
+    result.google.update.mockImplementation(async(_calendar,id,value)=>{if(id==='child'){child={...child,...value,etag:'child-restored',updated:'2026-10-10T15:00Z'};return child}return {...remote,...value,etag:'parent-saved',updated:'2026-10-10T16:00Z'}})
+    return result
+  }
+  it('mudança confirmada de intervalo restaura ocorrência retida antes de atualizar a regra',async()=>{
+    const {run,google,rpc}=changedRule()
+    const result=await run()
+    expect(google.update.mock.calls.map(call=>call[1])).toEqual(['child','google'])
+    expect(google.update.mock.calls[0][2]).toMatchObject({summary:'Série quinzenal'})
+    expect(google.update.mock.calls[1][2]).toMatchObject({recurrence:[expect.stringContaining('INTERVAL=2')]})
+    expect(rpc).not.toHaveBeenCalledWith('exception_remote',expect.anything())
+    expect(rpc.mock.calls.at(-1)?.[0]).toBe('finish');expect(result.exported).toBe(2)
+  })
+  it('nova regra remove somente exceção descartada fora da recorrência e não a reimporta',async()=>{
+    const {run,google,rpc}=changedRule('2026-10-17T12:00:00Z')
+    await run()
+    expect(google.remove).toHaveBeenCalledExactlyOnceWith('primary','child','child-old',true)
+    expect(google.update.mock.calls.map(call=>call[1])).toEqual(['google'])
+    expect(rpc.mock.calls[0]).toEqual(['exception_check',expect.objectContaining({expected_updated_at:null,expected_deleted_at:'2026-10-10T14:00Z'})])
+    expect(rpc).not.toHaveBeenCalledWith('exception_remote',expect.anything())
+    expect(rpc.mock.calls.at(-1)?.[0]).toBe('finish')
+  })
+  it('CAS recusado impede remoção da exceção e alteração da regra',async()=>{
+    const {run,google,rpc}=changedRule('2026-10-17T12:00:00Z')
+    rpc.mockRejectedValueOnce(new Error('Ocorrência mudou'))
+    await expect(run()).rejects.toThrow('Ocorrência mudou')
+    expect(google.remove).not.toHaveBeenCalled();expect(google.update).not.toHaveBeenCalled()
+    expect(rpc).not.toHaveBeenCalledWith('finish',expect.anything())
+  })
+  it('edição Google posterior à confirmação não é excluída pela nova regra',async()=>{
+    const {run,google,rpc}=changedRule('2026-10-17T12:00:00Z','2026-10-10T15:00Z')
+    await expect(run()).rejects.toThrow(/mudou após/)
+    expect(google.remove).not.toHaveBeenCalled();expect(google.update).not.toHaveBeenCalled()
+    expect(rpc).not.toHaveBeenCalledWith('finish',expect.anything())
+  })
+  it('mudança de início com exceção removida preserva Google até verificar remapeamento',async()=>{
     const original='2026-10-17T12:00:00Z'
-    const {run,google,rpc}=setup({appointments:[{...local,frequency:'daily',updated_at:'2026-10-10T14:00Z'}],links:[{appointment_id:local.id,google_id:'google',etag:'new',local_updated_at:local.updated_at}],exception_links:[{appointment_id:local.id,original_start:original,google_id:'child',etag:'child-old',local_updated_at:local.updated_at,local_deleted_at:null}],exception_resets:[{appointment_id:local.id,original_start:original,deleted_at:'2026-10-10T14:00Z'}]})
+    const {run,google,rpc}=setup({appointments:[{...local,starts_at:'2026-10-10T13:00Z',ends_at:'2026-10-10T13:30Z',updated_at:'2026-10-10T14:00Z'}],links:[{appointment_id:local.id,google_id:'google',etag:'new',local_updated_at:local.updated_at}],exception_links:[{appointment_id:local.id,original_start:original,google_id:'child',etag:'child-old',local_updated_at:local.updated_at,local_deleted_at:null}],exception_resets:[{appointment_id:local.id,original_start:original,deleted_at:'2026-10-10T14:00Z'}]})
     await expect(run()).rejects.toThrow(/remapeamento/)
     expect(google.update).not.toHaveBeenCalled();expect(rpc).not.toHaveBeenCalled()
   })

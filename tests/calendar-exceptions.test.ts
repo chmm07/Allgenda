@@ -1,5 +1,5 @@
 import {describe,expect,it,vi} from 'vitest'
-import {synchronizeExceptions,type CalendarException,type ExceptionLink,type ExceptionReset} from '../supabase/functions/_shared/calendar-exceptions'
+import {isSeriesOccurrence,synchronizeExceptions,type CalendarException,type ExceptionLink,type ExceptionReset} from '../supabase/functions/_shared/calendar-exceptions'
 import {CalendarApiError,type GoogleEvent} from '../supabase/functions/_shared/google-calendar'
 const parent={id:'parent',user_id:'user',environment_id:'env',title:'Série fictícia',starts_at:'2026-10-10T12:00Z',ends_at:'2026-10-10T12:30Z',timezone:'America/Fortaleza',frequency:'weekly' as const,repeat_interval:1,repeat_until:null,updated_at:'2026-10-10T11:00Z'}
 const original='2026-10-17T12:00:00Z'
@@ -13,6 +13,21 @@ function setup(changes:{exceptions?:CalendarException[];links?:ExceptionLink[];r
   return {run,google,rpc}
 }
 describe('ocorrências Calendar com transporte fictício',()=>{
+  it.each(['cancelled','confirmed'])('instância órfã %s não causa gravação; cancelamento não vira aviso de regra avançada',async status=>{
+    const {run,rpc,google}=setup({events:[{...remote,recurringEventId:'parent-removed',status}]})
+    expect(await run()).toMatchObject({skipped:status==='cancelled'?0:1})
+    expect(rpc).not.toHaveBeenCalled();expect(google.update).not.toHaveBeenCalled();expect(google.remove).not.toHaveBeenCalled()
+  })
+  it('pertença à série respeita intervalo, limite inclusivo e horário de parede no fuso',()=>{
+    const fortnight={...parent,repeat_interval:2,repeat_until:'2026-10-24'}
+    expect(isSeriesOccurrence(fortnight,'2026-10-17T12:00:00Z')).toBe(false)
+    expect(isSeriesOccurrence(fortnight,'2026-10-24T12:00:00Z')).toBe(true)
+    expect(isSeriesOccurrence(fortnight,'2026-11-07T12:00:00Z')).toBe(false)
+    expect(isSeriesOccurrence(fortnight,'2026-10-24T13:00:00Z')).toBe(false)
+    const dst={...parent,starts_at:'2026-03-01T14:00:00Z',timezone:'America/New_York'}
+    expect(isSeriesOccurrence(dst,'2026-03-08T13:00:00Z')).toBe(true)
+    expect(isSeriesOccurrence(dst,'2026-03-08T14:00:00Z')).toBe(false)
+  })
   it('exporta exceção local para a instância exata, sem mudar âncora ou série',async()=>{const {run,google,rpc}=setup({exceptions:[local]});await run();expect(google.instance).toHaveBeenCalledWith('primary','google-parent',original);expect(google.update).toHaveBeenCalledWith('primary','instance',expect.objectContaining({summary:local.title,start:{dateTime:local.starts_at,timeZone:parent.timezone}}),'remote-version');expect(rpc.mock.calls.map(call=>call[0])).toEqual(['exception_check','exception_ack']);expect(rpc.mock.calls[0][1]).toMatchObject({original_start:original,expected_parent_updated_at:parent.updated_at,expected_updated_at:local.updated_at})})
   it.each(['local','remote'])('edição simultânea individual usa a versão %s',async side=>{const item={...local,updated_at:side==='local'?'2026-10-10T14:00Z':local.updated_at};const {run,google,rpc}=setup({exceptions:[item],links:[link],events:[remote]});await run();expect(rpc.mock.calls.map(call=>call[0])).toEqual(side==='local'?['exception_check','exception_ack']:['exception_remote']);expect(google.update).toHaveBeenCalledTimes(side==='local'?1:0)})
   it('cancelamento local exclui somente instância e consulta ETag final',async()=>{const {run,google,rpc}=setup({exceptions:[{...local,cancelled:true}]});google.get.mockResolvedValue({...remote,status:'cancelled',etag:'deleted-version'});await run();expect(google.remove).toHaveBeenCalledWith('primary','instance','remote-version',true);expect(google.update).not.toHaveBeenCalled();expect(rpc.mock.calls[1][1]).toMatchObject({etag:'deleted-version',google_cancelled:true})})
