@@ -12,12 +12,31 @@ async function sync(operation:string,payload:Record<string,unknown>={}){await db
 beforeAll(async()=>{
   db=new PGlite()
   await db.exec(`create role anon;create role authenticated;create role supabase_auth_admin;create role service_role;create schema auth;grant usage on schema public,auth to anon,authenticated;create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);create table auth.identities(user_id uuid,provider text);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;`)
-  for(const file of ['202610090001_initial.sql','202610090002_agenda.sql','202610090003_chat.sql','202610090004_calendar_accounts.sql','202610100005_series_edit.sql','202610100006_calendar_selection.sql','202610100007_calendar_sync.sql'])await db.exec(await readFile(new URL(`../supabase/migrations/${file}`,import.meta.url),'utf8'))
+  for(const file of ['202610090001_initial.sql','202610090002_agenda.sql','202610090003_chat.sql','202610090004_calendar_accounts.sql','202610100005_series_edit.sql','202610100006_calendar_selection.sql','202610100007_calendar_sync.sql','202610140008_calendar_jobs.sql'])await db.exec(await readFile(new URL(`../supabase/migrations/${file}`,import.meta.url),'utf8'))
   await db.query("insert into auth.users values($1,'a@example.test',now()),($2,'b@example.test',now());",[a,b]);await db.query("insert into auth.identities values($1,'google'),($2,'google')",[a,b]);await db.exec("insert into private.invited_users(slot,email) values(1,'a@example.test'),(2,'b@example.test')")
 })
 beforeEach(async()=>{await db.exec('reset role;truncate public.environments cascade;truncate public.google_accounts cascade;truncate private.calendar_tombstones;');await asUser(a);environment=(await db.query<{id:string}>("insert into public.environments(name,anchor_words) values('Fictício',array['um','dois','três']) returning id")).rows[0].id;await db.exec('reset role;set role service_role;');account=(await db.query<{id:string}>("select public.calendar_account_store($1,'subject-test','calendar@example.test','cipher-ficticio') as id",[a])).rows[0].id;await asUser(a);binding=await configure()})
 afterAll(async()=>{await db?.close()})
 describe('Calendar SQL real com Auth fictício — não é Supabase remoto',()=>{
+  async function nextJob(){await db.exec('reset role;set role service_role;');return (await db.query<{value:{id:string}|null}>('select public.calendar_next_sync() as value')).rows[0].value}
+  it('fila administrativa não é acessível ao usuário e nunca expõe last_attempted_at',async()=>{
+    await expect(db.query('select public.calendar_next_sync()')).rejects.toThrow(/permission denied/)
+    await expect(db.query('select last_attempted_at from public.calendar_bindings')).rejects.toThrow(/permission denied/)
+    expect(await nextJob()).toMatchObject({id:binding})
+    expect(await nextJob()).toBeNull()
+  })
+  it('fila ignora pausa, lease ocupado e convite revogado',async()=>{
+    await db.exec('reset role');await db.query('update public.calendar_bindings set enabled=false where id=$1',[binding]);expect(await nextJob()).toBeNull()
+    await db.exec('reset role');await db.query("update public.calendar_bindings set enabled=true,lease_until=now()+interval '2 minutes' where id=$1",[binding]);expect(await nextJob()).toBeNull()
+    await db.exec("reset role;update public.calendar_bindings set lease_until=null;delete from private.invited_users where email='a@example.test'")
+    try{expect(await nextJob()).toBeNull()}finally{await db.exec("reset role;insert into private.invited_users(slot,email) values(1,'a@example.test')")}
+  })
+  it('fila dá vez à associação mais antiga mesmo após falha em outra',async()=>{
+    await db.exec('reset role');await db.query("update public.calendar_bindings set last_attempted_at=now()-interval '5 minutes' where id=$1",[binding])
+    await asUser(a);const env=(await db.query<{id:string}>("insert into public.environments(name,anchor_words) values('Segundo fictício',array['um','dois','três']) returning id")).rows[0].id
+    const other=(await db.query<{id:string}>('select public.configure_calendar($1,$2,$3,$4,true,true) as id',[account,'other','Outro',env])).rows[0].id
+    expect(await nextJob()).toMatchObject({id:other});expect(await nextJob()).toMatchObject({id:binding})
+  })
   async function linkedSeries(){
     await asUser(a)
     const item=(await db.query<{value:Record<string,unknown>}>("insert into public.appointments(environment_id,title,starts_at,ends_at,timezone,frequency) values($1,'Série fictícia','2026-10-10T12:00Z','2026-10-10T12:30Z','UTC','weekly') returning to_jsonb(appointments) as value",[environment])).rows[0].value
@@ -29,6 +48,16 @@ describe('Calendar SQL real com Auth fictício — não é Supabase remoto',()=>
   }
   it('ocorrência é transacional, tem proprietário derivado e CAS independente',async()=>{const {payload,value}=await linkedSeries();await sync('exception_remote',{...payload,value:{...value,user_id:b}});await asUser(a);expect((await db.query<{user_id:string}>('select user_id from public.appointment_exceptions')).rows).toEqual([{user_id:a}]);await expect(sync('exception_remote',{...payload,value:{...value,title:'Desatualizado'}})).rejects.toThrow(/Ocorrência mudou/);await asUser(a);expect((await db.query<{title:string}>('select title from public.appointment_exceptions')).rows[0].title).toBe(value.title)})
   it('ocorrência inválida não deixa exceção nem vínculo parcial',async()=>{const {payload,value}=await linkedSeries();await expect(sync('exception_remote',{...payload,value:{...value,ends_at:value.starts_at}})).rejects.toThrow();await db.exec('reset role');expect((await db.query('select * from private.calendar_exception_links')).rows).toEqual([]);expect((await db.query('select * from public.appointment_exceptions')).rows).toEqual([])})
+  it('conversão confirmada limpa vínculo antigo sem autorizar nova exceção em item único',async()=>{
+    const {item,payload,value,state}=await linkedSeries();await sync('exception_remote',{...payload,value});await sync('fail',{lease:state.lease});await asUser(a)
+    const exceptions=(await db.query<{value:unknown}>('select to_jsonb(e) as value from public.appointment_exceptions e')).rows.map(row=>row.value)
+    await db.query('select public.replace_appointment_series($1,$2::jsonb,$3::timestamptz,$4::jsonb)',[item.id,JSON.stringify({...item,frequency:'none',repeat_interval:1,repeat_until:null}),item.updated_at,JSON.stringify(exceptions)])
+    const snapshot=await sync('begin') as unknown as SyncState
+    const next={...payload,lease:snapshot.lease,expected_parent_updated_at:snapshot.appointments[0].updated_at,expected_updated_at:null,expected_deleted_at:snapshot.exception_resets![0].deleted_at}
+    await sync('exception_check',next);await sync('exception_forget',next)
+    await expect(sync('exception_remote',{...next,value})).rejects.toThrow(/Série indisponível/)
+    await db.exec('reset role');expect((await db.query('select * from private.calendar_exception_links')).rows).toEqual([])
+  })
   it('cancelamento remoto sem ETag não inventa versão e reset confirmado fica no journal',async()=>{const {item,payload,value,state}=await linkedSeries();await sync('exception_remote',{...payload,value:{...value,cancelled:true},etag:'',google_cancelled:true});await db.exec('reset role');expect((await db.query<{etag:string|null}>('select etag from private.calendar_exception_links')).rows[0].etag).toBeNull();await sync('fail',{lease:state.lease});await asUser(a);const exceptions=(await db.query<{value:unknown}>('select to_jsonb(e) as value from public.appointment_exceptions e')).rows.map(row=>row.value);await db.query('select public.replace_appointment_series($1,$2::jsonb,$3::timestamptz,$4::jsonb)',[item.id,JSON.stringify({...item,title:'Confirmada'}),item.updated_at,JSON.stringify(exceptions)]);const next=await sync('begin');expect(next.exception_resets).toHaveLength(1);expect(next.exceptions).toEqual([])})
   it.each([false,true])('restaura série excluída mantendo exceção no SQL; interrupção antes do vínculo: %s',async interrupted=>{
     const {item,payload,value,state}=await linkedSeries()

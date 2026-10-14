@@ -27,7 +27,7 @@ function originalValue(parent:CalendarAppointment,original:string){
 }
 export async function synchronizeExceptions(options:{
   parents:Map<string,CalendarAppointment>;parentLinks:Map<string,string>;exceptions:CalendarException[];links:ExceptionLink[];resets:ExceptionReset[];events:GoogleEvent[];
-  google:ReturnType<typeof googleCalendarClient>;calendar:string;rpc:ExceptionRpc;deadline:()=>void;
+  google:ReturnType<typeof googleCalendarClient>;calendar:string;rpc:ExceptionRpc;deadline:()=>void;resetVersions?:Map<string,string>;
 }){
   const {parents,parentLinks,google,rpc,deadline}=options
   const local=new Map(options.exceptions.map(item=>[exceptionKey(item.appointment_id,item.original_start),item]))
@@ -48,8 +48,9 @@ export async function synchronizeExceptions(options:{
     deadline()
     const item=local.get(address),link=links.get(address),reset=resets.get(address)
     const [parentId,original]=address.split('|'),parent=parents.get(parentId),googleParent=parentLinks.get(parentId)
-    if(!parent||!googleParent||parent.frequency==='none')continue
+    if(!parent||!googleParent||(parent.frequency==='none'&&(item||!reset)))continue
     const payload={appointment_id:parentId,original_start:original,expected_parent_updated_at:parent.updated_at,expected_updated_at:item?.updated_at??null,expected_deleted_at:reset?.deleted_at??null}
+    const resetVersion=options.resetVersions?.get(parentId)??reset?.deleted_at
     let event=remote.get(address)
     const explicitRemote=!!event
     if(!event&&link){
@@ -62,17 +63,17 @@ export async function synchronizeExceptions(options:{
     }
     if(event.recurringEventId&&event.recurringEventId!==googleParent)throw new Error('Ocorrência pertence a outra série; dados preservados.')
     if(event.originalStartTime?.dateTime&&!equalTime(event.originalStartTime.dateTime,original))throw new Error('Início original mudou; dados preservados.')
-    if(!item&&reset&&!isSeriesOccurrence(parent,original)){
+    if(!item&&reset&&(parent.frequency==='none'||!isSeriesOccurrence(parent,original))){
       // A confirmação da nova regra descartou esta ocorrência. Não restaurar
       // uma exceção fora dela; conferir CAS e versão antes de remover no Google.
       if(event.status!=='cancelled'){
-        if(newestSide(reset.deleted_at,event.updated)!=='local')throw new Error('Ocorrência Google mudou após a confirmação; dados preservados.')
+        if(newestSide(resetVersion!,event.updated)!=='local')throw new Error('Ocorrência Google mudou após a confirmação; dados preservados.')
         await rpc('exception_check',payload)
         await google.remove(options.calendar,event.id,event.etag,true);exported++
       }
       await rpc('exception_forget',payload);continue
     }
-    const localChanged=!link||!equalTime(item?.updated_at,link.local_updated_at)||!equalTime(reset?.deleted_at,link.local_deleted_at)
+    const localChanged=(!item&&!!reset&&options.resetVersions?.has(parentId))||!link||!equalTime(item?.updated_at,link.local_updated_at)||!equalTime(reset?.deleted_at,link.local_deleted_at)
     const remoteChanged=!link||(event.etag||null)!==link.etag
     if(!localChanged&&!remoteChanged)continue
     let side:'local'|'remote'
@@ -80,7 +81,7 @@ export async function synchronizeExceptions(options:{
     else if(!link&&!explicitRemote)side='local' // Instância gerada da série, sem edição individual remota.
     else if(!remoteChanged)side='local'
     else if(!localChanged)side='remote'
-    else side=newestSide(item?.updated_at??reset!.deleted_at,event.updated)
+    else side=newestSide(item?.updated_at??resetVersion!,event.updated)
     if(side==='remote'){
       const value=event.status==='cancelled'?{...originalValue(parent,original),cancelled:true}:{title:event.summary?.trim(),starts_at:event.start?.dateTime,ends_at:event.end?.dateTime,timezone:event.start?.timeZone??parent.timezone,cancelled:false}
       if(!value.title||!value.starts_at||!value.ends_at||Date.parse(value.ends_at)<=Date.parse(value.starts_at))throw new Error('Ocorrência Google incompleta; dados preservados.')

@@ -46,6 +46,8 @@ Carregamento da agenda é paginado em lotes de 200; a configuração de limite d
 
 Chave de cifragem permanece somente nos secrets do servidor, separada do banco. Credenciais e estados privados não são expostos pela Data API. Contas de diferentes usuários têm RLS, mesmo que conectem a mesma identidade Google. Desconectar remove somente metadados/tokens locais após confirmação; não apaga eventos nem revoga permissões no Google.
 
+Atualização de 14/10: remapeamento de início/fuso/conversão implementado descartando instâncias antigas confirmadas antes do PATCH; versão Google posterior preserva pendências. Fila administrativa `calendar_next_sync` e ação `scheduled` em `calendar-manage` implementadas para cron independente do navegador; instalação/ativação externas descritas em `CALENDAR_AGENDADO.md`, ainda pendentes de configuração segura no Vault. A fila deriva dono/associação do banco, usa os mesmos controles de convite/lease/CAS/ETag e não está disponível ao usuário comum. Verificações atuais e aceite remoto em STATUS substituem limitações históricas acima conforme forem concluídos.
+
 ## Dois conceitos de ambiente
 
 Ambiente pessoal é contexto organizacional com nome e âncoras. Ambiente de execução é desenvolvimento/testes/produção com projetos, dados, chaves, URLs e OAuth distintos. `VITE_APP_ENV` é apenas rótulo de build, não isolamento de recursos.

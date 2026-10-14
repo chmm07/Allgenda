@@ -2,6 +2,7 @@ import {createClient} from 'npm:@supabase/supabase-js@2.117.3'
 import {calendarAccessToken,CalendarAuthorizationError} from '../_shared/calendar-tokens.ts'
 import {googleCalendarClient,CalendarApiError} from '../_shared/google-calendar.ts'
 import {synchronizeCalendar,type SyncState} from '../_shared/calendar-sync.ts'
+import {authenticateCalendarJob,executeCalendarJob,runCalendarJob,type CalendarJob} from '../_shared/calendar-job.ts'
 Deno.serve(async(request:Request)=>{
   const origin=request.headers.get('Origin')??'',allowed=(Deno.env.get('APP_ORIGINS')??'').split(',').map(value=>value.trim())
   const headers:Record<string,string>={'Content-Type':'application/json','Vary':'Origin'}
@@ -17,6 +18,38 @@ Deno.serve(async(request:Request)=>{
   let active:{owner:string;binding:string;lease:string}|undefined
   const admin=createClient(url,adminKey,{auth:{persistSession:false,autoRefreshToken:false}})
   try{
+    // Mesmo gateway JWT; somente a chave administrativa do runtime autoriza
+    // a fila. JWT de usuário/anon nunca dá acesso ao processamento de terceiros.
+    if(await authenticateCalendarJob(authorization,adminKey)){
+      if(origin)return reply(403,{error:'Execução de servidor necessária.'})
+      const text=await request.text()
+      if(text.length>128)return reply(400,{error:'Solicitação inválida.'})
+      const body=JSON.parse(text)
+      if(body.action!=='scheduled'||Object.keys(body).length!==1)return reply(400,{error:'Solicitação inválida.'})
+      const result=await runCalendarJob(async()=>{
+        const {data,error}=await admin.rpc('calendar_next_sync')
+        if(error)throw new Error('Fila indisponível')
+        return data as CalendarJob|null
+      },async(job)=>{
+        const rpc=async(operation:string,payload:Record<string,unknown>)=>{
+          const {data,error}=await admin.rpc('calendar_sync',{owner_id:job.user_id,target_binding:job.id,operation,payload})
+          if(error)throw new Error('Estado local mudou')
+          return data
+        }
+        await executeCalendarJob(rpc,async(state,transition)=>{
+          const {data:ciphertext,error}=await admin.rpc('calendar_credentials',{owner_id:job.user_id,target_account:job.account_id})
+          if(error||typeof ciphertext!=='string')throw new Error('Credencial indisponível')
+          const token=await calendarAccessToken({ciphertext,encryptionKey,clientId,clientSecret,save:async(previous,next)=>{
+            const {error}=await admin.rpc('calendar_credentials',{owner_id:job.user_id,target_account:job.account_id,previous_cipher:previous,next_cipher:next})
+            if(error)throw new Error('Renovação não persistida')
+          }})
+          const google=googleCalendarClient(token)
+          if(!(await google.calendars()).some(calendar=>calendar.id===job.calendar_id))throw new Error('Calendário sem permissão')
+          return await synchronizeCalendar(state as SyncState,google,transition)
+        })
+      })
+      return reply(result.failed?503:200,result)
+    }
     const caller=createClient(url,publicKey,{global:{headers:{Authorization:authorization}},auth:{persistSession:false,autoRefreshToken:false}})
     const {data:{user},error}=await caller.auth.getUser(authorization.slice(7))
     if(error||!user)return reply(401,{error:'Sessão inválida.'})

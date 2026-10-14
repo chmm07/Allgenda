@@ -2,6 +2,8 @@
 
 ## Aprovadas pelo usuário
 
+- **14/10/2026:** consolidação específica da experiência no celular adiada para depois do primeiro MVP. Usuário pediu implementar remapeamento Calendar ao mudar início/fuso/converter série e sincronização com aplicação fechada. Design continua última etapa antes da publicação. Testes externos dispensados no diálogo permanecem sem alegação de aprovação; verificações de novas alterações continuam necessárias.
+
 - **11/10/2026:** usuário delegou a escolha do substituto do Groq e autorizou prosseguir com Cloudflare Workers AI. Manter plano gratuito, interpretação no servidor, validação própria, prévia e confirmação. Modelo inicial reversível: `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, documentado com JSON Mode; qualidade em português, limites e inferência real ainda exigem aceite. Não alternar automaticamente entre provedores/modelos.
 
 - **Prioridade atualizada em 10/10/2026:** o usuário não aceitou o visual atual. Prosseguir com funcionalidades, integrações e testes; deixar refinamento da interface e aplicação final do design system para a última etapa, com foco exclusivo antes da publicação de produção. Deploys funcionais de testes continuam autorizados. Não tratar a entrega visual anterior como design aprovado/concluído.
