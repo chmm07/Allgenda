@@ -90,11 +90,13 @@ describe('Calendar com transporte fictício — não é aceite Google',()=>{
     expect(rpc.mock.calls.filter(call=>call[0]==='remote')).toHaveLength(1)
     expect(rpc.mock.calls.at(-1)?.[0]).toBe('finish')
   })
-  it('série convertida em item único mantém pendência sem apagar vínculos individuais',async()=>{
+  it('série excluída convertida em item único limpa vínculos confirmados antes de recriar',async()=>{
     const {state,run,google,rpc}=deletedSeries(false,true)
     state.appointments[0]={...state.appointments[0],frequency:'none'}
-    await expect(run()).rejects.toThrow(/remapeamento/)
-    expect(rpc).not.toHaveBeenCalled();expect(google.create).not.toHaveBeenCalled()
+    await run()
+    expect(rpc.mock.calls[0][0]).toBe('exception_forget')
+    expect(google.create.mock.calls[0][2]).toMatchObject({recurrence:[]})
+    expect(rpc.mock.calls.at(-1)?.[0]).toBe('finish')
   })
   it('restaura exceção antes de editar título da série e não reimporta delta antigo',async()=>{
     const original='2026-10-17T12:00:00Z',changed={...local,title:'Novo título',updated_at:'2026-10-10T14:00Z'}
@@ -148,11 +150,30 @@ describe('Calendar com transporte fictício — não é aceite Google',()=>{
     expect(google.remove).not.toHaveBeenCalled();expect(google.update).not.toHaveBeenCalled()
     expect(rpc).not.toHaveBeenCalledWith('finish',expect.anything())
   })
-  it('mudança de início com exceção removida preserva Google até verificar remapeamento',async()=>{
-    const original='2026-10-17T12:00:00Z'
-    const {run,google,rpc}=setup({appointments:[{...local,starts_at:'2026-10-10T13:00Z',ends_at:'2026-10-10T13:30Z',updated_at:'2026-10-10T14:00Z'}],links:[{appointment_id:local.id,google_id:'google',etag:'new',local_updated_at:local.updated_at}],exception_links:[{appointment_id:local.id,original_start:original,google_id:'child',etag:'child-old',local_updated_at:local.updated_at,local_deleted_at:null}],exception_resets:[{appointment_id:local.id,original_start:original,deleted_at:'2026-10-10T14:00Z'}]})
-    await expect(run()).rejects.toThrow(/remapeamento/)
-    expect(google.update).not.toHaveBeenCalled();expect(rpc).not.toHaveBeenCalled()
+  it.each(['start','timezone','single'])('remapeia %s descartando instância antiga antes do pai',async mode=>{
+    const {state,run,google,rpc}=changedRule('2026-10-17T12:00:00Z')
+    const item=state.appointments[0]
+    if(mode==='start'){item.starts_at='2026-10-10T13:00Z';item.ends_at='2026-10-10T13:30Z'}
+    if(mode==='timezone')item.timezone='America/New_York'
+    if(mode==='single'){item.frequency='none';item.repeat_until=null}
+    await run()
+    expect(google.remove).toHaveBeenCalledExactlyOnceWith('primary','child','child-old',true)
+    expect(google.update.mock.calls.map(call=>call[1])).toEqual(['google'])
+    expect(google.update.mock.calls[0][2]).toEqual(toGoogle(item,'binding'))
+    expect(rpc).not.toHaveBeenCalledWith('exception_remote',expect.anything())
+    expect(rpc.mock.calls.at(-1)?.[0]).toBe('finish')
+  })
+  it('nova edição de série também descarta override já restaurado em confirmação anterior',async()=>{
+    const {state,run,google,rpc}=changedRule('2026-10-17T12:00:00Z')
+    state.appointments[0].frequency='none'
+    state.exception_resets![0].deleted_at='2026-10-10T12:00Z'
+    state.exception_links![0].local_updated_at=null
+    state.exception_links![0].local_deleted_at='2026-10-10T12:00Z'
+    await run()
+    expect(google.remove).toHaveBeenCalledExactlyOnceWith('primary','child','child-old',true)
+    expect(rpc.mock.calls[0][1]).toMatchObject({expected_deleted_at:'2026-10-10T12:00Z',expected_parent_updated_at:'2026-10-10T14:00Z'})
+    expect(google.update.mock.calls[0][2]).toMatchObject({recurrence:[]})
+    expect(rpc).not.toHaveBeenCalledWith('exception_remote',expect.anything())
   })
 })
 describe('renovação cifrada com OAuth fictício',()=>{

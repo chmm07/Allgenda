@@ -6,7 +6,7 @@ const helpers={
   'chat-interpret':['proposal','workers-ai'],
   'calendar-connect':['calendar-crypto'],
   'calendar-callback':['calendar-crypto'],
-  'calendar-manage':['calendar-crypto','calendar-tokens','google-calendar','calendar-codec','calendar-exceptions','calendar-sync'],
+  'calendar-manage':['calendar-crypto','calendar-tokens','google-calendar','calendar-codec','calendar-exceptions','calendar-sync','calendar-job'],
 }
 await mkdir('.local/edge-editor',{recursive:true})
 for(const [name,files] of Object.entries(helpers)){

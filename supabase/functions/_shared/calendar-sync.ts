@@ -58,7 +58,7 @@ export async function synchronizeCalendar(state:SyncState,google:ReturnType<type
   }
   // Restaurar exceções antes do PATCH da série evita tratar alterações causadas
   // pelo próprio PATCH como edições Google posteriores à confirmação local.
-  const pendingResets=(state.exception_resets??[]).filter(reset=>!state.exceptions.some(item=>item.appointment_id===reset.appointment_id&&sameTime(item.original_start,reset.original_start))&&(state.exception_links??[]).some(link=>link.appointment_id===reset.appointment_id&&sameTime(link.original_start,reset.original_start)&&Date.parse(link.local_deleted_at??'')!==Date.parse(reset.deleted_at)))
+  const pendingResets=(state.exception_resets??[]).filter(reset=>!state.exceptions.some(item=>item.appointment_id===reset.appointment_id&&sameTime(item.original_start,reset.original_start))&&(state.exception_links??[]).some(link=>link.appointment_id===reset.appointment_id&&sameTime(link.original_start,reset.original_start)&&(Date.parse(link.local_deleted_at??'')!==Date.parse(reset.deleted_at)||state.links.some(parent=>parent.appointment_id===reset.appointment_id&&!sameTime(parent.local_updated_at,parents.get(reset.appointment_id)?.updated_at??'')))))
   const resetParents=new Map<string,CalendarAppointment>()
   for(const reset of pendingResets){
     const local=parents.get(reset.appointment_id),parentId=parentLinks.get(reset.appointment_id)
@@ -68,13 +68,12 @@ export async function synchronizeCalendar(state:SyncState,google:ReturnType<type
     // o conflito da série, sem tentar interpretar o recurso mínimo cancelado.
     if(event.status==='cancelled')continue
     const original=fromGoogle(event,state.binding.environment_id!)
-    if(!sameTime(original.starts_at,local.starts_at)||original.timezone!==local.timezone||local.frequency==='none')throw new Error('Mudança de início/fuso ou conversão em item único com exceções exige verificar o remapeamento Google; dados preservados.')
-    const changedRule=original.frequency!==local.frequency||original.repeat_interval!==local.repeat_interval||original.repeat_until!==local.repeat_until
+    const changedRule=!sameTime(original.starts_at,local.starts_at)||original.timezone!==local.timezone||original.frequency!==local.frequency||original.repeat_interval!==local.repeat_interval||original.repeat_until!==local.repeat_until
     if(changedRule&&newestSide(local.updated_at,event.updated)!=='local')throw new Error('A regra Google mudou após a confirmação local; dados preservados.')
     resetParents.set(local.id,local)
   }
   if(resetParents.size){
-    const restored=await synchronizeExceptions({parents:resetParents,parentLinks,exceptions:[],links:(state.exception_links??[]).filter(link=>pendingResets.some(reset=>reset.appointment_id===link.appointment_id&&sameTime(reset.original_start,link.original_start))),resets:pendingResets,events:page.events,google,calendar:state.binding.calendar_id,rpc:exceptionTransition,deadline})
+    const restored=await synchronizeExceptions({parents:resetParents,parentLinks,exceptions:[],links:(state.exception_links??[]).filter(link=>pendingResets.some(reset=>reset.appointment_id===link.appointment_id&&sameTime(reset.original_start,link.original_start))),resets:pendingResets,resetVersions:new Map(Array.from(resetParents,([id,item])=>[id,item.updated_at])),events:page.events,google,calendar:state.binding.calendar_id,rpc:exceptionTransition,deadline})
     imported+=restored.imported;exported+=restored.exported
   }
   for(const link of state.links){
@@ -102,7 +101,6 @@ export async function synchronizeCalendar(state:SyncState,google:ReturnType<type
       if(localChanged){
         if(newestSide(local.updated_at,event.updated)==='local'){
           const oldLinks=(state.exception_links??[]).filter(item=>item.appointment_id===local.id)
-          if(oldLinks.length&&local.frequency==='none')throw new Error('Mudança de regra com exceções exige verificar o remapeamento Google; dados preservados.')
           // Esquecer somente os vínculos privados antes de trocar a série.
           // Exceções/reset locais sobrevivem e serão enviados às novas instâncias.
           // Se houver falha parcial, o vínculo da série antiga continua no banco:

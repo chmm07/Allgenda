@@ -19,6 +19,8 @@ Não invente funcionalidades, dados ou decisões ausentes.
 - Planos gratuitos; não contratar serviços pagos sem aprovação.
 
 ## DESIGN
+
+Escopo atualizado em 14/10/2026: consolidação específica da experiência no celular fica fora do primeiro MVP, para etapa posterior. Usuário pediu concluir remapeamento Calendar e sincronização com aplicação fechada antes de retomar design. Testes externos anteriormente dispensados não devem ser apresentados como aprovados; testes pertinentes às novas alterações continuam necessários.
 Por orientação mais recente de 10/10/2026, concluir primeiro funcionalidades, integrações e testes. O visual atual não foi aceito pelo usuário. Concentrar o refinamento visual e a aplicação final do design system na última etapa, antes da publicação de produção; não publicar produção antes dessa etapa e de seu aceite. Publicações funcionais no ambiente de testes continuam autorizadas.
 
 Use o design system aprovado: P3 e versão original.
