@@ -11,6 +11,13 @@ describe('worker Calendar — serviço fictício, não é cron remoto',()=>{
   it('fila vazia não solicita credenciais nem executa sincronização',async()=>{
     const sync=vi.fn();expect(await runCalendarJob(async()=>null,sync)).toEqual({processed:0,failed:0});expect(sync).not.toHaveBeenCalled()
   })
+  it('credencial distinta do runtime exige confirmação real de role no servidor',async()=>{
+    const verified=vi.fn().mockResolvedValue(true),denied=vi.fn().mockResolvedValue(false),failed=vi.fn().mockRejectedValue(new Error('Rede'))
+    expect(await authenticateCalendarJob('Bearer outra-chave-ficticia','runtime-ficticio',verified)).toBe(true)
+    expect(verified).toHaveBeenCalledOnce()
+    expect(await authenticateCalendarJob('Bearer user-ficticio','runtime-ficticio',denied)).toBe(false)
+    expect(await authenticateCalendarJob('Bearer role-service-ficticio','runtime-ficticio',failed)).toBe(false)
+  })
   it('processa somente a associação retornada no servidor',async()=>{
     const sync=vi.fn();expect(await runCalendarJob(async()=>job,sync)).toEqual({processed:1,failed:0});expect(sync).toHaveBeenCalledExactlyOnceWith(job)
   })

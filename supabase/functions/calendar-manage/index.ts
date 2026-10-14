@@ -18,9 +18,13 @@ Deno.serve(async(request:Request)=>{
   let active:{owner:string;binding:string;lease:string}|undefined
   const admin=createClient(url,adminKey,{auth:{persistSession:false,autoRefreshToken:false}})
   try{
-    // Mesmo gateway JWT; somente a chave administrativa do runtime autoriza
-    // a fila. JWT de usuário/anon nunca dá acesso ao processamento de terceiros.
-    if(await authenticateCalendarJob(authorization,adminKey)){
+    // Mesmo gateway JWT; somente credenciais service_role do próprio projeto
+    // autorizam a fila. JWT de usuário/anon não processa dados de terceiros.
+    if(await authenticateCalendarJob(authorization,adminKey,origin?undefined:async()=>{
+      const verifier=createClient(url,publicKey,{global:{headers:{Authorization:authorization}},auth:{persistSession:false,autoRefreshToken:false}})
+      const {data,error}=await verifier.rpc('calendar_job_access')
+      return !error&&data===true
+    })){
       if(origin)return reply(403,{error:'Execução de servidor necessária.'})
       const text=await request.text()
       if(text.length>128)return reply(400,{error:'Solicitação inválida.'})

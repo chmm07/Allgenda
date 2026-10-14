@@ -21,7 +21,7 @@ begin
   if project_url!~'^https://[a-z0-9]+[.]supabase[.]co$' then raise exception 'URL de projeto inválida'; end if;
   select net.http_post(
     url:=project_url||'/functions/v1/calendar-manage',
-    headers:=jsonb_build_object('Content-Type','application/json','Authorization','Bearer '||service_key),
+    headers:=jsonb_build_object('Content-Type','application/json','Authorization','Bearer '||service_key,'apikey',service_key),
     body:='{"action":"scheduled"}'::jsonb,
     timeout_milliseconds:=100000
   ) into request_id;

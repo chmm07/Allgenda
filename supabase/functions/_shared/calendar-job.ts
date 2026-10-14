@@ -8,12 +8,16 @@ export async function runCalendarJob(next:()=>Promise<CalendarJob|null>,sync:(jo
   try{await sync(job);return {processed:1,failed:0}}
   catch{return {processed:0,failed:1}}
 }
-export async function authenticateCalendarJob(authorization:string,adminKey:string){
+export async function authenticateCalendarJob(authorization:string,adminKey:string,verifyServiceRole?:()=>Promise<boolean>){
   if(!authorization.startsWith('Bearer '))return false
   const digest=async(value:string)=>new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))
   const [actual,expected]=await Promise.all([digest(authorization.slice(7)),digest(adminKey)])
   let difference=0;for(let index=0;index<expected.length;index++)difference|=actual[index]^expected[index]
-  return difference===0
+  if(difference===0)return true
+  // Chaves legacy válidas emitidas em momentos diferentes podem divergir do
+  // runtime. Validar assinatura/projeto/grant no PostgREST, nunca só decodificar JWT.
+  if(!verifyServiceRole)return false
+  try{return await verifyServiceRole()}catch{return false}
 }
 export async function executeCalendarJob(rpc:JobRpc,run:(state:unknown,transition:JobRpc)=>Promise<unknown>){
   const state=await rpc('begin',{}) as {lease:string}

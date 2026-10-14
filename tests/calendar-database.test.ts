@@ -12,13 +12,19 @@ async function sync(operation:string,payload:Record<string,unknown>={}){await db
 beforeAll(async()=>{
   db=new PGlite()
   await db.exec(`create role anon;create role authenticated;create role supabase_auth_admin;create role service_role;create schema auth;grant usage on schema public,auth to anon,authenticated;create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);create table auth.identities(user_id uuid,provider text);create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;`)
-  for(const file of ['202610090001_initial.sql','202610090002_agenda.sql','202610090003_chat.sql','202610090004_calendar_accounts.sql','202610100005_series_edit.sql','202610100006_calendar_selection.sql','202610100007_calendar_sync.sql','202610140008_calendar_jobs.sql'])await db.exec(await readFile(new URL(`../supabase/migrations/${file}`,import.meta.url),'utf8'))
+  for(const file of ['202610090001_initial.sql','202610090002_agenda.sql','202610090003_chat.sql','202610090004_calendar_accounts.sql','202610100005_series_edit.sql','202610100006_calendar_selection.sql','202610100007_calendar_sync.sql','202610140008_calendar_jobs.sql','202610140009_calendar_job_auth.sql'])await db.exec(await readFile(new URL(`../supabase/migrations/${file}`,import.meta.url),'utf8'))
   await db.query("insert into auth.users values($1,'a@example.test',now()),($2,'b@example.test',now());",[a,b]);await db.query("insert into auth.identities values($1,'google'),($2,'google')",[a,b]);await db.exec("insert into private.invited_users(slot,email) values(1,'a@example.test'),(2,'b@example.test')")
 })
 beforeEach(async()=>{await db.exec('reset role;truncate public.environments cascade;truncate public.google_accounts cascade;truncate private.calendar_tombstones;');await asUser(a);environment=(await db.query<{id:string}>("insert into public.environments(name,anchor_words) values('Fictício',array['um','dois','três']) returning id")).rows[0].id;await db.exec('reset role;set role service_role;');account=(await db.query<{id:string}>("select public.calendar_account_store($1,'subject-test','calendar@example.test','cipher-ficticio') as id",[a])).rows[0].id;await asUser(a);binding=await configure()})
 afterAll(async()=>{await db?.close()})
 describe('Calendar SQL real com Auth fictício — não é Supabase remoto',()=>{
   async function nextJob(){await db.exec('reset role;set role service_role;');return (await db.query<{value:{id:string}|null}>('select public.calendar_next_sync() as value')).rows[0].value}
+  it('prova administrativa é invoker e não concede acesso a JWT de usuário ou anon',async()=>{
+    await expect(db.query('select public.calendar_job_access()')).rejects.toThrow(/permission denied/)
+    await db.exec('reset role;set role anon;');await expect(db.query('select public.calendar_job_access()')).rejects.toThrow(/permission denied/)
+    await db.exec('reset role;set role service_role;');expect((await db.query<{value:boolean}>('select public.calendar_job_access() as value')).rows).toEqual([{value:true}])
+    await db.exec('reset role;');expect((await db.query<{value:boolean}>('select public.calendar_job_access() as value')).rows).toEqual([{value:false}])
+  })
   it('fila administrativa não é acessível ao usuário e nunca expõe last_attempted_at',async()=>{
     await expect(db.query('select public.calendar_next_sync()')).rejects.toThrow(/permission denied/)
     await expect(db.query('select last_attempted_at from public.calendar_bindings')).rejects.toThrow(/permission denied/)
